@@ -1,39 +1,85 @@
-/Library/
-
-/.Trash/
-
-# dependencies
+# -----------------------
+# Node & Dependencies
+# -----------------------
 node_modules/
+package-lock.json
+.yarn/
+.pnpm-debug.log
 
-# Expo
+# -----------------------
+# Expo / EAS
+# -----------------------
 .expo/
+.expo-shared/
 dist/
 web-build/
-expo-env.d.ts
+*.tar.gz
+*.apk
+*.aab
 
-# Native
-.kotlin/
+# EAS Build cache & metadata
+build/
+*.buildlog
+
+# -----------------------
+# Environment
+# -----------------------
+.env
+.env.*
+
+# -----------------------
+# TypeScript
+# -----------------------
+*.tsbuildinfo
+
+# -----------------------
+# macOS
+# -----------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+.Trashes
+__MACOSX/
+
+# -----------------------
+# IDEs
+# -----------------------
+.vscode/
+.idea/
+*.swp
+
+# -----------------------
+# Git backup conflicts
+# -----------------------
 *.orig.*
+*.rej
+*~ 
+
+# -----------------------
+# Android/iOS native
+# -----------------------
+android/
+ios/
+*.keystore
 *.jks
 *.p8
-*.p12
 *.key
+*.pem
 *.mobileprovision
 
-# Metro
-.metro-health-check*
+# -----------------------
+# Supabase (if CLI used)
+# -----------------------
+.supabase/
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+# -----------------------
+# Tests and coverage
+# -----------------------
+coverage/
+jest-*
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
+# -----------------------
+# Optional: clean only project subdir if nested
+# -----------------------
+/Library/
+/.Trash/
