@@ -46,7 +46,7 @@ export default function CalendarScreen() {
     const shiftStats = useMemo(() => computeShiftStats(calendarMap, selectedMonth), [calendarMap, selectedMonth]);
     const [isMassiveEditMode, setIsMassiveEditMode] = useState(false);
     const [draftShiftMap, setDraftShiftMap] = useState<Record<string, CalendarEntry>>({});
-
+    const [showLoader, setShowLoader] = useState(true);
 
     const selectedDayData = useMemo(() => {
         if (Object.keys(calendarMap).length === 0) return null;
@@ -61,14 +61,15 @@ export default function CalendarScreen() {
 
         const loadSchedules = async () => {
             try {
+                const token = await getToken();
                 const data = await getMonthlySchedules(
+                    token,
                     isWorker.worker_id,
                     selectedMonth.getFullYear(),
                     selectedMonth.getMonth() + 1
                 );
                 setSchedules(data);
 
-                const token = await getToken();
                 const prefs = await getMySwapPreferences(isWorker.worker_id);
                 const sws = await getAcceptedSwaps(token);
                 const shift = await getMyShifts(token);
@@ -92,7 +93,7 @@ export default function CalendarScreen() {
         loadSchedules();
     }, [isWorker, selectedMonth]);
 
-    if (loading || !ready) return <AppLoader />;
+    if (showLoader || loading || !ready) return <AppLoader onFinish={() => setShowLoader(false)} message='Cargando calendario...' />;
 
     async function toggleShift(dateStr: string) {
         const entry = calendarMap[dateStr] || {};

@@ -1,6 +1,6 @@
 // src/services/swapService.js
 import axios from 'axios';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/supabase';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.92:4000';
 
@@ -105,13 +105,13 @@ export const getSwapNotifications = async (token, workerId, myShiftIds) => {
       return { incomingCount: 0, updatesCount: 0 };
     }
 
-    const { data: incoming, error: errorIncoming } = await supabase
+    const { data: incoming, error: errorIncoming } = await db
       .from('swaps')
       .select('swap_id')
       .eq('status', 'proposed')
       .in('shift_id', myShiftIds);
 
-    const { data: updates, error: errorUpdates } = await supabase
+    const { data: updates, error: errorUpdates } = await db
       .from('swaps')
       .select('swap_id, status')
       .eq('requester_id', workerId)

@@ -46,7 +46,7 @@ export default function OnboardingSuccessScreen() {
     completeAndRedirect();
   }, []);
 
-  if (loading) return <AppLoader text="Cargando tu calendario..." />;
+  if (loading) return <AppLoader/>;
 
   if (failed) {
     return (

@@ -87,7 +87,7 @@ export default function CreateShiftScreen() {
     }, [isWorker]);
 
 
-    if (loadingWorker) return <AppLoader />;
+    if (loadingWorker) return <AppLoader onFinish={() => loadingWorker(false)} message='Cargando trabajador...' />;
 
     return (
         <SimpleLayout title="Publicar turno" showBackButton onBack={() => navigation.goBack()}>

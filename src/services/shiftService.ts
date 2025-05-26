@@ -99,7 +99,7 @@ export const getShiftPreferencesByShiftId = async (shiftId, token) => {
 };
 
 // Actualizar preferencias de un turno
-export const updateShiftPreferences = async (shiftId, preferences, token) => {
+export const updateShiftPreferences = async (shiftId: string, preferences: string[], token: string) => {
   try {
     const response = await axios.put(`${API_URL}/api/shifts/${shiftId}/preferences`, { preferences }, authHeaders(token));
     return response.data.data;
@@ -108,11 +108,10 @@ export const updateShiftPreferences = async (shiftId, preferences, token) => {
   }
 };
 
-export const getMyAvailableShifts = async (workerId) => {
+export const getMyAvailableShifts = async (workerId: string) => {
   try {
     const now = new Date();
-
-    const allShifts = await getShiftsForMonth(workerId);
+    const allShifts = await getShiftsForMonth(token, workerId);
 
     const ownShifts = (allShifts || [])
       .filter(s => new Date(s.date) >= now && s.source === 'manual')

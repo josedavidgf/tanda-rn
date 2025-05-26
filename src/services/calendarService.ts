@@ -1,24 +1,35 @@
-import { supabase } from '../lib/supabase';
+import { getDbWithAuth } from '@/lib/supabase';
 import { endOfMonth, format } from 'date-fns';
 
-export async function getMonthlySchedules(workerId: string, year: number, month: number) {
+type MonthlySchedule = {
+  worker_id: string;
+  date: string;
+  shift_type: string;
+  source: 'manual' | 'swapped_out' | 'received_swap';
+};
+
+export async function getMonthlySchedules(token: string, workerId: string, year: number, month: number) {
+  const db = getDbWithAuth(token);
   const from = `${year}-${month.toString().padStart(2, '0')}-01`;
   const endDate = endOfMonth(new Date(year, month - 1));
   const to = format(endDate, 'yyyy-MM-dd');
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('monthly_schedules')
     .select('*')
     .eq('worker_id', workerId)
     .gte('date', from)
     .lte('date', to);
 
+
   if (error) throw error;
   return data;
 }
 
-export async function setShiftForDay(workerId: string, dateStr: string, shiftType: string) {
-  const { error } = await supabase
+export async function setShiftForDay(token: string, workerId: string, dateStr: string, shiftType: string) {
+  const db = getDbWithAuth(token);
+
+  const { error } = await db
     .from('monthly_schedules')
     .upsert(
       {
@@ -33,8 +44,10 @@ export async function setShiftForDay(workerId: string, dateStr: string, shiftTyp
   if (error) throw new Error(error.message);
 }
 
-export async function removeShiftForDay(workerId: string, dateStr: string) {
-  const { error } = await supabase
+export async function removeShiftForDay(token: string, workerId: string, dateStr: string) {
+  const db = getDbWithAuth(token);
+
+  const { error } = await db
     .from('monthly_schedules')
     .delete()
     .eq('worker_id', workerId)
@@ -44,9 +57,11 @@ export async function removeShiftForDay(workerId: string, dateStr: string) {
 }
 
 // Obtener turnos del mes para un worker
-export async function getShiftsForMonth(workerId) {
+export async function getShiftsForMonth(token: string, workerId: string) {
+  const db = getDbWithAuth(token);
+
   try {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('monthly_schedules')
       .select(`*,
             related_worker:related_worker_id (
@@ -68,9 +83,10 @@ export async function getShiftsForMonth(workerId) {
 }
 
 // Publicar un turno directamente en la tabla de shifts
-export async function publishShiftFromCalendar(workerId, shiftType, date) {
+export async function publishShiftFromCalendar(token: string, workerId: string, shiftType: string, date: string) {
   try {
-    const { data, error } = await supabase
+    const db = getDbWithAuth(token);
+    const { data, error } = await db
       .from('shifts')
       .insert([
         {
@@ -78,7 +94,7 @@ export async function publishShiftFromCalendar(workerId, shiftType, date) {
           shift_type: shiftType,
           date,
           status: 'published',
-          source: 'calendar',
+          source: 'manual',
         }
       ]);
 

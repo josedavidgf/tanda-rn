@@ -26,7 +26,7 @@ export default function ActivityListScreen() {
     fetchEvents();
   }, []);
 
-  if (loading) return <AppLoader />;
+  if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando actividad...' />;
 
   return (
     <SimpleLayout title="Tu actividad" showBackButton>

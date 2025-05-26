@@ -3,10 +3,15 @@ import React, { createContext, useContext, useState } from 'react';
 type OnboardingContextType = {
   accessCode?: string;
   hospitalId?: string;
+  specialityId?: string;
   workerTypeId?: string;
   hospitalName?: string;
   workerTypeName?: string;
-  setStepData: (data: Partial<OnboardingContextType>) => void;
+  name?: string;
+  surname?: string;
+  mobilePhone?: string;
+  prefix?: string;
+  setOnboardingData: (data: Partial<OnboardingContextType>) => void;
   resetOnboarding: () => void;
 };
 
@@ -15,7 +20,7 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 export const OnboardingProvider = ({ children }: { children: React.ReactNode }) => {
   const [data, setData] = useState<Partial<OnboardingContextType>>({});
 
-  const setStepData = (newData: Partial<OnboardingContextType>) => {
+  const setOnboardingData = (newData: Partial<OnboardingContextType>) => {
     setData((prev) => ({ ...prev, ...newData }));
   };
 
@@ -27,7 +32,7 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     <OnboardingContext.Provider
       value={{
         ...data,
-        setStepData,
+        setOnboardingData,
         resetOnboarding,
       }}
     >
@@ -36,10 +41,14 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
   );
 };
 
+
+
 export const useOnboardingContext = () => {
   const context = useContext(OnboardingContext);
+  console.log('[OnboardingContext] useContext', context);
   if (!context) {
-    throw new Error('useOnboardingContext debe usarse dentro de OnboardingProvider');
+    console.error('[OnboardingContext] fuera de Provider');
+    throw new Error('[OnboardingContext] debe usarse dentro de <OnboardingProvider>');
   }
   return context;
 };

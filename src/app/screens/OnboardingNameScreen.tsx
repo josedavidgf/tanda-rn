@@ -9,18 +9,22 @@ import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import { spacing } from '@/styles';
+import { useOnboardingContext } from '@/contexts/OnboardingContext';
+
 
 export default function OnboardingNameScreen() {
   const navigation = useNavigation();
   const { isWorker, getToken, setIsWorker } = useAuth();
   const { updateWorkerInfo, getFullWorkerProfile } = useUserApi();
   const { showError, showSuccess } = useToast();
+  const { setOnboardingData } = useOnboardingContext();
+
 
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useOnboardingGuard({ currentStep: 'OnboardingName' });
+  useOnboardingGuard('name');
 
   const capitalizeWords = (str: string) =>
     str
@@ -50,10 +54,12 @@ export default function OnboardingNameScreen() {
         token
       );
 
+
       const updated = await getFullWorkerProfile(token);
       setIsWorker(updated);
+      setOnboardingData({ name: formattedName, surname: formattedSurname }); // nuevo
       showSuccess('Información actualizada');
-      navigation.navigate('OnboardingPhone');
+      navigation.navigate('OnboardingPhone'); // 👈 usa param o contexto
     } catch (err: any) {
       console.error('❌ Error:', err.message);
       showError('Error guardando los datos.');
@@ -61,6 +67,7 @@ export default function OnboardingNameScreen() {
       setSaving(false);
     }
   };
+
 
   return (
     <SimpleLayout title="Tu nombre" showBackButton>

@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+type OnboardingStackParamList = {
+  OnboardingConfirm: {
+    hospitalId: string;
+    workerTypeId: string;
+    hospitalName: string;
+    workerTypeName: string;
+  };
+  // ...other routes if needed
+};
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/app/hooks/useToast';
 import { useAccessCodeApi } from '@/api/useAccessCodeApi';
@@ -23,17 +34,22 @@ export default function OnboardingCodeScreen() {
   const [code, setCode] = useState('');
   const [loadingForm, setLoadingForm] = useState(false);
 
+  const navigation = useNavigation<StackNavigationProp<OnboardingStackParamList>>();
+
+
   const { getToken, loading, isWorker } = useAuth();
   const { validateAccessCode } = useAccessCodeApi();
   const { getHospitals } = useHospitalApi();
   const { getWorkerTypes } = useWorkerApi();
-  const { setStepData } = useOnboardingContext();
+  const { setOnboardingData } = useOnboardingContext();
   const { showError } = useToast();
-  const navigation = useNavigation();
 
-  useOnboardingGuard({ currentStep: 'OnboardingCode' });
+  console.log('[ONBOARDING] OnboardingCodeScreen rendered');
 
-  if (loading) return <Loader text="Cargando paso de onboarding..." />;
+  useOnboardingGuard('code');
+
+  console.log('[ONBOARDING] OnboardingCodeScreen - isWorker:', isWorker);
+  if (loading) return <AppLoader onFinish={() => loading(false)} message='Cargando código...' />;
 
   const handleSubmit = async () => {
     try {
@@ -49,16 +65,29 @@ export default function OnboardingCodeScreen() {
       const token = await getToken();
       const hospitals = await getHospitals(token);
       const workerTypes = await getWorkerTypes(token);
-
+      console.log('[ONBOARDING] Validando código:', code);
       const hospital = hospitals.find(h => h.hospital_id === hospital_id);
       const workerType = workerTypes.find(w => w.worker_type_id === worker_type_id);
+      console.log('[ONBOARDING] Hospital encontrado:', hospital);
+      console.log('[ONBOARDING] WorkerType encontrado:', workerType);
+      if (!hospital || !workerType) {
+        showError('Hospital o tipo de trabajador no encontrado. Verifica el código e intenta de nuevo.');
+        return;
+      }
+      console.log('[ONBOARDING] Código validado correctamente:', code);
+      // Guardar datos del paso actual092
 
-      setStepData({
+      setOnboardingData({
         accessCode: code,
         hospitalId: hospital_id,
         workerTypeId: worker_type_id,
         hospitalName: hospital?.name || '',
         workerTypeName: workerType?.worker_type_name || ''
+      });
+      console.log('[ONBOARDING] Código validado correctamente:', {
+        code,
+        hospitalId: hospital_id,
+        workerTypeId: worker_type_id,
       });
 
       /* trackEvent(EVENTS.ONBOARDING_CODE_SUCCESS, {
@@ -66,8 +95,12 @@ export default function OnboardingCodeScreen() {
         hospitalId: hospital_id,
         workerTypeId: worker_type_id,
       }); */
-
-      navigation.navigate('OnboardingConfirm');
+      navigation.navigate('OnboardingConfirm', {
+        hospitalId: hospital_id,
+        workerTypeId: worker_type_id,
+        hospitalName: hospital?.name || '',
+        workerTypeName: workerType?.worker_type_name || '',
+      });
     } catch (err: any) {
       showError('Código inválido o error al validar. Verifica e intenta de nuevo.');
       /* trackEvent(EVENTS.ONBOARDING_CODE_FAILED, {

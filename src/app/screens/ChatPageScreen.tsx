@@ -42,7 +42,8 @@ export default function ChatPageScreen() {
 
     useEffect(() => {
         async function loadMessages() {
-            const msgs = await getMessagesBySwap(swapId);
+            const token = await getToken();
+            const msgs = await getMessagesBySwap(swapId, token);
             setMessages(msgs);
             setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 100);
         }
@@ -84,6 +85,7 @@ export default function ChatPageScreen() {
         setSending(true);
 
         const { data, error } = await sendMessage({
+            token: await getToken(),
             swap_id: swapId,
             sender_id: myWorkerId,
             recipient_id: otherWorkerId,

@@ -31,7 +31,7 @@ export default function ProfileResetPasswordScreen() {
     const handleSubmit = async () => {
         if (!validate()) return;
         setSaving(true);
-        const { error } = await supabase.auth.update({ password: form.password });
+        const { error } = await supabase.updateUser({ password: form.password });
         setSaving(false);
 
         if (error) {

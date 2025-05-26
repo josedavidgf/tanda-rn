@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.94:4000';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.92:4000';
 
 const handleError = (error: any, defaultMessage: string = 'Error en la operación') => {
   if (axios.isAxiosError(error)) {

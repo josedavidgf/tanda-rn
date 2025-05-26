@@ -1,7 +1,7 @@
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/supabase';
 
 export const getMySwapPreferences = async (workerId: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('swap_preferences')
     .select('*')
     .eq('worker_id', workerId)
@@ -14,7 +14,7 @@ export const getMySwapPreferences = async (workerId: string) => {
 // Crear preferencia
 export async function createSwapPreference(preferenceData) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('swap_preferences')
       .insert([preferenceData])
       .select()
@@ -34,7 +34,7 @@ export async function createSwapPreference(preferenceData) {
 // Borrar preferencia
 export async function deleteSwapPreference(preferenceId) {
   try {
-    const { error } = await supabase
+    const { error } = await db
       .from('swap_preferences')
       .delete()
       .eq('preference_id', preferenceId);
@@ -51,7 +51,7 @@ export async function deleteSwapPreference(preferenceId) {
 // Actualizar preferencia existente
 export async function updateSwapPreference(preferenceId, preferenceType) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('swap_preferences')
       .update({ preference_type: preferenceType })
       .eq('preference_id', preferenceId)

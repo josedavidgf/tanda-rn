@@ -11,53 +11,59 @@ import Button from '@/components/ui/Button';
 import AppText from '@/components/ui/AppText';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import { spacing } from '@/styles';
+import { useOnboardingContext } from '@/contexts/OnboardingContext';
+
 
 export default function OnboardingPhoneScreen() {
   const { isWorker, getToken, setIsWorker } = useAuth();
   const { updateWorkerInfo, getFullWorkerProfile } = useUserApi();
   const { showError, showSuccess } = useToast();
   const navigation = useNavigation();
+  const { setOnboardingData } = useOnboardingContext();
 
   const [phone, setPhone] = useState('');
   const [prefix, setPrefix] = useState('+34');
   const [saving, setSaving] = useState(false);
 
-  useOnboardingGuard({ currentStep: 'OnboardingPhone' });
+  useOnboardingGuard('phone');
 
   const handleSubmit = async () => {
-    const cleanedPhone = phone.replace(/\s+/g, '');
-    const isValidPhone = /^\d{9}$/.test(cleanedPhone);
-    const isValidPrefix = phonePrefixes.some(p => p.code === prefix);
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const phoneValid = /^[0-9]{9}$/.test(cleanPhone);
+  const isValidPrefix = phonePrefixes.some(p => p.code === prefix);
 
-    if (!isValidPhone || !isValidPrefix) {
-      Alert.alert('Número inválido', 'Introduce un teléfono con 9 dígitos y un prefijo válido.');
-      return;
-    }
+  if (!phoneValid) {
+    Alert.alert('Número inválido', 'Introduce un teléfono con 9 dígitos y un prefijo válido.');
+    return;
+  }
 
-    try {
-      setSaving(true);
-      const token = await getToken();
+  try {
+    setSaving(true);
+    const token = await getToken();
 
-      await updateWorkerInfo(
-        {
-          workerId: isWorker?.worker_id,
-          mobile_country_code: prefix,
-          mobile_phone: cleanedPhone,
-        },
-        token
-      );
+    await updateWorkerInfo(
+      {
+        workerId: isWorker?.worker_id,
+        mobile_country_code: prefix,
+        mobile_phone: cleanPhone,
+      },
+      token
+    );
 
-      const updated = await getFullWorkerProfile(token);
-      setIsWorker(updated);
+    setOnboardingData({ prefix, mobilePhone: cleanPhone }); // ✅ coherencia con el contexto
 
-      showSuccess('Teléfono guardado correctamente');
-      navigation.navigate('OnboardingSuccess');
-    } catch (err: any) {
-      showError('Error guardando el teléfono');
-    } finally {
-      setSaving(false);
-    }
-  };
+    const updated = await getFullWorkerProfile(token);
+    setIsWorker(updated);
+
+    showSuccess('Teléfono guardado correctamente');
+    navigation.navigate('OnboardingSuccess');
+  } catch (err: any) {
+    showError('Error guardando el teléfono');
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   return (
     <SimpleLayout title="Tu teléfono" showBackButton>

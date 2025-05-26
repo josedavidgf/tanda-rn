@@ -50,7 +50,7 @@ export default function MySwapScreen() {
     fetchSwaps();
   }, []);
 
-  if (loading) return <AppLoader />;
+  if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando intercambios...' />;
 
   const filteredSwaps = swaps.filter((s) => {
     const inStatus = statusFilters.length > 0 ? statusFilters.includes(s.status) : true;
@@ -64,10 +64,11 @@ export default function MySwapScreen() {
   return (
     <AppLayout title="Tus intercambios">
       <View style={{ flex: 1 }}>
-        <View style={{ padding: spacing.md}}>
+        <View style={{ padding: spacing.md }}>
           <DateRangeFilter range={dateRange} onChange={setDateRange} />
         </View>
         <ScrollView
+          style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.xs }}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
@@ -88,7 +89,6 @@ export default function MySwapScreen() {
                     : [...statusFilters, status];
                   setStatusFilters(updated);
                 }}
-                style={{ marginRight: 8 }}
               />
             );
           })}

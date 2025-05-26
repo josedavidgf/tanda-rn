@@ -20,9 +20,9 @@ export function useCalendarApi() {
   };
 
   return {
-    getShiftsForMonth: (workerId) => apiCall(getShiftsForMonth, workerId),
-    setShiftForDay: (workerId, dateStr, shiftType) => apiCall(setShiftForDay, workerId, dateStr, shiftType),
-    removeShiftForDay: (workerId, dateStr) => apiCall(removeShiftForDay, workerId, dateStr),
+    getShiftsForMonth: (token, workerId) => apiCall(getShiftsForMonth, token, workerId),
+    setShiftForDay: (token, workerId, dateStr, shiftType) => apiCall(setShiftForDay, token, workerId, dateStr, shiftType),
+    removeShiftForDay: (token, workerId, dateStr) => apiCall(removeShiftForDay, token, workerId, dateStr),
     loading,
     error,
   };

@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
-import { supabase } from '../../lib/supabase';
 import { spacing, colors, typography } from '@/styles';
 import {
     AddressBook,
@@ -21,10 +20,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileMenuScreen() {
     const navigation = useNavigation();
+    const { logout } = useAuth();
 
     const handleLogout = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) Alert.alert('Error al cerrar sesión', error.message);
+        await logout();
     };
 
     const items = [

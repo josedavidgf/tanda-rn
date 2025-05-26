@@ -2,59 +2,80 @@ import React from 'react';
 import { View, TextInput, TextInputProps, StyleSheet } from 'react-native';
 import AppText from '../ui/AppText';
 import { spacing, typography, colors } from '@/styles';
+import { Controller } from 'react-hook-form';
 
 type Props = TextInputProps & {
   label?: string;
   errorText?: string;
   helperText?: string;
-  maxLength?: number;
   showCounter?: boolean;
+  maxLength?: number;
   disabled?: boolean;
-  error?: boolean;
+  error?: string | boolean;
+  // For react-hook-form
+  control?: any;
+  name?: string;
 };
 
-export default function InputField({
-  label,
-  value,
-  onChangeText,
-  errorText,
-  helperText,
-  showCounter = false,
-  maxLength,
-  disabled = false,
-  error = false,
-  ...rest
-}: Props) {
-  const valueStr = typeof value === 'string' ? value : '';
-  const showLabel = !!label && (valueStr.length > 0 || rest.placeholder);
+export default function InputField(props: Props) {
+  const {
+    label,
+    errorText,
+    helperText,
+    showCounter = false,
+    maxLength,
+    disabled = false,
+    error = false,
+    control,
+    name,
+    ...rest
+  } = props;
 
-  return (
-    <View style={styles.container}>
-      {showLabel && <AppText variant="caption" style={styles.label}>{label}</AppText>}
+  const renderInput = (fieldProps: any) => {
+    const valueStr = typeof fieldProps.value === 'string' ? fieldProps.value : '';
+    const showLabel = !!label && (valueStr.length > 0 || rest.placeholder);
 
-      <TextInput
-        style={[styles.input, !!errorText && styles.inputError]}
-        value={valueStr}
-        onChangeText={onChangeText}
-        placeholderTextColor={colors.text.secondary}
-        maxLength={maxLength}
-        {...rest}
-      />
+    return (
+      <View style={styles.container}>
+        {showLabel && <AppText variant="caption" style={styles.label}>{label}</AppText>}
 
-      <View style={styles.helper}>
-        {errorText ? (
-          <AppText variant="caption" style={styles.errorText}>{errorText}</AppText>
-        ) : helperText ? (
-          <AppText variant="caption" style={styles.helperText}>{helperText}</AppText>
-        ) : null}
-        {showCounter && maxLength && (
-          <AppText variant="caption" style={styles.charCount}>
-            {valueStr.length}/{maxLength}
-          </AppText>
-        )}
+        <TextInput
+          style={[styles.input, !!errorText && styles.inputError]}
+          value={valueStr}
+          onChangeText={fieldProps.onChange}
+          placeholderTextColor={colors.text.secondary}
+          maxLength={maxLength}
+          editable={!disabled}
+          {...rest}
+        />
+
+        <View style={styles.helper}>
+          {errorText ? (
+            <AppText variant="caption" style={styles.errorText}>{errorText}</AppText>
+          ) : helperText ? (
+            <AppText variant="caption" style={styles.helperText}>{helperText}</AppText>
+          ) : null}
+          {showCounter && maxLength && (
+            <AppText variant="caption" style={styles.charCount}>
+              {valueStr.length}/{maxLength}
+            </AppText>
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
+
+  if (control && name) {
+    return (
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => renderInput(field)}
+      />
+    );
+  }
+
+  return renderInput({ value: props.value, onChange: props.onChangeText });
 }
 
 const styles = StyleSheet.create({

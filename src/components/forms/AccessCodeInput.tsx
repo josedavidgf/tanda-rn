@@ -44,8 +44,7 @@ export default function AccessCodeInput({ code, setCode, error = false }: Props)
             onChangeText={(val) => handleChange(val, idx)}
             onKeyPress={(e) => handleKeyPress(e, idx)}
             textAlign="center"
-            returnKeyType="next"
-            autoFocus={idx === 0}
+            returnKeyType="default"      // 👈 oculta el botón del teclado
           />
         ))}
       </View>

@@ -1,16 +1,22 @@
-import 'react-native-reanimated'; // debe ir arriba del todo
-import 'react-native-gesture-handler'; // si usas stacks nativos
+// App.tsx (simplificado y ajustado)
+import 'react-native-reanimated';
+import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import * as Font from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from '@/app/navigation/AppNavigator';
 import AuthNavigator from '@/app/navigation/AuthNavigator';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import AuthProvider, { useAuth } from '@/contexts/AuthContext';
 import { ToastProvider } from '@/components/ui/ToastProvider';
-import AppText from './components/ui/AppText';
+import AppText from '@/components/ui/AppText';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
+import { navigationRef } from '@/app/navigation/navigationRef';
+import 'react-native-url-polyfill/auto';
+import { OnboardingProvider } from '@/contexts/OnboardingContext';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
+global.process = require('process');
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -32,23 +38,28 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <NavigationContainer>
-          <AuthGate />
-        </NavigationContainer>
+      <NavigationContainer
+        ref={navigationRef}
+        onReady={() => {
+          console.log('[NAV] Navigation is ready');
+        }}
+      >
+        <AuthProvider>
+          <OnboardingProvider>
+            <AuthGate />
+          </OnboardingProvider>
+        </AuthProvider>
         <ToastProvider />
-      </AuthProvider>
+      </NavigationContainer>
     </GestureHandlerRootView>
   );
 }
 
 function AuthGate() {
-  const { session, loading } = useAuth();
-
-  if (loading) return null;
-
+  const { session } = useAuth();
   return session ? <AppNavigator /> : <AuthNavigator />;
 }
+
 
 const styles = StyleSheet.create({
   centered: {

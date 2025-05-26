@@ -11,12 +11,18 @@ import Button from '@/components/ui/Button';
 import AppText from '@/components/ui/AppText';
 import SearchFilterInput from '@/components/forms/SearchFilterInput';
 import SpecialitiesGrid from '@/components/lists/SpecialitiesListTable'; // nuevo
+import { useWorkerApi } from '@/api/useWorkerApi'; // nuevo
+import { useOnboardingContext } from '@/contexts/OnboardingContext'; // nuevo
+
 
 export default function OnboardingSpecialityScreen() {
-  const { isWorker, getToken } = useAuth();
+  const { isWorker, getToken, setIsWorker } = useAuth();
   const navigation = useNavigation();
   const { getSpecialitiesByHospital, addSpecialityToWorker } = useSpecialityApi();
   const { showError, showSuccess } = useToast();
+  const { getMyWorkerProfile } = useWorkerApi(); // nuevo
+  const { setOnboardingData } = useOnboardingContext(); // nuevo
+
 
   const [specialities, setSpecialities] = useState<any[]>([]);
   const [selectedSpeciality, setSelectedSpeciality] = useState('');
@@ -24,7 +30,7 @@ export default function OnboardingSpecialityScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useOnboardingGuard({ currentStep: 'OnboardingSpeciality' });
+  useOnboardingGuard('speciality');
 
   useEffect(() => {
     const fetch = async () => {
@@ -59,7 +65,14 @@ export default function OnboardingSpecialityScreen() {
       }
       setSaving(true);
       const token = await getToken();
+
       await addSpecialityToWorker(isWorker?.worker_id, selectedSpeciality, token);
+
+      setOnboardingData({ specialityId: selectedSpeciality }); // ✅ coherencia con contexto
+
+      const updated = await getMyWorkerProfile(token);
+      setIsWorker(updated);
+
       showSuccess('Especialidad guardada correctamente');
       navigation.navigate('OnboardingName');
     } catch (err: any) {
@@ -69,7 +82,8 @@ export default function OnboardingSpecialityScreen() {
     }
   };
 
-  if (loading) return <AppLoader />;
+
+  if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando especialidades...' />;
 
   return (
     <SimpleLayout title="Especialidad" showBackButton>

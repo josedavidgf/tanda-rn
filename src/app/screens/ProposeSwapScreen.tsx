@@ -54,7 +54,7 @@ export default function ProposeSwap() {
             const available = await getMyAvailableShifts(isWorker.worker_id, token);
             const receiverId = target.worker?.worker_id;
 
-            const receiverSchedules = await getShiftsForMonth(receiverId);
+            const receiverSchedules = await getShiftsForMonth(token, receiverId);
             const preferences = await getMySwapPreferences(receiverId);
 
             const receiverHasShift = new Set(receiverSchedules.map((r) => r.date));

@@ -54,7 +54,7 @@ export default function HospitalShiftsScreen() {
     }, []);
 
 
-    if (loading) return <AppLoader />;
+    if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando turnos...' />;
 
     const filteredShifts = shifts.filter((s) => {
         const matchesType = selectedTypes.length > 0 ? selectedTypes.includes(s.shift_type) : true;

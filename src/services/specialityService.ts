@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.94:4000';
 
 // Obtener todas las especialidades
-export const getSpecialities = async (token) => {
+export const getSpecialities = async (token:string) => {
   try {
     const response = await axios.get(`${API_URL}/api/specialities`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -17,7 +17,7 @@ export const getSpecialities = async (token) => {
 };
 
 // Asignar una especialidad a un worker
-export const addSpecialityToWorker = async (workerId, specialityId, token) => {
+export const addSpecialityToWorker = async (workerId:string, specialityId:string, token:string) => {
   try {
     const response = await axios.post(`${API_URL}/api/workers/specialities`, {
       workerId,
@@ -35,7 +35,7 @@ export const addSpecialityToWorker = async (workerId, specialityId, token) => {
 };
 
 // Obtener especialidades por hospital
-export async function getSpecialitiesByHospital(hospitalId, token) {
+export async function getSpecialitiesByHospital(hospitalId:string, token:string) {
   try {
     const response = await axios.get(`${API_URL}/api/specialities/by-hospital/${hospitalId}`, {
       headers: { Authorization: `Bearer ${token}` }

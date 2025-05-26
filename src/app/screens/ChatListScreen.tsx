@@ -72,7 +72,7 @@ export default function ChatListScreen() {
     return (
         <AppLayout title="Tus mensajes">
             {loading ? (
-                <AppLoader text="Cargando chats..." />
+                <AppLoader message="Cargando chats..." onFinish={() => setLoading(false)} />
             ) : filteredSwaps.length === 0 ? (
                 <View style={styles.empty}>
                     <AppText>No tienes intercambios aún.</AppText>

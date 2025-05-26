@@ -59,7 +59,7 @@ export default function ProfilePreferencesScreen() {
     }
   };
 
-  if (loading) return <AppLoader />;
+  if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando preferencias...' />;
 
   return (
     <SimpleLayout title="Preferencias de comunicación" showBackButton>
