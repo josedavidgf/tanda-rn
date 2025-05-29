@@ -16,7 +16,7 @@ import { useOnboardingContext } from '@/contexts/OnboardingContext'; // nuevo
 
 
 export default function OnboardingSpecialityScreen() {
-  const { isWorker, getToken, setIsWorker } = useAuth();
+  const { isWorker, accessToken, setIsWorker } = useAuth();
   const navigation = useNavigation();
   const { getSpecialitiesByHospital, addSpecialityToWorker } = useSpecialityApi();
   const { showError, showSuccess } = useToast();
@@ -35,10 +35,9 @@ export default function OnboardingSpecialityScreen() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const token = await getToken();
         const hospitalId = isWorker?.workers_hospitals?.[0]?.hospital_id;
         if (!hospitalId) throw new Error('No hospital asociado al trabajador');
-        const result = await getSpecialitiesByHospital(hospitalId, token);
+        const result = await getSpecialitiesByHospital(hospitalId, accessToken);
         setSpecialities(result);
       } catch (err: any) {
         console.error('Error cargando especialidades:', err.message);
@@ -64,13 +63,12 @@ export default function OnboardingSpecialityScreen() {
         return;
       }
       setSaving(true);
-      const token = await getToken();
 
-      await addSpecialityToWorker(isWorker?.worker_id, selectedSpeciality, token);
+      await addSpecialityToWorker(isWorker?.worker_id, selectedSpeciality, accessToken);
 
       setOnboardingData({ specialityId: selectedSpeciality }); // ✅ coherencia con contexto
 
-      const updated = await getMyWorkerProfile(token);
+      const updated = await getMyWorkerProfile(accessToken);
       setIsWorker(updated);
 
       showSuccess('Especialidad guardada correctamente');

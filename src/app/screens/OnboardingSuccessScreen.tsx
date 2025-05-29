@@ -10,7 +10,7 @@ import AppLoader from '@/components/ui/AppLoader';
 import { spacing } from '@/styles';
 
 export default function OnboardingSuccessScreen() {
-  const { getToken, setIsWorker } = useAuth();
+  const { accessToken, setIsWorker } = useAuth();
   const { completeOnboarding, getMyWorkerProfile } = useWorkerApi();
   const { showError } = useToast();
   const navigation = useNavigation();
@@ -21,9 +21,8 @@ export default function OnboardingSuccessScreen() {
   useEffect(() => {
     const completeAndRedirect = async () => {
       try {
-        const token = await getToken();
-        await completeOnboarding(token);
-        const updated = await getMyWorkerProfile(token);
+        await completeOnboarding(accessToken);
+        const updated = await getMyWorkerProfile(accessToken);
         setIsWorker(updated);
 
         if (updated?.onboarding_completed) {

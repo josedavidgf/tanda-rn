@@ -1,4 +1,4 @@
-// contexts/AuthContext.tsx (funcional con @supabase/auth-js)
+// contexts/AuthContext.tsx (refactor con listener de autenticación reactivo)
 import { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
@@ -9,11 +9,12 @@ import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 
 interface AuthContextType {
-  session: any; // no usar Session de supabase-js
+  session: any;
   setSession: (s: any) => void;
   isWorker: any;
   setIsWorker: (w: any) => void;
-  getToken: () => Promise<string>;
+  accessToken: string | null;
+  user?: any;
   logout: () => Promise<void>;
   appState: appState;
 }
@@ -25,18 +26,9 @@ export const useAuth = () => useContext(AuthContext);
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
   const [isWorker, setIsWorker] = useState(null);
-  const [isAppReady, setIsAppReady] = useState(false);
   const [appState, setAppState] = useState<appState>('loading');
 
-
   console.log('[AUTH RN] Iniciando AuthProvider...');
-
-  const getToken = async () => {
-    console.log('[AUTH RN] Obteniendo token de sesión...');
-    const currentSession = await supabase.getSession();
-    console.log('[AUTH RN] Sesión actual:', currentSession);
-    return currentSession?.data?.session?.access_token || '';
-  };
 
   const restoreSession = async () => {
     console.log('[AUTH RN] Restaurando sesión desde SecureStore...');
@@ -48,12 +40,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
         return;
       }
 
-      console.log('[AUTH RN] Session encontrada en SecureStore:', parsed);
-
       let parsedSession;
       try {
         parsedSession = JSON.parse(parsed);
-        console.log('[AUTH RN] Session parseada:', parsedSession);
         if (!parsedSession.access_token || !parsedSession.refresh_token) {
           console.warn('[AUTH RN] Session malformada en SecureStore');
           setAppState('ready');
@@ -66,7 +55,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       }
 
       await supabase.setSession(parsedSession);
-      console.log('[AUTH RN] Sesión restaurada correctamente en Supabase');
       const restored = await supabase.getSession();
       const token = restored?.data?.session?.access_token;
       if (!token) {
@@ -79,8 +67,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       const worker = await getMyWorkerProfile(token);
       setIsWorker(worker);
 
-      console.log('isWorker AuthContext:', worker);
-
       const step = getPendingOnboardingStep(worker);
       const navigateToStep = () => {
         if (navigationRef.isReady()) {
@@ -89,22 +75,59 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             routes: [{ name: step ?? 'Calendar' }],
           });
         } else {
-          setTimeout(navigateToStep, 100);
+          setTimeout(navigateToStep, 50);
         }
       };
 
       navigateToStep();
       setAppState('ready');
-
     } catch (err) {
       console.warn('[AUTH RN] Error restoring session:', err.message);
       setAppState('error');
     }
   };
 
-
   useEffect(() => {
     restoreSession();
+
+    const { data: listener } = supabase.onAuthStateChange(async (event, session) => {
+      console.log('[AUTH RN] Evento Supabase:', event);
+
+      if (event === 'SIGNED_IN' && session) {
+        setSession(session);
+        await SecureStore.setItemAsync('supabase.session', JSON.stringify(session));
+
+        try {
+          const token = session.access_token;
+          const worker = await getMyWorkerProfile(token);
+          setIsWorker(worker);
+
+          const step = getPendingOnboardingStep(worker);
+          if (navigationRef.isReady()) {
+            navigationRef.reset({
+              index: 0,
+              routes: [{ name: step ?? 'Calendar' }],
+            });
+          }
+
+          setAppState('ready');
+        } catch (err) {
+          console.warn('[AUTH RN] Error obteniendo worker tras login:', err.message);
+          setAppState('ready');
+        }
+      }
+
+      if (event === 'SIGNED_OUT') {
+        setSession(null);
+        setIsWorker(null);
+        setAppState('ready');
+        await SecureStore.deleteItemAsync('supabase.session');
+      }
+    });
+
+    return () => {
+      listener?.subscription?.unsubscribe();
+    };
   }, []);
 
   const logout = async () => {
@@ -119,15 +142,23 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
   };
 
-
   if (appState === 'loading') return <AppLoader message="Cargando Tanda..." />;
   if (appState === 'error') return <ErrorScreen retry={restoreSession} />;
 
   return (
     <AuthContext.Provider
-      value={{ session, setSession, isWorker, setIsWorker, getToken, logout, appState }}
+      value={{
+        session,
+        setSession,
+        isWorker,
+        setIsWorker,
+        accessToken: session?.access_token,
+        user: session?.user,
+        logout,
+        appState,
+      }}
     >
-      {children} 
+      {children}
     </AuthContext.Provider>
   );
 }

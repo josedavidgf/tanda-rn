@@ -41,7 +41,7 @@ export default function CalendarScreen() {
     const { getAcceptedSwaps } = useSwapApi();
     const { getMySwapPreferences, deleteSwapPreference, updateSwapPreference, createSwapPreference } = useSwapPreferencesApi();
     const { getMyShiftsPublished, removeShift } = useShiftApi();
-    const { getToken } = useAuth();
+    const { accessToken } = useAuth();
     const [calendarMap, setCalendarMap] = useState<Record<string, OriginalCalendarEntry>>({});
     const { setShiftForDay, removeShiftForDay } = useCalendarApi();
     const { isWorker, ready } = useIsWorkerReady();
@@ -63,18 +63,17 @@ export default function CalendarScreen() {
 
         const loadSchedules = async () => {
             try {
-                const token = await getToken();
                 const data = await getMonthlySchedules(
-                    token,
+                    accessToken,
                     isWorker.worker_id,
                     selectedMonth.getFullYear(),
                     selectedMonth.getMonth() + 1
                 );
                 setSchedules(data);
 
-                const prefs = await getMySwapPreferences(isWorker.worker_id, token);
-                const sws = await getAcceptedSwaps(token);
-                const shift = await getMyShiftsPublished(token);
+                const prefs = await getMySwapPreferences(isWorker.worker_id, accessToken);
+                const sws = await getAcceptedSwaps(accessToken);
+                const shift = await getMyShiftsPublished(accessToken);
 
                 const merged = mergeCalendarData({
                     monthlySchedules: data,
@@ -111,12 +110,11 @@ export default function CalendarScreen() {
             ...prev,
             [dateStr]: updated,
         }));
-        const token = await getToken();
         try {
             if (newType) {
-                await setShiftForDay(token, isWorker.worker_id, dateStr, newType);
+                await setShiftForDay(accessToken, isWorker.worker_id, dateStr, newType);
             } else {
-                await removeShiftForDay(token, isWorker.worker_id, dateStr);
+                await removeShiftForDay(accessToken, isWorker.worker_id, dateStr);
             }
         } catch (err) {
             console.error('❌ Error al guardar el turno:', err.message);
@@ -126,7 +124,6 @@ export default function CalendarScreen() {
         const entry = calendarMap[dateStr] || {};
         const currentTypes = entry.preference_types || [];
         const currentIds = entry.preferenceIds || {};
-        const token = await getToken();
 
         console.log('currentTypes', currentTypes);
         console.log('currentIds', currentIds);
@@ -180,10 +177,9 @@ export default function CalendarScreen() {
             console.warn('❌ No hay preferencias que eliminar.');
             return;
         }
-        const token = await getToken();
         try {
             await Promise.all(
-                Object.values(preferenceIds).map((id) => deleteSwapPreference(id, token))
+                Object.values(preferenceIds).map((id) => deleteSwapPreference(id, accessToken))
             );
 
             const updatedEntry = { ...entry };
@@ -206,9 +202,8 @@ export default function CalendarScreen() {
             console.warn('No hay turno asignado en esta fecha');
             return;
         }
-        const token = await getToken();
         try {
-            await removeShiftForDay(token, isWorker.worker_id, dateStr);
+            await removeShiftForDay(accessToken, isWorker.worker_id, dateStr);
 
             const updatedEntry = { ...entry };
             delete updatedEntry.shift_type;
@@ -231,8 +226,7 @@ export default function CalendarScreen() {
         }
 
         try {
-            const token = await getToken();
-            const success = await removeShift(shiftId, token);
+            const success = await removeShift(shiftId, accessToken);
 
             if (success) {
                 const original = calendarMap[dateStr];
@@ -418,11 +412,10 @@ export default function CalendarScreen() {
                                     size="md"
                                     variant="primary"
                                     onPress={async () => {
-                                        const token = await getToken();
                                         const updates = Object.entries(draftShiftMap).map(([dateStr, entry]) =>
                                             entry.shift_type
-                                                ? setShiftForDay(token, isWorker.worker_id, dateStr, entry.shift_type)
-                                                : removeShiftForDay(token, isWorker.worker_id, dateStr)
+                                                ? setShiftForDay(accessToken, isWorker.worker_id, dateStr, entry.shift_type)
+                                                : removeShiftForDay(accessToken, isWorker.worker_id, dateStr)
                                         );
                                         await Promise.all(updates);
                                         setCalendarMap(draftShiftMap);

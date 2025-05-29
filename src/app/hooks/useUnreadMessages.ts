@@ -4,13 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUnreadMessagesPerChat } from '@/api/useMessagesApi';
 
 export function useUnreadMessages() {
-    const { getToken } = useAuth();
+    const { accessToken } = useAuth();
     const [unreadSwapIds, setUnreadSwapIds] = useState<string[]>([]);
 
     const fetchUnread = useCallback(async () => {
         try {
-            const token = await getToken();
-            const res = await getUnreadMessagesPerChat(token);
+            const res = await getUnreadMessagesPerChat(accessToken);
             console.log('Unread messages response:', res);
             setUnreadSwapIds(res.map((r) => r.swap_id));
             console.log('Unread swap IDs:', res.map((r) => r.swap_id));
@@ -18,7 +17,7 @@ export function useUnreadMessages() {
             console.error('Error fetching unread messages:', error);
             setUnreadSwapIds([]);
         }
-    }, [getToken]);
+    }, [accessToken]);
 
     useFocusEffect(
         useCallback(() => {

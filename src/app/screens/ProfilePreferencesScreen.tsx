@@ -9,7 +9,7 @@ import { useToast } from '@/app/hooks/useToast';
 import { useUserApi } from '@/api/useUserApi'; // crea si hace falta
 
 export default function ProfilePreferencesScreen() {
-  const { getToken } = useAuth();
+  const { accessToken } = useAuth();
   const { showSuccess, showError } = useToast();
   const { getUserPreferences, updateUserPreferences } = useUserApi();
 
@@ -22,8 +22,7 @@ export default function ProfilePreferencesScreen() {
   useEffect(() => {
     const fetchPreferences = async () => {
       try {
-        const token = await getToken();
-        const prefs = await getUserPreferences(token);
+        const prefs = await getUserPreferences(accessToken);
         setSwapEmails(prefs?.receive_emails_swap ?? true);
         setReminderEmails(prefs?.receive_emails_reminders ?? true);
       } catch {
@@ -44,8 +43,7 @@ export default function ProfilePreferencesScreen() {
     else setLoadingReminder(true);
 
     try {
-      const token = await getToken();
-      await updateUserPreferences({ [key]: newValue }, token);
+      await updateUserPreferences({ [key]: newValue }, accessToken);
       key === 'receive_emails_swap'
         ? setSwapEmails(newValue)
         : setReminderEmails(newValue);

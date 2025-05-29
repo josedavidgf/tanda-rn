@@ -14,7 +14,7 @@ import { useOnboardingContext } from '@/contexts/OnboardingContext';
 
 export default function OnboardingNameScreen() {
   const navigation = useNavigation();
-  const { isWorker, getToken, setIsWorker } = useAuth();
+  const { isWorker, accessToken, setIsWorker } = useAuth();
   const { updateWorkerInfo, getFullWorkerProfile } = useUserApi();
   const { showError, showSuccess } = useToast();
   const { setOnboardingData } = useOnboardingContext();
@@ -41,7 +41,6 @@ export default function OnboardingNameScreen() {
 
     try {
       setSaving(true);
-      const token = await getToken();
       const formattedName = capitalizeWords(name.trim());
       const formattedSurname = capitalizeWords(surname.trim());
 
@@ -51,11 +50,11 @@ export default function OnboardingNameScreen() {
           name: formattedName,
           surname: formattedSurname,
         },
-        token
+        accessToken
       );
 
 
-      const updated = await getFullWorkerProfile(token);
+      const updated = await getFullWorkerProfile(accessToken);
       setIsWorker(updated);
       setOnboardingData({ name: formattedName, surname: formattedSurname }); // nuevo
       showSuccess('Información actualizada');

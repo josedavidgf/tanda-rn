@@ -31,7 +31,7 @@ export default function ProposeSwap() {
 
     const navigation = useNavigation();
     const route = useRoute();
-    const { getToken, isWorker } = useAuth();
+    const { accessToken, isWorker } = useAuth();
     const { getShiftById, getMyAvailableShifts } = useShiftApi();
     const { getShiftsForMonth } = useCalendarApi();
     const { getMySwapPreferences } = useSwapPreferencesApi();
@@ -49,13 +49,12 @@ export default function ProposeSwap() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const token = await getToken();
-            const target = await getShiftById(shiftId, token);
-            const available = await getMyAvailableShifts(isWorker.worker_id, token);
+            const target = await getShiftById(shiftId, accessToken);
+            const available = await getMyAvailableShifts(isWorker.worker_id, accessToken);
             const receiverId = target.worker?.worker_id;
 
-            const receiverSchedules = await getShiftsForMonth(token, receiverId);
-            const preferences = await getMySwapPreferences(receiverId, token);
+            const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
+            const preferences = await getMySwapPreferences(receiverId, accessToken);
 
             const receiverHasShift = new Set(receiverSchedules.map((r) => r.date));
 
@@ -83,7 +82,6 @@ export default function ProposeSwap() {
         }
 
         try {
-            const token = await getToken();
             const form = {
                 offered_date: selectedShift.date,
                 offered_type: selectedShift.type,
@@ -92,7 +90,7 @@ export default function ProposeSwap() {
             };
 
 
-            const result = await proposeSwap(shiftId, form, token);
+            const result = await proposeSwap(shiftId, form, accessToken);
             const enrichedSwap = {
                 ...result,
                 shift: targetShift, // turno objetivo

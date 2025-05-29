@@ -24,7 +24,6 @@ export default function ChatListScreen() {
     const [workerId, setWorkerId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
-    const { getToken } = useAuth();
     const { getAcceptedSwaps } = useSwapApi();
     const { getMyWorkerProfile } = useWorkerApi();
     const { unreadSwapIds } = useUnreadMessages();
@@ -34,11 +33,10 @@ export default function ChatListScreen() {
         async function loadChats() {
             try {
                 setLoading(true);
-                const token = await getToken();
-                const worker = await getMyWorkerProfile(token);
+                const worker = await getMyWorkerProfile(accessToken);
                 setWorkerId(worker.worker_id);
 
-                const allSwaps = await getAcceptedSwaps(token);
+                const allSwaps = await getAcceptedSwaps(accessToken);
                 const active = allSwaps
                     .filter((swap) => {
                         const d1 = new Date(swap.shift.date);

@@ -4,16 +4,15 @@ import { useUserEventsApi } from '@/api/useUserEventsApi';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function useUserEventsDot() {
-  const { getToken } = useAuth();
+  const { accessToken } = useAuth();
   const { getUserEvents } = useUserEventsApi();
   const [hasUnseen, setHasUnseen] = useState(false);
   const isFocused = useIsFocused();
 
   const fetchEvents = useCallback(async () => {
-    const token = await getToken();
-    const events = await getUserEvents(token);
+    const events = await getUserEvents(accessToken);
     setHasUnseen(events.some((e) => !e.seen));
-  }, [getToken, getUserEvents]);
+  }, [accessToken, getUserEvents]);
 
   useEffect(() => {
     if (isFocused) {

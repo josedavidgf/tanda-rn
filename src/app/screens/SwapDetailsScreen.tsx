@@ -16,7 +16,7 @@ import FadeInView from '@/components/animations/FadeInView';
 export default function SwapDetails() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { getToken, isWorker } = useAuth();
+  const { accessToken, isWorker } = useAuth();
   const { getSwapById, respondToSwap, cancelSwap } = useSwapApi();
 
   const [swap, setSwap] = useState<any>(null);
@@ -29,8 +29,7 @@ export default function SwapDetails() {
 
   useEffect(() => {
     const fetchSwap = async () => {
-      const token = await getToken();
-      const result = await getSwapById(swapId, token);
+      const result = await getSwapById(swapId, accessToken);
       setSwap(result);
       setLoading(false);
     };
@@ -43,8 +42,7 @@ export default function SwapDetails() {
   const handleRespond = async (decision: 'accepted' | 'rejected') => {
     decision === 'accepted' ? setIsAccepting(true) : setIsRejecting(true);
     try {
-      const token = await getToken();
-      await respondToSwap(swap.swap_id, decision, token);
+      await respondToSwap(swap.swap_id, decision, accessToken);
       Alert.alert('Éxito', `Intercambio ${decision === 'accepted' ? 'aceptado' : 'rechazado'} correctamente`);
       navigation.goBack();
     } catch (err: any) {
@@ -58,8 +56,7 @@ export default function SwapDetails() {
   const handleCancelSwap = async () => {
     setIsCancelling(true);
     try {
-      const token = await getToken();
-      await cancelSwap(swap.swap_id, token);
+      await cancelSwap(swap.swap_id, accessToken);
       Alert.alert('Intercambio anulado');
       navigation.goBack();
     } catch (err: any) {

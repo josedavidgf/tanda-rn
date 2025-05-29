@@ -26,7 +26,7 @@ import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
 
 export default function ChatPageScreen() {
     const route = useRoute();
-    const { getToken } = useAuth();
+    const { accessToken } = useAuth();
     const { swapId } = route.params as { swapId: string };
     const { session } = useAuth();
     const scrollRef = useRef<ScrollView>(null);
@@ -44,17 +44,15 @@ export default function ChatPageScreen() {
 
     useEffect(() => {
         async function loadMessages() {
-            const token = await getToken();
-            const msgs = await getMessagesBySwap(swapId, token);
+            const msgs = await getMessagesBySwap(swapId, accessToken);
             setMessages(msgs);
             setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 100);
         }
 
         async function loadSwap() {
-            const token = await getToken();
-            const swap = await getSwapById(swapId, token);
+            const swap = await getSwapById(swapId, accessToken);
             setSwapContext(swap);
-            const worker = await getMyWorkerProfile(token);
+            const worker = await getMyWorkerProfile(accessToken);
             setMyWorkerId(worker.worker_id);
             const otherId = swap.requester_id === worker.worker_id
                 ? swap.shift.worker.worker_id
@@ -72,8 +70,7 @@ export default function ChatPageScreen() {
     useFocusEffect(
         React.useCallback(() => {
             const markAsSeen = async () => {
-                const token = await getToken();
-                await markMessagesAsRead(token, swapId);
+                await markMessagesAsRead(accessToken, swapId);
                 await refreshUnreadMessages(); // 🔁 actualiza BottomNav
 
             };
@@ -99,7 +96,7 @@ export default function ChatPageScreen() {
         setSending(true);
 
         const { data, error } = await sendMessage({
-            token: await getToken(),
+            token: accessToken,
             swap_id: swapId,
             sender_id: myWorkerId,
             recipient_id: otherWorkerId,

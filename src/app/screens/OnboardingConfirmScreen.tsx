@@ -19,7 +19,7 @@ export default function OnboardingConfirmScreen() {
   const navigation = useNavigation();
 
   const { accessCode, setOnboardingData } = useOnboardingContext();
-  const { isWorker, getToken, setIsWorker } = useAuth();
+  const { isWorker, accessToken, setIsWorker } = useAuth();
   const { createWorker, createWorkerHospital, getMyWorkerProfile } = useWorkerApi();
   const { showError, showSuccess } = useToast();
 
@@ -57,14 +57,12 @@ export default function OnboardingConfirmScreen() {
 
     try {
       setLoading(true);
-      const token = await getToken();
-
-      const response = await createWorker({ workerTypeId }, token);
+      const response = await createWorker({ workerTypeId }, accessToken);
       if (!response?.success) throw new Error(response?.message);
 
-      await createWorkerHospital(response.worker.worker_id, hospitalId, token);
+      await createWorkerHospital(response.worker.worker_id, hospitalId, accessToken);
 
-      const newProfile = await getMyWorkerProfile(token);
+      const newProfile = await getMyWorkerProfile(accessToken);
       if (newProfile) {
         setIsWorker(newProfile);
       }

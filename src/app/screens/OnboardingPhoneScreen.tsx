@@ -15,7 +15,7 @@ import { useOnboardingContext } from '@/contexts/OnboardingContext';
 
 
 export default function OnboardingPhoneScreen() {
-  const { isWorker, getToken, setIsWorker } = useAuth();
+  const { isWorker, accessToken, setIsWorker } = useAuth();
   const { updateWorkerInfo, getFullWorkerProfile } = useUserApi();
   const { showError, showSuccess } = useToast();
   const navigation = useNavigation();
@@ -39,7 +39,6 @@ export default function OnboardingPhoneScreen() {
 
   try {
     setSaving(true);
-    const token = await getToken();
 
     await updateWorkerInfo(
       {
@@ -47,12 +46,12 @@ export default function OnboardingPhoneScreen() {
         mobile_country_code: prefix,
         mobile_phone: cleanPhone,
       },
-      token
+      accessToken
     );
 
     setOnboardingData({ prefix, mobilePhone: cleanPhone }); // ✅ coherencia con el contexto
 
-    const updated = await getFullWorkerProfile(token);
+    const updated = await getFullWorkerProfile(accessToken);
     setIsWorker(updated);
 
     showSuccess('Teléfono guardado correctamente');

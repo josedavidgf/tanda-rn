@@ -15,7 +15,7 @@ import { spacing } from '@/styles';
 import FadeInView from '@/components/animations/FadeInView';
 
 export default function MySwapScreen() {
-  const { getToken, isWorker } = useAuth();
+  const { accessToken, isWorker } = useAuth();
   const { getSentSwaps, getReceivedSwaps } = useSwapApi();
   const navigation = useNavigation();
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
@@ -31,10 +31,9 @@ export default function MySwapScreen() {
 
   useEffect(() => {
     const fetchSwaps = async () => {
-      const token = await getToken();
       const [sent, received] = await Promise.all([
-        getSentSwaps(token),
-        getReceivedSwaps(token),
+        getSentSwaps(accessToken),
+        getReceivedSwaps(accessToken),
       ]);
 
       const markedSent = sent.map(s => ({ ...s, direction: 'sent' }));

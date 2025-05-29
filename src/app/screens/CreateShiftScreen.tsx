@@ -19,7 +19,7 @@ export default function CreateShiftScreen() {
     const navigation = useNavigation();
     const route = useRoute();
     const { date, shift_type } = route.params || {}; // Creo que no se usa
-    const { isWorker, getToken, loading: loadingWorker } = useAuth();
+    const { isWorker, accessToken, loading: loadingWorker } = useAuth();
     const { showSuccess, showError } = useToast();
     const { createShift, loading: creatingShift } = useShiftApi();
 
@@ -46,14 +46,13 @@ export default function CreateShiftScreen() {
 
     const handleSubmit = async () => {
         try {
-            const token = await getToken();
             const formToSend = {
                 date,
                 shift_type,
                 speciality_id: specialityId,
                 shift_comments: comments,
             };
-            const success = await createShift(formToSend, token);
+            const success = await createShift(formToSend, accessToken);
 
             /* trackEvent(EVENTS.PUBLISH_SHIFT_BUTTON_CLICKED, {
               date: form.date,

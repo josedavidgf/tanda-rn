@@ -5,7 +5,7 @@ import { useToast } from '../app/hooks/useToast';
 import { sendSupportContact as sendContactService } from '../services/supportService';
 
 export function useSupportApi() {
-  const { getToken, isWorker } = useAuth();
+  const { accessToken, isWorker } = useAuth();
   const { showSuccess, showError } = useToast();
 
   const [loading, setLoading] = useState(false);
@@ -16,9 +16,8 @@ export function useSupportApi() {
     setError(null);
 
     try {
-      const token = await getToken();
       const workerId = isWorker?.worker_id;
-      const data = await sendContactService(workerId, title, description, token);
+      const data = await sendContactService(workerId, title, description, accessToken);
       return data;
     } catch (err) {
       setError(err.message);

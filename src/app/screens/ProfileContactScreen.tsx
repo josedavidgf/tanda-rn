@@ -12,7 +12,7 @@ import { useSupportApi } from '@/api/useSupportApi'; // Asegúrate de tener esta
 
 export default function ProfileContactScreen() {
     const navigation = useNavigation();
-    const { getToken } = useAuth();
+    const { accessToken } = useAuth();
     const { showSuccess, showError } = useToast();
     const { sendSupportContact } = useSupportApi();
 

@@ -37,7 +37,7 @@ export default function OnboardingCodeScreen() {
   const navigation = useNavigation<StackNavigationProp<OnboardingStackParamList>>();
 
 
-  const { getToken, loading, isWorker } = useAuth();
+  const { accessToken, loading, isWorker } = useAuth();
   const { validateAccessCode } = useAccessCodeApi();
   const { getHospitals } = useHospitalApi();
   const { getWorkerTypes } = useWorkerApi();
@@ -62,9 +62,8 @@ export default function OnboardingCodeScreen() {
       setLoadingForm(true);
 
       const { hospital_id, worker_type_id } = await validateAccessCode(code);
-      const token = await getToken();
-      const hospitals = await getHospitals(token);
-      const workerTypes = await getWorkerTypes(token);
+      const hospitals = await getHospitals(accessToken);
+      const workerTypes = await getWorkerTypes(accessToken);
       console.log('[ONBOARDING] Validando código:', code);
       const hospital = hospitals.find(h => h.hospital_id === hospital_id);
       const workerType = workerTypes.find(w => w.worker_type_id === worker_type_id);

@@ -27,7 +27,7 @@ export default function ProfileWorkingInfoScreen() {
     const [specialities, setSpecialities] = useState([]);
     const [selectedSpeciality, setSelectedSpeciality] = useState('');
 
-    const { getToken, isWorker, setIsWorker } = useAuth();
+    const { accessToken, isWorker, setIsWorker } = useAuth();
     const { validateAccessCode } = useAccessCodeApi();
     const { getHospitals } = useHospitalApi();
     const { getWorkerTypes } = useWorkerApi();
@@ -45,9 +45,8 @@ export default function ProfileWorkingInfoScreen() {
 
     const handleLoadSpecialities = async () => {
         try {
-            const token = await getToken();
             const effectiveHospitalId = hospitalId || isWorker?.workers_hospitals?.[0]?.hospital_id;
-            const data = await getSpecialitiesByHospital(effectiveHospitalId, token);
+            const data = await getSpecialitiesByHospital(effectiveHospitalId, accessToken);
             setSpecialities(data);
             setStep('speciality');
         } catch (err) {
@@ -62,9 +61,8 @@ export default function ProfileWorkingInfoScreen() {
             setHospitalId(response.hospital_id);
             setWorkerTypeId(response.worker_type_id);
 
-            const token = await getToken();
-            const hospitals = await getHospitals(token);
-            const workerTypes = await getWorkerTypes(token);
+            const hospitals = await getHospitals(accessToken);
+            const workerTypes = await getWorkerTypes(accessToken);
 
             const hospital = hospitals.find(h => h.hospital_id === response.hospital_id);
             const workerType = workerTypes.find(w => w.worker_type_id === response.worker_type_id);
@@ -84,7 +82,6 @@ export default function ProfileWorkingInfoScreen() {
     };
     const handleConfirmChanges = async () => {
         try {
-            const token = await getToken();
             const effectiveHospitalId = hospitalId || isWorker?.workers_hospitals?.[0]?.hospital_id;
 
             if (!effectiveHospitalId || !selectedSpeciality) {
@@ -92,9 +89,9 @@ export default function ProfileWorkingInfoScreen() {
                 return;
             }
 
-            await updateWorkerHospital({ hospital_id: effectiveHospitalId }, token);
-            await updateWorkerSpeciality({ speciality_id: selectedSpeciality }, token);
-            const updated = await getHospitals(token);
+            await updateWorkerHospital({ hospital_id: effectiveHospitalId }, accessToken);
+            await updateWorkerSpeciality({ speciality_id: selectedSpeciality }, accessToken);
+            const updated = await getHospitals(accessToken);
             setIsWorker(updated);
             showSuccess('Cambios guardados');
             setStep('view');

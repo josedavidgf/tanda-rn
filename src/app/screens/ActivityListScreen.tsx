@@ -13,7 +13,7 @@ import EmptyState from '@/components/ui/EmptyState'; // NUEVO
 import { useNavigation } from '@react-navigation/native';
 
 export default function ActivityListScreen() {
-  const { getToken } = useAuth();
+  const { accessToken } = useAuth();
   const { getUserEvents, markUserEventsAsSeen } = useUserEventsApi(); // markUserEventsAsSeen
   const navigation = useNavigation();
 
@@ -22,8 +22,7 @@ export default function ActivityListScreen() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const token = await getToken();
-      const data = await getUserEvents(token);
+      const data = await getUserEvents(accessToken);
       setEvents(data);
       setLoading(false);
     };
@@ -34,8 +33,7 @@ export default function ActivityListScreen() {
   useFocusEffect(
     React.useCallback(() => {
       const markSeen = async () => {
-        const token = await getToken();
-        await markUserEventsAsSeen(token);
+        await markUserEventsAsSeen(accessToken);
       };
       markSeen();
     }, [])

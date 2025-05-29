@@ -19,7 +19,7 @@ type ShiftType = 'morning' | 'evening' | 'night' | 'reinforcement';
 
 
 export default function HospitalShiftsScreen() {
-    const { getToken, isWorker } = useAuth();
+    const { accessToken, isWorker } = useAuth();
     const { getHospitalShifts } = useShiftApi();
     const { getSentSwaps } = useSwapApi();
     const navigation = useNavigation();
@@ -35,10 +35,9 @@ export default function HospitalShiftsScreen() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const token = await getToken();
             const [shiftData, sentSwaps] = await Promise.all([
-                getHospitalShifts(token),
-                getSentSwaps(token),
+                getHospitalShifts(accessToken),
+                getSentSwaps(accessToken),
             ]);
 
             setShifts(shiftData);

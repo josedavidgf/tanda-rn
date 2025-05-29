@@ -4,16 +4,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSwapApi } from '@/api/useSwapApi';
 
 export function useSwapNotifications() {
-  const { getToken } = useAuth();
+  const { accessToken } = useAuth();
   const { getReceivedSwaps } = useSwapApi();
   const [hasPendingSwaps, setHasPendingSwaps] = useState(false);
 
   const fetchSwaps = useCallback(async () => {
-    const token = await getToken();
-    const swaps = await getReceivedSwaps(token);
+    const swaps = await getReceivedSwaps(accessToken);
     const pending = swaps.some((s) => s.status === 'proposed');
     setHasPendingSwaps(pending);
-  }, [getToken, getReceivedSwaps]);
+  }, [accessToken, getReceivedSwaps]);
 
   useFocusEffect(
     useCallback(() => {

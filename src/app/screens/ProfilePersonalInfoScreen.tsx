@@ -11,7 +11,6 @@ import { useToast } from '@/app/hooks/useToast';
 import { spacing } from '@/styles';
 
 export default function ProfilePersonalInfo() {
-    const { getToken } = useAuth();
     const { getFullWorkerProfile, updateWorkerInfo } = useUserApi();
     const { showSuccess, showError } = useToast();
 
@@ -27,8 +26,7 @@ export default function ProfilePersonalInfo() {
 
     useEffect(() => {
         const fetch = async () => {
-            const token = await getToken();
-            const data = await getFullWorkerProfile(token);
+            const data = await getFullWorkerProfile(accessToken);
 
             const worker = data?.worker ?? data; // fallback si no viene anidado
 
@@ -64,8 +62,7 @@ export default function ProfilePersonalInfo() {
         if (!validate()) return;
         try {
             setSaving(true);
-            const token = await getToken();
-            await updateWorkerInfo(form, token);
+            await updateWorkerInfo(form, accessToken);
             showSuccess('Datos actualizados correctamente');
         } catch (err) {
             showError('No se pudo guardar la información');
