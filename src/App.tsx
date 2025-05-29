@@ -15,13 +15,17 @@ import { navigationRef } from '@/app/navigation/navigationRef';
 import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
+import {initNotifications} from '@/utils/oneSignal';
 
 global.Buffer = Buffer;
 global.process = require('process');
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  
+
+  useEffect(() => {
+    initNotifications();
+  }, []);
 
   useEffect(() => {
     Font.loadAsync({

@@ -1,10 +1,11 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Tanda',
   slug: 'tanda-rn',
-  scheme: "tanda", // importante
+  scheme: "tanda",
   version: '1.0.0',
   icon: './assets/icon.png',
   jsEngine: 'hermes',
@@ -12,7 +13,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: 'com.apptanda.app',
     buildNumber: '1.0.0',
     infoPlist: {
-      ITSAppUsesNonExemptEncryption: false
+      ITSAppUsesNonExemptEncryption: false,
+      NSUserTrackingUsageDescription: 'Tanda uses notifications to keep you informed of shift changes.',
+      UIBackgroundModes: ['remote-notification'],
     }
   },
   android: {
@@ -25,5 +28,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: {
       projectId: 'c3526404-d409-4a31-8471-085a324c0adc'
     }
-  }
+  },
+  plugins: [
+    ["onesignal-expo-plugin", {
+      "mode": "development"
+    }]
+  ]
 });
