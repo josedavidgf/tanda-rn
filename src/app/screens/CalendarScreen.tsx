@@ -53,7 +53,7 @@ export default function CalendarScreen() {
 
 
     const selectedDayData = useMemo(() => {
-        if (Object.keys(calendarMap).length === 0) return null;
+        console.log('selectedDate', selectedDate);
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
         const entry = calendarMap[dateStr];
         return resolveDayTypeFromCalendarMap(entry, selectedDate);
@@ -256,6 +256,8 @@ export default function CalendarScreen() {
 
     function DayDetailRenderer({ data }: { data: DayType }) {
         if (!data) return null;
+
+        console.log('Rendering DayDetailRenderer con data:', data);
 
         switch (data.type) {
             case 'my_shift':

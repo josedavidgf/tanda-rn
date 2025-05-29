@@ -27,6 +27,7 @@ export default function ChatListScreen() {
     const { getAcceptedSwaps } = useSwapApi();
     const { getMyWorkerProfile } = useWorkerApi();
     const { unreadSwapIds } = useUnreadMessages();
+    const { accessToken } = useAuth();
 
 
     useEffect(() => {
