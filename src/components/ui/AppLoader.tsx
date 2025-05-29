@@ -7,7 +7,7 @@ type AppLoaderProps = {
   message?: string;
 };
 
-const MINIMUM_LOADING_TIME_MS = 1500;
+const MINIMUM_LOADING_TIME_MS = 50;
 
 export default function AppLoader({ onFinish, message }: AppLoaderProps) {
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);

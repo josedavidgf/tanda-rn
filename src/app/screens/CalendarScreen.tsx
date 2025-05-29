@@ -31,6 +31,7 @@ import AppText from '@/components/ui/AppText';
 import { colors } from '@/styles/utilities/colors';
 import { CalendarPlus } from 'phosphor-react-native';
 import FadeInView from '@/components/animations/FadeInView';
+import { relative } from 'path';
 
 export default function CalendarScreen() {
 
@@ -48,6 +49,7 @@ export default function CalendarScreen() {
     const shiftStats = useMemo(() => computeShiftStats(calendarMap, selectedMonth), [calendarMap, selectedMonth]);
     const [isMassiveEditMode, setIsMassiveEditMode] = useState(false);
     const [draftShiftMap, setDraftShiftMap] = useState<Record<string, OriginalCalendarEntry>>({});
+    const [loadingCalendar, setLoadingCalendar] = useState(false);
 
 
     const selectedDayData = useMemo(() => {
@@ -62,18 +64,16 @@ export default function CalendarScreen() {
         if (!isWorker?.worker_id) return;
 
         const loadSchedules = async () => {
-            try {
-                const data = await getMonthlySchedules(
-                    accessToken,
-                    isWorker.worker_id,
-                    selectedMonth.getFullYear(),
-                    selectedMonth.getMonth() + 1
-                );
-                setSchedules(data);
+            setLoadingCalendar(true);
 
-                const prefs = await getMySwapPreferences(isWorker.worker_id, accessToken);
-                const sws = await getAcceptedSwaps(accessToken);
-                const shift = await getMyShiftsPublished(accessToken);
+            try {
+                const [data, prefs, sws, shift] = await Promise.all([
+                    getMonthlySchedules(accessToken, isWorker.worker_id, selectedMonth.getFullYear(), selectedMonth.getMonth() + 1),
+                    getMySwapPreferences(isWorker.worker_id, accessToken),
+                    getAcceptedSwaps(accessToken),
+                    getMyShiftsPublished(accessToken),
+                ]);
+                setSchedules(data);
 
                 const merged = mergeCalendarData({
                     monthlySchedules: data,
@@ -86,6 +86,8 @@ export default function CalendarScreen() {
             } catch (e) {
                 console.log('Aqui error', e);
                 Alert.alert('Error al cargar turnos', e.message);
+            } finally {
+                setLoadingCalendar(false);
             }
         };
 
@@ -329,6 +331,7 @@ export default function CalendarScreen() {
     return (
         <FadeInView>
             <AppLayout title="Tus turnos">
+
                 <ScrollView>
                     <View style={{
                         flexDirection: 'row',
@@ -344,7 +347,7 @@ export default function CalendarScreen() {
                                 setSelectedDate(new Date(newMonth.getFullYear(), newMonth.getMonth(), 1));
                             }}
                         />
-                        {!isMassiveEditMode && (
+                        {!isMassiveEditMode && !loadingCalendar && (
                             <Button
                                 label="Añadir turnos"
                                 size="sm"
@@ -366,35 +369,45 @@ export default function CalendarScreen() {
                     )}
 
 
-                    {!isMassiveEditMode && <ShiftStats stats={shiftStats} />}
-                    <MonthlyGridCalendar
-                        calendarMap={isMassiveEditMode ? draftShiftMap : calendarMap}
-                        selectedDate={selectedDate}
-                        selectedMonth={selectedMonth}
-                        onSelectDate={(date) => {
-                            const dateStr = format(date, 'yyyy-MM-dd');
-                            if (!isMassiveEditMode) {
-                                setSelectedDate(date);
-                            } else {
-                                const entry = draftShiftMap[dateStr] || {};
-                                if (entry.source === 'received_swap' || entry.isPreference) return;
+                    {!isMassiveEditMode && !loadingCalendar && <ShiftStats stats={shiftStats} />}
+                    <View style={{ position: 'relative' }}>
+                        <MonthlyGridCalendar
+                            calendarMap={isMassiveEditMode ? draftShiftMap : calendarMap}
+                            selectedDate={selectedDate}
+                            selectedMonth={selectedMonth}
+                            onSelectDate={(date) => {
+                                const dateStr = format(date, 'yyyy-MM-dd');
+                                if (!isMassiveEditMode) {
+                                    setSelectedDate(date);
+                                } else {
+                                    const entry = draftShiftMap[dateStr] || {};
+                                    if (entry.source === 'received_swap' || entry.isPreference) return;
 
-                                const nextType = getNextShiftType(entry.shift_type);
-                                const newEntry = nextType
-                                    ? { ...entry, shift_type: nextType, source: 'manual' }
-                                    : {};
-                                setDraftShiftMap((prev) => ({
-                                    ...prev,
-                                    [dateStr]: newEntry,
-                                }));
-                            }
-                        }}
-                    />
-                    {!isMassiveEditMode && (
+                                    const nextType = getNextShiftType(entry.shift_type);
+                                    const newEntry = nextType
+                                        ? { ...entry, shift_type: nextType, source: 'manual' }
+                                        : {};
+                                    setDraftShiftMap((prev) => ({
+                                        ...prev,
+                                        [dateStr]: newEntry,
+                                    }));
+                                }
+                            }}
+                        />
+                        {loadingCalendar && (
+                            <View style={{
+                                ...StyleSheet.absoluteFillObject,
+                            }}>
+                                <AppLoader message="Cargando mes..." />
+                            </View>
+                        )}
+                    </View>
+                    {!isMassiveEditMode && !loadingCalendar && (
                         <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                             <DayDetailRenderer data={selectedDayData} />
                         </View>
-                    )}                {isMassiveEditMode && (
+                    )}
+                    {isMassiveEditMode && !loadingCalendar && (
                         <View style={{ padding: 16 }}>
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <Button
