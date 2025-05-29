@@ -2,7 +2,13 @@ import { View, StyleSheet } from 'react-native';
 import HeaderSecondLevel from '../header/HeaderSecondLevel';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function SimpleLayout({ title, showBackButton = true, children }) {
+type SimpleLayoutProps = {
+  title?: string;
+  showBackButton?: boolean;
+  children: React.ReactNode;
+};
+
+export default function SimpleLayout({ title, showBackButton = true, children }: SimpleLayoutProps) {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>

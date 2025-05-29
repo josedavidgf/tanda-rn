@@ -13,6 +13,7 @@ import { ScrollView } from 'react-native';
 import DateRangeFilter from '@/components/ui/DateRangeFilter';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { spacing } from '@/styles';
+import FadeInView from '@/components/animations/FadeInView';
 
 type ShiftType = 'morning' | 'evening' | 'night' | 'reinforcement';
 
@@ -66,48 +67,48 @@ export default function HospitalShiftsScreen() {
     });
 
     return (
-        <AppLayout title="Turnos publicados">
-            <View style={{ flex: 1 }}>
-                <View style={{ padding: spacing.md }}>
-                    <DateRangeFilter range={dateRange} onChange={setDateRange} />
-                </View>
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingHorizontal: 16,
-                        paddingVertical: 12,
-                        alignItems: 'center',
-                    }}
-                >
-                    {shiftTypes.map((type) => {
-                        const isSelected = selectedTypes.includes(type);
-                        const Icon = shiftTypeIcons[type];
-                        return (
-                            <Chip
-                                key={type}
-                                label={shiftTypeLabels[type]}
-                                icon={Icon}
-                                selected={isSelected}
-                                onPress={() => {
-                                    const updated = isSelected
-                                        ? selectedTypes.filter((t) => t !== type)
-                                        : [...selectedTypes, type];
-                                    setSelectedTypes(updated);
-                                }}
-                            />
-                        );
-                    })}
-                </ScrollView>
+        <FadeInView>
+            <AppLayout title="Turnos publicados">
+                <View style={{ flex: 1 }}>
+                    <View style={{ padding: spacing.md }}>
+                        <DateRangeFilter range={dateRange} onChange={setDateRange} />
+                    </View>
+                    <View style={{ paddingHorizontal: spacing.md }}>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ gap: spacing.sm }}
+                        >
+                            {shiftTypes.map((type) => {
+                                const isSelected = selectedTypes.includes(type);
+                                const Icon = shiftTypeIcons[type];
+                                return (
+                                    <Chip
+                                        key={type}
+                                        label={shiftTypeLabels[type]}
+                                        icon={Icon}
+                                        selected={isSelected}
+                                        onPress={() => {
+                                            const updated = isSelected
+                                                ? selectedTypes.filter((t) => t !== type)
+                                                : [...selectedTypes, type];
+                                            setSelectedTypes(updated);
+                                        }}
+                                    />
+                                );
+                            })}
+                        </ScrollView>
+                    </View>
 
-                <HospitalShiftsTable
-                    shifts={filteredShifts}
-                    workerId={isWorker.worker_id}
-                    sentSwapShiftIds={sentSwapShiftIds}
-                    onSelect={(shiftId: string) => navigation.navigate('ProposeSwap', { shiftId })}
-                />
-            </View>
-        </AppLayout>
+                    <HospitalShiftsTable
+                        shifts={filteredShifts}
+                        workerId={isWorker.worker_id}
+                        sentSwapShiftIds={sentSwapShiftIds}
+                        onSelect={(shiftId: string) => navigation.navigate('ProposeSwap', { shiftId })}
+                    />
+                </View>
+            </AppLayout>
+        </FadeInView>
     );
 }
 

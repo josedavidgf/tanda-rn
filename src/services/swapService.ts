@@ -1,6 +1,6 @@
 // src/services/swapService.js
 import axios from 'axios';
-import { db } from '@/lib/supabase';
+import { getDbWithAuth } from '@/lib/supabase';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.92:4000';
 
@@ -100,6 +100,7 @@ export const getSwapsByShiftId = async (shiftId, token) => {
 
 // Obtener notificaciones de swaps (consultando directamente en Supabase)  --- SE USA EN EL DASHBOARD - PUEDE DEPRECARSE
 export const getSwapNotifications = async (token, workerId, myShiftIds) => {
+  const db = await getDbWithAuth(token);
   try {
     if (!workerId || !Array.isArray(myShiftIds) || myShiftIds.length === 0) {
       return { incomingCount: 0, updatesCount: 0 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Alert, Pressable, View , StyleSheet} from 'react-native';
+import { ScrollView, Alert, Pressable, View, StyleSheet } from 'react-native';
 import AppLayout from '@/components/layout/AppLayout';
 import AppLoader from '@/components/ui/AppLoader';
 //import EmptyState from '@/components/ui/EmptyState';
@@ -11,6 +11,9 @@ import { useWorkerApi } from '@/api/useWorkerApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { spacing } from '@/styles';
 import AppText from '@/components/ui/AppText';
+import FadeInView from '@/components/animations/FadeInView';
+import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
+import EmptyState from '@/components/ui/EmptyState';
 
 
 
@@ -24,6 +27,8 @@ export default function ChatListScreen() {
     const { getToken } = useAuth();
     const { getAcceptedSwaps } = useSwapApi();
     const { getMyWorkerProfile } = useWorkerApi();
+    const { unreadSwapIds } = useUnreadMessages();
+
 
     useEffect(() => {
         async function loadChats() {
@@ -55,10 +60,13 @@ export default function ChatListScreen() {
     }, []);
 
     useEffect(() => {
-        if (!searchQuery) {
+        if (searchQuery.length === 0) {
             setFilteredSwaps(swaps);
             return;
         }
+
+        if (searchQuery.length < 3) return; // 👈 nueva condición
+
         const lower = searchQuery.toLowerCase();
         const filtered = swaps.filter((swap) => {
             const iAmRequester = swap.requester_id === workerId;
@@ -66,59 +74,102 @@ export default function ChatListScreen() {
             const name = `${otherPerson.name} ${otherPerson.surname}`.toLowerCase();
             return name.includes(lower);
         });
+
         setFilteredSwaps(filtered);
     }, [searchQuery, swaps, workerId]);
 
+
     return (
-        <AppLayout title="Tus mensajes">
-            {loading ? (
-                <AppLoader message="Cargando chats..." onFinish={() => setLoading(false)} />
-            ) : filteredSwaps.length === 0 ? (
-                <View style={styles.empty}>
-                    <AppText>No tienes intercambios aún.</AppText>
-                </View>
-            ) : (
-                <ScrollView contentContainerStyle={{ gap: 12, padding: 16 }}>
-                    <SearchFilterInput value={searchQuery} onChange={setSearchQuery} placeholder="Buscar por nombre..." />
+        <FadeInView>
+            <AppLayout title="Tus mensajes">
+                {loading ? (
+                    <AppLoader message="Cargando chats..." onFinish={() => setLoading(false)} />
+                ) : swaps.length === 0 ? (
 
-                    {filteredSwaps.map((swap) => {
-                        const iAmRequester = swap.requester_id === workerId;
-                        const myDate = iAmRequester ? swap.offered_date : swap.shift.date;
-                        const myType = iAmRequester ? swap.offered_type : swap.shift.shift_type;
-                        const otherDate = iAmRequester ? swap.shift.date : swap.offered_date;
-                        const otherType = iAmRequester ? swap.shift.shift_type : swap.offered_type;
-                        const otherPerson = iAmRequester
-                            ? swap.shift.worker
-                            : swap.requester;
+                    <EmptyState
+                        title="Sin intercambios aún"
+                        description="Aquí verás los cambios de turno propuestos o recibidos"
+                        ctaLabel="Proponer uno nuevo"
+                        onCtaClick={() => navigation.navigate('MySwaps')}
+                    />
+                ) : (
+                    <ScrollView contentContainerStyle={{ gap: 12, padding: 16 }}>
+                        <SearchFilterInput
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            placeholder="Buscar por nombre..."
+                        />
 
-                        return (
-                            <Pressable
-                                key={swap.swap_id}
-                                onPress={() => navigation.navigate('ChatPage', { swapId: swap.swap_id })}
-                            >
-                                <ChatCardContent
-                                    otherPersonName={`${otherPerson.name} ${otherPerson.surname}`}
-                                    myDate={myDate}
-                                    myType={myType}
-                                    otherDate={otherDate}
-                                    otherType={otherType}
-                                    statusLabel={swap.status}
-                                />
-                            </Pressable>
-                        );
-                    })}
-                </ScrollView>
-            )}
-        </AppLayout>
+                        {filteredSwaps.length === 0 && searchQuery.length >= 3 ? (
+                            <EmptyState
+                                title="No hay resultados"
+                                description="No se encontraron resultados para tu búsqueda."
+                            />
+                        ) : (
+                            filteredSwaps.map((swap) => {
+                                const iAmRequester = swap.requester_id === workerId;
+                                const myDate = iAmRequester ? swap.offered_date : swap.shift.date;
+                                const myType = iAmRequester ? swap.offered_type : swap.shift.shift_type;
+                                const otherDate = iAmRequester ? swap.shift.date : swap.offered_date;
+                                const otherType = iAmRequester ? swap.shift.shift_type : swap.offered_type;
+                                const otherPerson = iAmRequester ? swap.shift.worker : swap.requester;
+                                const hasUnread = unreadSwapIds.includes(swap.swap_id);
+
+                                return (
+                                    <Pressable
+                                        key={swap.swap_id}
+                                        onPress={() => navigation.navigate('ChatPage', { swapId: swap.swap_id })}
+                                        style={styles.cardWrapper}
+                                    >
+                                        <ChatCardContent
+                                            otherPersonName={`${otherPerson.name} ${otherPerson.surname}`}
+                                            myDate={myDate}
+                                            myType={myType}
+                                            otherDate={otherDate}
+                                            otherType={otherType}
+                                            statusLabel={swap.status}
+                                        />
+                                        {hasUnread && <View style={styles.dot} />}
+                                    </Pressable>
+                                );
+                            })
+                        )}
+                    </ScrollView>
+                )}
+            </AppLayout>
+        </FadeInView>
     );
+
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  empty: {
-    padding: spacing.md,
-    alignItems: 'center',
-  },
+    container: {
+        flex: 1,
+    },
+    empty: {
+        padding: spacing.md,
+        alignItems: 'center',
+    },
+    cardWrapper: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: spacing.md,
+        borderWidth: 1,
+        borderColor: '#eee',
+        position: 'relative',
+        marginBottom: spacing.sm,
+    },
+
+    dot: {
+        position: 'absolute',
+        top: spacing.sm,
+        right: spacing.sm,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: 'red',
+        borderWidth: 1,
+        borderColor: 'white',
+        zIndex: 10,
+    },
 });

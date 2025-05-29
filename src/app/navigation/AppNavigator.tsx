@@ -6,7 +6,7 @@ import HospitalShifts from '../screens/HospitalShiftsScreen'
 import ChatsList from '../screens/ChatListScreen';
 import MySwaps from '../screens/MySwapScreen';
 // Second Level
-import CreateShiftScreen from '../screens/CreateShiftScreen'; // ajusta la ruta si hace falta
+import CreateShift from '../screens/CreateShiftScreen'; // ajusta la ruta si hace falta
 import ProposeSwap from '../screens/ProposeSwapScreen';
 import SwapDetails from '../screens/SwapDetailsScreen';
 import ChatPage from '../screens/ChatPageScreen';
@@ -34,7 +34,7 @@ export default function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="Calendar" component={CalendarScreen} />
       <Stack.Screen name="ActivityList" component={ActivityList} />
-      <Stack.Screen name="CreateShift" component={CreateShiftScreen} />
+      <Stack.Screen name="CreateShift" component={CreateShift} />
       <Stack.Screen name='HospitalShifts' component={HospitalShifts} />
       <Stack.Screen name='MySwaps' component={MySwaps} />
       <Stack.Screen name='ChatsList' component={ChatsList} />

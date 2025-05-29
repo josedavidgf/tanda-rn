@@ -5,7 +5,6 @@ import Button from '@/components/ui/Button';
 import { ArrowRight } from '@/theme/icons';
 import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { spacing, typography, colors } from '@/styles';
-import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { useNavigation } from '@react-navigation/native';
 import { Lightning } from 'phosphor-react-native';
 
@@ -30,7 +29,8 @@ export default function DayDetailReceived({
     .filter(Boolean)
     .join(' ');
   const navigation = useNavigation();
-
+  console.log('entry', entry);
+  console.log('trabajador', fullName);
   const hourRange = {
     morning: 'de 8:00 a 15:00',
     evening: 'de 15:00 a 22:00',
@@ -43,13 +43,13 @@ export default function DayDetailReceived({
       <AppText variant="h2">{dayLabel}</AppText>
       <View style={styles.infoRow}>
         {Icon && <Icon size={20} weight="fill" color={colors.white} />}
-        <AppText variant="p" style={{ fontWeight: '600' }}>
+        <AppText variant="p">
           Turno de {shiftTypeLabels[entry.shift_type]} {hourRange[entry.shift_type]}
         </AppText>
       </View>
       {fullName && (
         <AppText variant="p">
-          Cedido por: <AppText variant="p" style={{ fontWeight: '600' }}>{fullName}</AppText>
+          Cedido por: <AppText variant="p">{fullName}</AppText>
         </AppText>
       )}
 
@@ -90,8 +90,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: spacing.xs,
   },
   shift_morning: { backgroundColor: 'rgba(255, 249, 219, 0.6)' },

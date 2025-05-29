@@ -25,7 +25,7 @@ export default function RegisterScreen() {
         email,
         password,
         options: {
-          emailRedirectTo: 'https://tanda.app/onboarding/code', // ajusta a tu entorno real
+          emailRedirectTo: 'https://redirect.apptanda.com/auth/callback', // ajusta a tu entorno real
         },
       });
 

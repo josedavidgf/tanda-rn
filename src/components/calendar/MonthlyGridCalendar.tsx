@@ -41,9 +41,10 @@ export default function MonthlyGridCalendar({
     const isSelected = dateStr === format(selectedDate, 'yyyy-MM-dd');
     const isPast = day < today;
     const isPreference = entry.isPreference;
+    const isSwappedOut = entry.source === 'swapped_out';
+    const Icon = !isSwappedOut && entry.shift_type ? shiftTypeIcons[entry.shift_type] : null;
+    const shiftClass = !isSwappedOut && entry.shift_type ? styles[`shift${capitalize(entry.shift_type)}`] : null;
 
-    const Icon = entry.shift_type ? shiftTypeIcons[entry.shift_type] : null;
-    const shiftClass = entry.shift_type ? styles[`shift${capitalize(entry.shift_type)}`] : null;
 
     return (
       <View style={styles.calendarDayWrapper}>

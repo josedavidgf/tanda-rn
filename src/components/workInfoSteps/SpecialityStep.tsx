@@ -36,41 +36,51 @@ export default function SpecialityStep({
   }, [specialities, query]);
 
   return (
-    <View style={styles.wrapper}>
-      <AppText variant="h3" style={styles.title}>
-        Selecciona el servicio en el que trabajas
-      </AppText>
+  <View style={styles.wrapper}>
+    <AppText variant="h3" style={styles.title}>
+      Selecciona el servicio en el que trabajas
+    </AppText>
 
-      <SearchFilterInput value={query} onChange={setQuery} />
+    <SearchFilterInput value={query} onChange={setQuery} />
 
+    <View style={styles.scrollContainer}>
       <SpecialitiesGrid
         specialities={filtered}
         selectedSpeciality={selectedSpeciality}
         setSelectedSpeciality={setSelectedSpeciality}
       />
-
-      <Button
-        label="Guardar cambios"
-        size="lg"
-        variant="primary"
-        onPress={onConfirm}
-        disabled={!selectedSpeciality || loading}
-        loading={loading}
-        style={styles.button}
-      />
     </View>
-  );
+
+    <Button
+      label="Guardar cambios"
+      size="lg"
+      variant="primary"
+      onPress={onConfirm}
+      disabled={!selectedSpeciality || loading}
+      loading={loading}
+    />
+  </View>
+);
+
+
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: spacing.lg,
-    gap: spacing.md,
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   title: {
     marginBottom: spacing.sm,
   },
+  scrollContainer: {
+    flex: 1,
+    marginVertical: spacing.md,
+  },
   button: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
 });
+

@@ -46,12 +46,14 @@ export default function ProfileResetPasswordScreen() {
             <ScrollView contentContainerStyle={styles.container}>
                 <InputField
                     label="Nueva contraseña"
+                    placeholder="Introduce tu nueva contraseña"
                     value={form.password}
                     onChangeText={(val) => handleChange('password', val)}
                     secureTextEntry
                 />
                 <InputField
                     label="Repetir contraseña"
+                    placeholder="Repite tu nueva contraseña"
                     value={form.confirm}
                     onChangeText={(val) => handleChange('confirm', val)}
                     secureTextEntry

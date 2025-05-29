@@ -5,7 +5,7 @@ type MonthlySchedule = {
   worker_id: string;
   date: string;
   shift_type: string;
-  source: 'manual' | 'swapped_out' | 'received_swap';
+  source?: string;
 };
 
 export async function getMonthlySchedules(token: string, workerId: string, year: number, month: number) {
@@ -38,7 +38,6 @@ export async function setShiftForDay(token: string, workerId: string, dateStr: s
         shift_type: shiftType,
         source: 'manual',
       },
-      { onConflict: ['worker_id', 'date'] }
     );
 
   if (error) throw new Error(error.message);

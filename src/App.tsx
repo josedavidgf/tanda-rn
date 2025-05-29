@@ -15,11 +15,13 @@ import { navigationRef } from '@/app/navigation/navigationRef';
 import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
+
 global.Buffer = Buffer;
 global.process = require('process');
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  
 
   useEffect(() => {
     Font.loadAsync({

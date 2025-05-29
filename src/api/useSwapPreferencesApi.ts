@@ -21,10 +21,10 @@ export function useSwapPreferencesApi() {
   };
 
   return {
-    getMySwapPreferences: (workerId: string) => apiCall(getMySwapPreferences, workerId),
-    createSwapPreference: (preferenceData: any) => apiCall(createSwapPreference, preferenceData),
-    deleteSwapPreference: (preferenceId: string) => apiCall(deleteSwapPreference, preferenceId),
-    updateSwapPreference: (preferenceId: string, preferenceType: string) => apiCall(updateSwapPreference, preferenceId, preferenceType),
+    getMySwapPreferences: (workerId: string, token: string) => apiCall(getMySwapPreferences, workerId, token),
+    createSwapPreference: (preferenceData: any, token: string) => apiCall(createSwapPreference, preferenceData, token),
+    deleteSwapPreference: (preferenceId: string, token:string) => apiCall(deleteSwapPreference, preferenceId, token),
+    updateSwapPreference: (preferenceId: string, preferenceType: string, token: string) => apiCall(updateSwapPreference, preferenceId, preferenceType, token),
     loading,
     error,
   };

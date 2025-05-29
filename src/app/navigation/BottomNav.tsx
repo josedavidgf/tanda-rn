@@ -7,6 +7,9 @@ import {
   ChatCircle,
 } from '@/theme/icons';
 import { Text } from 'react-native-gesture-handler';
+import { DotIconWrapper } from '@/components/ui/DotIconWrapper';
+import { useSwapNotifications } from '@/app/hooks/useSwapNotifications';
+import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
 
 type TabItem = {
   name: string;
@@ -26,10 +29,18 @@ export default function BottomNav() {
   const navigation = useNavigation();
   const route = useRoute();
 
+
+  const { hasUnreadMessages } = useUnreadMessages();
+  const { hasPendingSwaps } = useSwapNotifications();
+
   return (
     <View style={styles.container}>
       {tabs.map(({ name, label, route: routeName, icon: Icon }) => {
         const isActive = route.name === routeName;
+
+        let showDot = false;
+        if (routeName === 'ChatsList') showDot = hasUnreadMessages;
+        if (routeName === 'MySwaps') showDot = hasPendingSwaps;
 
         return (
           <Pressable
@@ -37,11 +48,13 @@ export default function BottomNav() {
             style={styles.tab}
             onPress={() => navigation.navigate(routeName as never)}
           >
-            <Icon
-              size={24}
-              color={isActive ? '#111' : '#999'}
-              weight={isActive ? 'fill' : 'regular'}
-            />
+            <DotIconWrapper showDot={showDot}>
+              <Icon
+                size={24}
+                color={isActive ? '#111' : '#999'}
+                weight={isActive ? 'fill' : 'regular'}
+              />
+            </DotIconWrapper>
             <Text
               style={{
                 color: isActive ? '#111' : '#999',

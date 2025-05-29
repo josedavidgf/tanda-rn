@@ -9,7 +9,6 @@ import { EVENTS } from '@/utils/amplitudeEvents';
 import { colors } from '@/styles/utilities/colors';
 import { spacing, typography } from '@/styles';
 import { Schedule } from '@/types/calendar';
-import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -47,6 +46,11 @@ export default function DayDetailMyShift({
 
   const textLine = `El ${dayLabel} tienes turno propio de ${shiftTypeLabels[shift.shift_type]} ${hourRange[shift.shift_type] || ''}`;
 
+  console.log('🔁 Navegar a CreateShift con:', {
+    date: dateStr,
+    shift_type: shift.shift_type,
+  });
+
   return (
     <View style={[styles.container, styles[`shift_${shift.shift_type}`]]}>
       <AppText variant="h2">
@@ -83,7 +87,7 @@ export default function DayDetailMyShift({
             onPress={() => {
               // trackEvent(EVENTS.PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: shift.shift_type });
               navigation.navigate('CreateShift', {
-                date: shift.date,
+                date: dateStr,
                 shift_type: shift.shift_type,
               });
             }}

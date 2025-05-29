@@ -17,7 +17,7 @@ export default function ShiftStats({ stats }: { stats: ShiftStatsType }) {
 
         return (
           <View key={type} style={styles.badge}>
-            <Icon size={16} color={colors.white} weight="fill" />
+            <Icon size={16} color={colors.primary} />
             <AppText style={styles.badgeText}>{count}</AppText>
           </View>
         );
@@ -40,13 +40,13 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: '#F3F4F6',
     borderRadius: 20,
     paddingVertical: 4,
     paddingHorizontal: spacing.sm,
   },
   badgeText: {
-    color: colors.white,
+    color: colors.primary,
     marginLeft: 6,
   },
 });

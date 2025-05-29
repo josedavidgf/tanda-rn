@@ -13,6 +13,7 @@ import { spacing } from '@/styles';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppLoader from '@/components/ui/AppLoader';
+import FadeInView from '@/components/animations/FadeInView';
 
 export default function CreateShiftScreen() {
     const navigation = useNavigation();
@@ -25,6 +26,7 @@ export default function CreateShiftScreen() {
     const [invalidParams, setInvalidParams] = useState(false);
     const [comments, setComments] = useState('');
 
+    console.log('Navegar a CreateShift con:',{ date,shift_type});
 
     useEffect(() => {
         if (!isWorker) return;
@@ -90,38 +92,40 @@ export default function CreateShiftScreen() {
     if (loadingWorker) return <AppLoader onFinish={() => loadingWorker(false)} message='Cargando trabajador...' />;
 
     return (
-        <SimpleLayout title="Publicar turno" showBackButton onBack={() => navigation.goBack()}>
-            <View style={styles.page}>
-                <View style={styles.container}>
-                    <InputField
-                        label="Turno"
-                        value={shiftLabel}
-                        editable={false}
-                    />
-                    <InputField
-                        label="Servicio"
-                        value={specialityLabel}
-                        editable={false}
-                    />
-                    <InputField
-                        label="Comentarios"
-                        placeholder="Añade comentarios si lo deseas"
-                        value={comments}
-                        onChangeText={(text) => setComments(text)}
-                        multiline
-                    />
+        <FadeInView>
+            <SimpleLayout title="Publicar turno" showBackButton onBack={() => navigation.goBack()}>
+                <View style={styles.page}>
+                    <View style={styles.container}>
+                        <InputField
+                            label="Turno"
+                            value={shiftLabel}
+                            editable={false}
+                        />
+                        <InputField
+                            label="Servicio"
+                            value={specialityLabel}
+                            editable={false}
+                        />
+                        <InputField
+                            label="Comentarios"
+                            placeholder="Añade comentarios si lo deseas"
+                            value={comments}
+                            onChangeText={(text) => setComments(text)}
+                            multiline
+                        />
 
-                    <Button
-                        label="Publicar"
-                        size="lg"
-                        variant="primary"
-                        onPress={handleSubmit}
-                        loading={creatingShift}
-                        disabled={creatingShift}
-                    />
+                        <Button
+                            label="Publicar"
+                            size="lg"
+                            variant="primary"
+                            onPress={handleSubmit}
+                            loading={creatingShift}
+                            disabled={creatingShift}
+                        />
+                    </View>
                 </View>
-            </View>
-        </SimpleLayout>
+            </SimpleLayout>
+        </FadeInView>
     );
 }
 

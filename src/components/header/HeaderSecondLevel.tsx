@@ -17,7 +17,7 @@ export default function HeaderSecondLevel({
   onBack,
   rightAction,
 }: {
-  title: string;
+  title?: string;
   showBackButton?: boolean;
   onBack?: () => void;
   rightAction?: RightAction;

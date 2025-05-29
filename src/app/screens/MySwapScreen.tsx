@@ -12,6 +12,7 @@ import { ScrollView } from 'react-native';
 import DateRangeFilter from '@/components/ui/DateRangeFilter';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { spacing } from '@/styles';
+import FadeInView from '@/components/animations/FadeInView';
 
 export default function MySwapScreen() {
   const { getToken, isWorker } = useAuth();
@@ -62,47 +63,46 @@ export default function MySwapScreen() {
   });
 
   return (
-    <AppLayout title="Tus intercambios">
-      <View style={{ flex: 1 }}>
-        <View style={{ padding: spacing.md }}>
-          <DateRangeFilter range={dateRange} onChange={setDateRange} />
+    <FadeInView>
+      <AppLayout title="Tus intercambios">
+        <View style={{ flex: 1 }}>
+          <View style={{ padding: spacing.md }}>
+            <DateRangeFilter range={dateRange} onChange={setDateRange} />
+          </View>
+          <View style={{ paddingHorizontal: spacing.md }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: spacing.sm }}
+            >
+              {statusOptions.map((status) => {
+                const isSelected = statusFilters.includes(status);
+                return (
+                  <Chip
+                    key={status}
+                    label={swapStatusLabels[status]}
+                    selected={isSelected}
+                    onPress={() => {
+                      const updated = isSelected
+                        ? statusFilters.filter((s) => s !== status)
+                        : [...statusFilters, status];
+                      setStatusFilters(updated);
+                    }}
+                  />
+                );
+              })}
+            </ScrollView>
+          </View>
+          <MySwapsTable
+            swaps={filteredSwaps}
+            workerId={isWorker.worker_id}
+            onSelect={(swapId: string) =>
+              navigation.navigate('SwapDetails', { swapId })
+            }
+          />
         </View>
-        <ScrollView
-          style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.xs }}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            padding: spacing.md,
-            alignItems: 'center',
-          }}
-        >
-          {statusOptions.map((status) => {
-            const isSelected = statusFilters.includes(status);
-            return (
-              <Chip
-                key={status}
-                label={swapStatusLabels[status]}
-                selected={isSelected}
-                onPress={() => {
-                  const updated = isSelected
-                    ? statusFilters.filter((s) => s !== status)
-                    : [...statusFilters, status];
-                  setStatusFilters(updated);
-                }}
-              />
-            );
-          })}
-        </ScrollView>
-        <MySwapsTable
-          swaps={filteredSwaps}
-          workerId={isWorker.worker_id}
-          onSelect={(swapId: string) =>
-            navigation.navigate('SwapDetails', { swapId })
-          }
-        />
-      </View>
-    </AppLayout>
-
+      </AppLayout>
+    </FadeInView>
   );
 }
 

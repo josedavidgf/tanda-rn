@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import ChatBox from '@/components/chat/Chatbox';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { getMessagesBySwap, sendMessage } from '@/services/messagesService';
 import { useSwapApi } from '@/api/useSwapApi';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,7 +21,8 @@ import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { PaperPlaneTilt } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWorkerApi } from '@/api/useWorkerApi';
-
+import { markMessagesAsRead } from '@/api/useMessagesApi';
+import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
 
 export default function ChatPageScreen() {
     const route = useRoute();
@@ -38,6 +39,7 @@ export default function ChatPageScreen() {
     const [myWorkerId, setMyWorkerId] = useState<string | null>(null);
     const [otherWorkerId, setOtherWorkerId] = useState<string | null>(null);
     const { getMyWorkerProfile } = useWorkerApi();
+    const { refreshUnreadMessages } = useUnreadMessages();
 
 
     useEffect(() => {
@@ -66,6 +68,18 @@ export default function ChatPageScreen() {
         loadSwap();
         inputRef.current?.focus();
     }, [swapId]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const markAsSeen = async () => {
+                const token = await getToken();
+                await markMessagesAsRead(token, swapId);
+                await refreshUnreadMessages(); // 🔁 actualiza BottomNav
+
+            };
+            markAsSeen();
+        }, [swapId])
+    );
 
     const handleSend = async () => {
         if (!input.trim()) return;

@@ -6,7 +6,7 @@ import { Lightning, Lightbulb, Eye } from '@/theme/icons';
 import { spacing, typography , colors} from '@/styles';
 //import { trackEvent } from '@/lib/amplitude';
 import { EVENTS } from '@/utils/amplitudeEvents';
-import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
+import { useNavigation } from '@react-navigation/native';
 
 
 type Props = {
@@ -38,7 +38,8 @@ export default function DayDetailSwapped({
     .join(' ');
 
   const isRequester = entry.requester_id === entry.worker_id;
-
+    const navigation = useNavigation();
+  
   const hourRange = {
     morning: 'de 8:00 a 15:00',
     evening: 'de 15:00 a 22:00',
@@ -83,7 +84,7 @@ export default function DayDetailSwapped({
             leftIcon={<Eye size={20} color={colors.black} />}
             onPress={() => {
               //trackEvent(EVENTS.SHOW_SWAPPED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
-              navigate(`/swaps/${entry.swap_id}`);
+              navigation.navigate('SwapDetails', { swapId: entry.swap_id });
             }}
           />
         )}

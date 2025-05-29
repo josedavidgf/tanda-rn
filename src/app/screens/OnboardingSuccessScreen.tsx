@@ -46,7 +46,7 @@ export default function OnboardingSuccessScreen() {
     completeAndRedirect();
   }, []);
 
-  if (loading) return <AppLoader/>;
+  if (loading) return <AppLoader message='Cargando...' />;
 
   if (failed) {
     return (

@@ -88,17 +88,21 @@ export default function OnboardingSpecialityScreen() {
   return (
     <SimpleLayout title="Especialidad" showBackButton>
       <View style={styles.wrapper}>
-        <AppText variant="p" style={styles.intro}>
-          Selecciona el servicio en el que trabajas
-        </AppText>
+        <View style={styles.scrollContent}>
+          <AppText variant="p" style={styles.intro}>
+            Selecciona el servicio en el que trabajas
+          </AppText>
 
-        <SearchFilterInput value={query} onChange={setQuery} />
+          <SearchFilterInput value={query} onChange={setQuery} />
 
-        <SpecialitiesGrid
-          specialities={filteredSpecialities}
-          selectedSpeciality={selectedSpeciality}
-          setSelectedSpeciality={setSelectedSpeciality}
-        />
+          <View style={styles.scrollContainer}>
+            <SpecialitiesGrid
+              specialities={filteredSpecialities}
+              selectedSpeciality={selectedSpeciality}
+              setSelectedSpeciality={setSelectedSpeciality}
+            />
+          </View>
+        </View>
 
         <Button
           label="Continuar"
@@ -107,19 +111,29 @@ export default function OnboardingSpecialityScreen() {
           onPress={handleConfirm}
           loading={saving}
           disabled={!selectedSpeciality || saving}
-          style={{ marginTop: 24 }}
         />
       </View>
     </SimpleLayout>
   );
+
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    padding: 16,
-    gap: 12,
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+    justifyContent: 'space-between',
   },
   intro: {
     marginBottom: 8,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  scrollContainer: {
+    flex: 1,
+    marginTop: 12,
   },
 });

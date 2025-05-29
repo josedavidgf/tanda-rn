@@ -11,6 +11,7 @@ import { shiftTypeLabels, swapStatusLabels } from '@/utils/useLabelMap';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { spacing } from '@/styles';
 import InputField from '@/components/forms/InputField';
+import FadeInView from '@/components/animations/FadeInView';
 
 export default function SwapDetails() {
   const route = useRoute();
@@ -68,60 +69,62 @@ export default function SwapDetails() {
     }
   };
 
-  if (loading || !swap) return <AppLoader />;
+  if (loading || !swap) return <AppLoader message='Cargando detalles del intercambio...' />;
 
   return (
-    <SimpleLayout title="Detalle del intercambio" showBackButton onBack={() => navigation.goBack()}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <InputField
-          label="Turno original"
-          value={`${formatFriendlyDate(swap.shift?.date)} de ${shiftTypeLabels[swap.shift?.shift_type]}`}
-          editable={false}
-        />
+    <FadeInView>
+      <SimpleLayout title="Detalle del intercambio" showBackButton onBack={() => navigation.goBack()}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <InputField
+            label="Turno original"
+            value={`${formatFriendlyDate(swap.shift?.date)} de ${shiftTypeLabels[swap.shift?.shift_type]}`}
+            editable={false}
+          />
 
-        <InputField
-          label="Turno ofrecido"
-          value={`${formatFriendlyDate(swap.offered_date)} de ${shiftTypeLabels[swap.offered_type]}`}
-          editable={false}
-        />
+          <InputField
+            label="Turno ofrecido"
+            value={`${formatFriendlyDate(swap.offered_date)} de ${shiftTypeLabels[swap.offered_type]}`}
+            editable={false}
+          />
 
-        <InputField
-          label="Estado"
-          value={swapStatusLabels[swap.status]}
-          editable={false}
-        />
+          <InputField
+            label="Estado"
+            value={swapStatusLabels[swap.status]}
+            editable={false}
+          />
 
 
-        {swap.status === 'proposed' && iAmReceiver && (
-          <View style={styles.actions}>
+          {swap.status === 'proposed' && iAmReceiver && (
+            <View style={styles.actions}>
+              <Button
+                label="Aceptar"
+                size='lg'
+                variant='primary'
+                onPress={() => handleRespond('accepted')}
+                style={{ marginTop: spacing.sm }}
+                disabled={isAccepting} />
+              <Button
+                label="Rechazar"
+                size='lg'
+                variant='outline'
+                style={{ marginTop: spacing.sm }}
+                onPress={() => handleRespond('rejected')}
+                disabled={isRejecting} />
+            </View>
+          )}
+
+          {swap.status === 'proposed' && iAmRequester && (
             <Button
-              label="Aceptar"
-              size='lg'
-              variant='primary'
-              onPress={() => handleRespond('accepted')}
-              style={{ marginTop: spacing.sm }}
-              disabled={isAccepting} />
-            <Button
-              label="Rechazar"
+              label="Anular intercambio"
               size='lg'
               variant='outline'
-              style={{ marginTop: spacing.sm }}
-              onPress={() => handleRespond('rejected')}
-              disabled={isRejecting} />
-          </View>
-        )}
-
-        {swap.status === 'proposed' && iAmRequester && (
-          <Button
-            label="Anular intercambio"
-            size='lg'
-            variant='outline'
-            style={{ marginTop: spacing.md }}
-            onPress={handleCancelSwap}
-            disabled={isCancelling} />
-        )}
-      </ScrollView>
-    </SimpleLayout>
+              style={{ marginTop: spacing.md }}
+              onPress={handleCancelSwap}
+              disabled={isCancelling} />
+          )}
+        </ScrollView>
+      </SimpleLayout>
+    </FadeInView>
   );
 }
 

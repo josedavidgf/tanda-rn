@@ -54,9 +54,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.white,
     padding: spacing.md,
-    borderRadius: 12,
-    borderColor: colors.gray[200],
-    borderWidth: 1,
     gap: spacing.sm,
   },
   row: {

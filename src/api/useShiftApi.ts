@@ -32,16 +32,16 @@ export function useShiftApi() {
 
   return {
 
-    createShift: (data, token) => apiCall(createShift, data, token),
-    getMyShifts: (token) => apiCall(getMyShifts, token),
-    getMyShiftsPublished: (token) => apiCall(getMyShiftsPublished, token),
-    getShiftById: (id, token) => apiCall(getShiftById, id, token),
-    updateShift: (id, updates, token) => apiCall(updateShift, id, updates, token),
-    removeShift: (id, token) => apiCall(removeShift, id, token),
-    getHospitalShifts: (token) => apiCall(getHospitalShifts, token),
-    getShiftPreferencesByShiftId: (shiftId, token) => apiCall(getShiftPreferencesByShiftId, shiftId, token),
-    updateShiftPreferences: (shiftId, preferences, token) => apiCall(updateShiftPreferences, shiftId, preferences, token),
-    getMyAvailableShifts: (workerId, token) => apiCall(getMyAvailableShifts, workerId, token),
+    createShift: (data: string, token: string) => apiCall(createShift, data, token),
+    getMyShifts: (token: string) => apiCall(getMyShifts, token),
+    getMyShiftsPublished: (token: string) => apiCall(getMyShiftsPublished, token),
+    getShiftById: (id: string, token: string) => apiCall(getShiftById, id, token),
+    updateShift: (id: string, updates: any, token: string) => apiCall(updateShift, id, updates, token),
+    removeShift: (id: string, token: string) => apiCall(removeShift, id, token),
+    getHospitalShifts: (token: string) => apiCall(getHospitalShifts, token),
+    getShiftPreferencesByShiftId: (shiftId: string, token: string) => apiCall(getShiftPreferencesByShiftId, shiftId, token),
+    updateShiftPreferences: (shiftId: string, preferences: any, token: string) => apiCall(updateShiftPreferences, shiftId, preferences, token),
+    getMyAvailableShifts: (workerId: string, token: string) => apiCall(getMyAvailableShifts, workerId, token),
     loading,
     error,
   };

@@ -3,6 +3,8 @@ import { Bell, User } from 'phosphor-react-native';
 import AppText from '../ui/AppText';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { spacing, colors, typography } from '@/styles';
+import NotificationDotIcon from '@/components/ui/NotificationDotIcon';
+
 
 export default function HeaderFirstLevel({ title }: { title: string }) {
   const navigation = useNavigation();
@@ -16,7 +18,7 @@ export default function HeaderFirstLevel({ title }: { title: string }) {
       {isCalendarScreen && (
         <View style={styles.actions}>
           <Pressable onPress={() => navigation.navigate('ActivityList')}>
-            <Bell size={24} weight="regular" color={colors.gray[800]} />
+            <NotificationDotIcon />
           </Pressable>
           <Pressable onPress={() => navigation.navigate('ProfileMenu')}>
             <User size={24} weight="regular" color={colors.gray[800]} />

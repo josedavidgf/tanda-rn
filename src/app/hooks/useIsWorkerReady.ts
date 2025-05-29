@@ -1,13 +1,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 
-export function useIsWorkerReady() {
-  const { isWorker, loading } = useAuth();
+export const useIsWorkerReady = () => {
+  const { isWorker, appState } = useAuth();
+  const ready = appState === 'ready' && !!isWorker;
 
-  const ready = !loading && !!isWorker;
-
-  return {
-    isWorker,
-    loading,
-    ready,
-  };
-}
+  return { isWorker, ready };
+};

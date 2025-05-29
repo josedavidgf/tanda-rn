@@ -55,7 +55,7 @@ export default function ProposeSwap() {
             const receiverId = target.worker?.worker_id;
 
             const receiverSchedules = await getShiftsForMonth(token, receiverId);
-            const preferences = await getMySwapPreferences(receiverId);
+            const preferences = await getMySwapPreferences(receiverId, token);
 
             const receiverHasShift = new Set(receiverSchedules.map((r) => r.date));
 
@@ -100,12 +100,12 @@ export default function ProposeSwap() {
             };
             setSubmittedSwap(enrichedSwap);
             setFeedbackVisible(true);
-        } catch (err: any) {
+        } catch (err: any) {r
             Alert.alert('Error', err.message);
         }
     };
 
-    if (loading || !targetShift) return <AppLoader />;
+    if (loading || !targetShift) return <AppLoader message='Cargando propuesta...' onFinish={() => setLoading(false)} />;
 
     return (
         <>
