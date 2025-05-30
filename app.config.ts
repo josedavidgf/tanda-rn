@@ -11,7 +11,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: 'hermes',
   ios: {
     bundleIdentifier: 'com.apptanda.app',
-    buildNumber: '1.0.0',
+    buildNumber: '1.0.1',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSUserTrackingUsageDescription: 'Tanda uses notifications to keep you informed of shift changes.',
@@ -25,13 +25,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
     EXPO_PUBLIC_BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
-    eas: {
+/*     ONESIGNAL_APP_ID: process.env.ONESIGNAL_APP_ID,
+ */    eas: {
       projectId: 'c3526404-d409-4a31-8471-085a324c0adc'
     }
   },
-  plugins: [
-    ["onesignal-expo-plugin", {
-      "mode": "development"
-    }]
-  ]
 });

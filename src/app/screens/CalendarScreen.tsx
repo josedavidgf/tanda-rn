@@ -140,7 +140,7 @@ export default function CalendarScreen() {
             if (alreadyExists) {
                 const preferenceId = currentIds[shiftType];
                 if (preferenceId) {
-                    await deleteSwapPreference(preferenceId, token);
+                    await deleteSwapPreference(preferenceId, accessToken);
                     updatedTypes = updatedTypes.filter(t => t !== shiftType);
                     delete updatedIds[shiftType];
                 }
@@ -151,7 +151,7 @@ export default function CalendarScreen() {
                     preference_type: shiftType,
                     hospital_id: isWorker.workers_hospitals?.[0]?.hospital_id,
                     speciality_id: isWorker.workers_specialities?.[0]?.speciality_id,
-                }, token);
+                }, accessToken);
                 updatedTypes.push(shiftType);
                 updatedIds[shiftType] = res.preference_id;
             }

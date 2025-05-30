@@ -15,23 +15,34 @@ import { navigationRef } from '@/app/navigation/navigationRef';
 import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
-import {initNotifications} from '@/utils/oneSignal';
+import * as Linking from 'expo-linking';
 
+/* import {initNotifications} from '@/utils/oneSignal';
+ */
 global.Buffer = Buffer;
 global.process = require('process');
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  useEffect(() => {
-    initNotifications();
-  }, []);
+  /*   useEffect(() => {
+      initNotifications();
+    }, []); */
 
   useEffect(() => {
     Font.loadAsync({
       Custom: require('@assets/fonts/HostGrotesk-Regular.ttf'),
     }).then(() => setFontsLoaded(true));
   }, []);
+  
+  const linking = {
+    prefixes: ['tanda://'],
+    config: {
+      screens: {
+        Login: 'login', // 👈 esta línea hace que tanda://login abra LoginScreen
+      },
+    },
+  };
 
   if (!fontsLoaded) {
     return (
@@ -46,6 +57,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer
         ref={navigationRef}
+        linking={linking}
         onReady={() => {
           console.log('[NAV] Navigation is ready');
         }}

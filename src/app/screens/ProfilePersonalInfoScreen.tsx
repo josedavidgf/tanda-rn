@@ -13,6 +13,7 @@ import { spacing } from '@/styles';
 export default function ProfilePersonalInfo() {
     const { getFullWorkerProfile, updateWorkerInfo } = useUserApi();
     const { showSuccess, showError } = useToast();
+    const { accessToken } = useAuth();
 
     const [form, setForm] = useState({
         name: '',

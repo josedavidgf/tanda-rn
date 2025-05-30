@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
 import { navigationRef } from '@/app/navigation/navigationRef';
-import { getMyWorkerProfile } from '@/services/workerService';
+import { useWorkerApi } from '@/api/useWorkerApi';
 import { getPendingOnboardingStep } from '@/utils/onboarding';
 import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
@@ -24,11 +24,29 @@ export const AuthContext = createContext<AuthContextType>({} as AuthContextType)
 export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { getMyWorkerProfile, initWorker } = useWorkerApi();
   const [session, setSession] = useState<any>(null);
   const [isWorker, setIsWorker] = useState(null);
   const [appState, setAppState] = useState<appState>('loading');
 
   console.log('[AUTH RN] Iniciando AuthProvider...');
+
+  async function getOrCreateWorker(token: string) {
+    try {
+      return await getMyWorkerProfile(token);
+    } catch (err) {
+      console.warn('[AUTH RN] No existe worker, intentamos crearlo:', err.message);
+
+      try {
+        await initWorker(token);
+        console.log('[AUTH RN] Worker creado');
+        return await getMyWorkerProfile(token);
+      } catch (err2) {
+        console.warn('[AUTH RN] Error creando worker:', err2.message);
+        throw err2;
+      }
+    }
+  }
 
   const restoreSession = async () => {
     console.log('[AUTH RN] Restaurando sesión desde SecureStore...');
@@ -64,7 +82,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       }
 
       setSession(restored.data.session);
-      const worker = await getMyWorkerProfile(token);
+      const worker = await getOrCreateWorker(token);
       setIsWorker(worker);
 
       const step = getPendingOnboardingStep(worker);
@@ -99,7 +117,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
         try {
           const token = session.access_token;
-          const worker = await getMyWorkerProfile(token);
+          console.log('[AUTH RN] Sesión iniciada con token:', token);
+          const worker = await getOrCreateWorker(token);
+          console.log('[AUTH RN] Worker obtenido:', worker);
           setIsWorker(worker);
 
           const step = getPendingOnboardingStep(worker);
@@ -131,7 +151,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const logout = async () => {
+    console.log('[AUTH RN] Cerrar sesión');
     try {
+      console.log('[AUTH RN] Llamando a supabase.signOut()');
       await supabase.signOut();
       await SecureStore.deleteItemAsync('supabase.session');
     } catch (err) {
