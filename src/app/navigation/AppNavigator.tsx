@@ -11,6 +11,8 @@ import ProposeSwap from '../screens/ProposeSwapScreen';
 import SwapDetails from '../screens/SwapDetailsScreen';
 import ChatPage from '../screens/ChatPageScreen';
 import ActivityList from '../screens/ActivityListScreen';
+import Stats from '../screens/StatsScreen';
+
 // Onboarding
 import OnboardingCode from '../screens/OnboardingCodeScreen';
 import OnboardingConfirm from '../screens/OnboardingConfirmScreen';
@@ -30,6 +32,7 @@ import ProfileResetPassword from '../screens/ProfileResetPasswordScreen';
 // Rest
 import CommentEditorScreen from '../screens/CommentEditorScreen';
 import EditShiftScreen from '../screens/EditShiftScreen';
+import ShiftHoursSettings from '../screens/ShiftHoursSettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +45,8 @@ export default function AppNavigator() {
       <Stack.Screen name='HospitalShifts' component={HospitalShifts} />
       <Stack.Screen name='MySwaps' component={MySwaps} />
       <Stack.Screen name='ChatsList' component={ChatsList} />
+      <Stack.Screen name='ShiftHoursSettings' component={ShiftHoursSettings} />
+      <Stack.Screen name='Stats' component={Stats} />
       <Stack.Screen name='ProposeSwap' component={ProposeSwap} />
       <Stack.Screen name='EditShift' component={EditShiftScreen} />
       <Stack.Screen name='SwapDetails' component={SwapDetails} />

@@ -1,5 +1,5 @@
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Bell, User } from 'phosphor-react-native';
+import { User, ChartBar } from 'phosphor-react-native';
 import AppText from '../ui/AppText';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { spacing, colors, typography } from '@/styles';
@@ -17,6 +17,9 @@ export default function HeaderFirstLevel({ title }: { title: string }) {
       <AppText variant='h2'>{title}</AppText>
       {isCalendarScreen && (
         <View style={styles.actions}>
+          <Pressable onPress={() => navigation.navigate('Stats')}>
+            <ChartBar size={24} weight="regular" color={colors.gray[800]} />
+          </Pressable>
           <Pressable onPress={() => navigation.navigate('ActivityList')}>
             <NotificationDotIcon />
           </Pressable>

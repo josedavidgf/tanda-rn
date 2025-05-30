@@ -33,6 +33,7 @@ import { CalendarPlus } from 'phosphor-react-native';
 import FadeInView from '@/components/animations/FadeInView';
 import { relative } from 'path';
 import { useNavigation } from '@react-navigation/native';
+import { spacing } from '@/styles';
 
 export default function CalendarScreen() {
 
@@ -343,8 +344,8 @@ export default function CalendarScreen() {
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        paddingHorizontal: 16,
-                        marginBottom: 8,
+                        paddingHorizontal: spacing.md,
+                        marginBottom: spacing.sm,
                     }}>
                         <MonthSelector
                             selectedMonth={selectedMonth}
@@ -454,7 +455,7 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 24 },
+    container: { flex: 1, padding: spacing.lg },
     title: { fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
     scheduleItem: {
         paddingVertical: 8,
