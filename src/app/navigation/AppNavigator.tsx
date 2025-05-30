@@ -27,6 +27,10 @@ import ProfilePreferences from '../screens/ProfilePreferencesScreen';
 import ProfileContactSupport from '../screens/ProfileContactScreen';
 import ProfileResetPassword from '../screens/ProfileResetPasswordScreen';
 
+// Rest
+import CommentEditorScreen from '../screens/CommentEditorScreen';
+
+
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -53,6 +57,7 @@ export default function AppNavigator() {
       <Stack.Screen name='ProfilePreferences' component={ProfilePreferences} />
       <Stack.Screen name='ProfileContactSupport' component={ProfileContactSupport} />
       <Stack.Screen name='ProfileResetPassword' component={ProfileResetPassword} />
+      <Stack.Screen name='CommentEditor' component={CommentEditorScreen} />
     </Stack.Navigator>
   );
 }

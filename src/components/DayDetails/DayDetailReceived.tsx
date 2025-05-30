@@ -7,6 +7,8 @@ import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { spacing, typography, colors } from '@/styles';
 import { useNavigation } from '@react-navigation/native';
 import { Lightning } from 'phosphor-react-native';
+import CommentButton from '@/components/calendar/DayComment';
+
 
 type Props = {
   dateStr: string;
@@ -52,33 +54,37 @@ export default function DayDetailReceived({
           Cedido por: <AppText variant="p">{fullName}</AppText>
         </AppText>
       )}
+      <View style={styles.buttonGroup}>
 
-      <Button
-        label="Publicar turno recibido"
-        variant="primary"
-        size="lg"
-        leftIcon={<Lightning size={20} color={colors.white} />}
-        onPress={() => {
-          // trackEvent(EVENTS.PUBLISH_RECEIVED_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: entry.shift_type });
-          navigation.navigate('CreateShift', {
-            date: dateStr,
-            shift_type: entry.shift_type,
-          });
-        }}
-      />
-
-      {entry.swap_id && (
         <Button
-          label="Ver intercambio"
-          variant="ghost"
+          label="Publicar turno recibido"
+          variant="primary"
           size="lg"
-          leftIcon={<ArrowRight size={20} color={colors.white} />}
+          leftIcon={<Lightning size={20} color={colors.white} />}
           onPress={() => {
-            // trackEvent(EVENTS.SHOW_RECEIVED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
-            navigation.navigate('SwapDetails', { swapId: entry.swap_id });
+            // trackEvent(EVENTS.PUBLISH_RECEIVED_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: entry.shift_type });
+            navigation.navigate('CreateShift', {
+              date: dateStr,
+              shift_type: entry.shift_type,
+            });
           }}
         />
-      )}
+
+        {entry.swap_id && (
+
+          <Button
+            label="Ver intercambio"
+            variant="ghost"
+            size="lg"
+            leftIcon={<ArrowRight size={20} color={colors.white} />}
+            onPress={() => {
+              // trackEvent(EVENTS.SHOW_RECEIVED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
+              navigation.navigate('SwapDetails', { swapId: entry.swap_id });
+            }}
+          />
+        )}
+        <CommentButton dateStr={dateStr} />
+      </View>
     </View>
   );
 }
@@ -87,6 +93,9 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     padding: spacing.md,
+    gap: spacing.sm,
+  },
+  buttonGroup: {
     gap: spacing.sm,
   },
   infoRow: {

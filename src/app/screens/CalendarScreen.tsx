@@ -32,6 +32,7 @@ import { colors } from '@/styles/utilities/colors';
 import { CalendarPlus } from 'phosphor-react-native';
 import FadeInView from '@/components/animations/FadeInView';
 import { relative } from 'path';
+import { useNavigation } from '@react-navigation/native';
 
 export default function CalendarScreen() {
 
@@ -50,6 +51,8 @@ export default function CalendarScreen() {
     const [isMassiveEditMode, setIsMassiveEditMode] = useState(false);
     const [draftShiftMap, setDraftShiftMap] = useState<Record<string, OriginalCalendarEntry>>({});
     const [loadingCalendar, setLoadingCalendar] = useState(false);
+    const navigation = useNavigation();
+
 
 
     const selectedDayData = useMemo(() => {
@@ -255,79 +258,80 @@ export default function CalendarScreen() {
     }
 
     function DayDetailRenderer({ data }: { data: DayType }) {
+        const navigation = useNavigation();
         if (!data) return null;
 
-        console.log('Rendering DayDetailRenderer con data:', data);
+        const dateStr = typeof data.date === 'string' ? data.date : format(data.date, 'yyyy-MM-dd');
+
+        let DetailComponent = null;
 
         switch (data.type) {
             case 'my_shift':
-                return (
+                DetailComponent = (
                     <DayDetailMyShift
                         dateStr={data.date}
-                        dayLabel={`${formatFriendlyDate(data.date)} - Turno propio`} // puedes mejorar esto luego
+                        dayLabel={`${formatFriendlyDate(data.date)} - Turno propio`}
                         shift={data.shift}
                         isPublished={!!data.shift.isPublished}
-                        onEditShift={(dateStr) => { toggleShift(dateStr) }}
+                        onEditShift={(dateStr) => toggleShift(dateStr)}
                         onDeletePublication={handleDeletePublication}
                         onRemoveShift={handleRemoveShiftForDay}
                     />
                 );
+                break;
             case 'received':
-                return (
+                DetailComponent = (
                     <DayDetailReceived
-                        dateStr={typeof data.date === 'string' ? data.date : format(data.date, 'yyyy-MM-dd')}
-                        dayLabel={`Turno recibido para ${formatFriendlyDate(data.date)}`} // puedes mejorar esto luego
+                        dateStr={dateStr}
+                        dayLabel={`Turno recibido para ${formatFriendlyDate(data.date)}`}
                         entry={data.shift}
                     />
                 );
-
+                break;
             case 'swapped':
-                return (
+                DetailComponent = (
                     <DayDetailSwapped
-                        dateStr={typeof data.date === 'string' ? data.date : format(data.date, 'yyyy-MM-dd')}
-                        dayLabel={`Turno intercambiado para ${formatFriendlyDate(data.date)}`} // puedes mejorar esto luego
+                        dateStr={dateStr}
+                        dayLabel={`Turno intercambiado para ${formatFriendlyDate(data.date)}`}
                         entry={data.shift}
-                        onAddShift={(dateStr) => { toggleShift(dateStr) }} // ✅ ahora está definido
-                        onAddPreference={(dateStr) => {
-                            console.log('Añadir preferencia desde swapped', dateStr);
-                        }}
-                        navigate={(path) => {
-                            console.log('Navegar a', path);
-                        }}
+                        onAddShift={(dateStr) => toggleShift(dateStr)}
+                        onAddPreference={(dateStr) => console.log('Añadir preferencia desde swapped', dateStr)}
+                        navigate={(path) => console.log('Navegar a', path)}
                     />
                 );
+                break;
             case 'preference':
-                return (
+                DetailComponent = (
                     <DayDetailPreference
-                        dateStr={typeof data.date === 'string' ? data.date : format(data.date, 'yyyy-MM-dd')}
-                        dayLabel={`${formatFriendlyDate(data.date)} - Día libre`} // puedes ajustar si tienes otra lógica
+                        dateStr={dateStr}
+                        dayLabel={`${formatFriendlyDate(data.date)} - Día libre`}
                         entry={data.preference}
-                        onEditPreference={(dateStr, type) => {
-                            togglePreference(dateStr, type); // Cambia 'morning' por el tipo de preferencia que necesites
-                            // Implementar lógica de edición}
-                        }}
-                        onDeletePreference={(dateStr) => {
-                            handleDeletePreference(dateStr);
-                        }}
-                    // Implementar lógica de eliminación
+                        onEditPreference={(dateStr, type) => togglePreference(dateStr, type)}
+                        onDeletePreference={handleDeletePreference}
                     />
                 );
+                break;
             case 'empty':
-                return (
+                DetailComponent = (
                     <DayDetailEmpty
-                        dateStr={typeof data.date === 'string' ? data.date : format(data.date, 'yyyy-MM-dd')}
-                        dayLabel={`${formatFriendlyDate(data.date)} - Día libre`} // puedes mejorar el formato
-                        onAddShift={(dateStr) => toggleShift(dateStr)} // ✅ ahora está definido
-                        onAddPreference={(dateStr) => {
-                            console.log('Añadir preferencia desde empty', dateStr);
-                            togglePreference(dateStr, 'morning'); // Cambia 'morning' por el tipo de preferencia que necesites
-                        }} // ✅ ahora está definido
+                        dateStr={dateStr}
+                        dayLabel={`${formatFriendlyDate(data.date)} - Día libre`}
+                        onAddShift={(dateStr) => toggleShift(dateStr)}
+                        onAddPreference={(dateStr) => togglePreference(dateStr, 'morning')}
                     />
                 );
+                break;
             default:
                 return null;
         }
+
+        return (
+            <View>
+                {DetailComponent}
+            </View>
+        );
     }
+
 
 
     return (

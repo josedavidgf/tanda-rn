@@ -10,6 +10,7 @@ import { colors } from '@/styles/utilities/colors';
 import { spacing, typography } from '@/styles';
 import { Schedule } from '@/types/calendar';
 import { useNavigation } from '@react-navigation/native';
+import CommentButton from '@/components/calendar/DayComment';
 
 
 type Props = {
@@ -65,18 +66,23 @@ export default function DayDetailMyShift({
       </AppText>
 
       {isPublished ? (
-        <Button
-          label="Quitar publicación"
-          variant="outline"
-          size="lg"
-          leftIcon={<Trash size={20} color={colors.black} />}
-          onPress={() => {
-            //trackEvent(EVENTS.REMOVE_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
-            onDeletePublication(shift.shift_id, dateStr);
-          }}
-          loading={loadingDeletePublication}
-          disabled={loadingDeletePublication}
-        />
+
+        <View style={styles.buttonGroup}>
+          <Button
+            label="Quitar publicación"
+            variant="outline"
+            size="lg"
+            leftIcon={<Trash size={20} color={colors.black} />}
+            onPress={() => {
+              //trackEvent(EVENTS.REMOVE_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
+              onDeletePublication(shift.shift_id, dateStr);
+            }}
+            loading={loadingDeletePublication}
+            disabled={loadingDeletePublication}
+          />
+          <CommentButton dateStr={dateStr} />
+        </View>
+
       ) : (
         <View style={styles.buttonGroup}>
           <Button
@@ -116,6 +122,7 @@ export default function DayDetailMyShift({
               disabled={loadingRemoveShift}
             />
           </View>
+          <CommentButton dateStr={dateStr} />
         </View>
       )}
     </View>

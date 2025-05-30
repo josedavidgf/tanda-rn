@@ -22,7 +22,7 @@ export async function getMonthlySchedules(token: string, workerId: string, year:
     .lte('date', to);
 
 
-  if (error) throw error;
+  if (error) throw new Error(error.message);
   return data;
 }
 

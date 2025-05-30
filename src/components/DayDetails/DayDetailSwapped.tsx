@@ -3,11 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import { Lightning, Lightbulb, Eye } from '@/theme/icons';
-import { spacing, typography , colors} from '@/styles';
+import { spacing, typography, colors } from '@/styles';
 //import { trackEvent } from '@/lib/amplitude';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { useNavigation } from '@react-navigation/native';
-
+import CommentButton from '@/components/calendar/DayComment';
 
 type Props = {
   dateStr: string;
@@ -38,8 +38,8 @@ export default function DayDetailSwapped({
     .join(' ');
 
   const isRequester = entry.requester_id === entry.worker_id;
-    const navigation = useNavigation();
-  
+  const navigation = useNavigation();
+
   const hourRange = {
     morning: 'de 8:00 a 15:00',
     evening: 'de 15:00 a 22:00',
@@ -88,6 +88,7 @@ export default function DayDetailSwapped({
             }}
           />
         )}
+        <CommentButton dateStr={dateStr} />
       </View>
     </View>
   );
