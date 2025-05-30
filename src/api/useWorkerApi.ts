@@ -6,6 +6,7 @@ import {
   createWorkerHospital,
   createWorkerSpeciality,
   completeOnboarding,
+  initWorker,
 } from '@/services/workerService';
 
 export function useWorkerApi() {
@@ -39,6 +40,7 @@ export function useWorkerApi() {
       token: string
     ) => apiCall(createWorkerSpeciality, workerId, specialityId, qualificationLevel, token),
     completeOnboarding: (token: string) => apiCall(completeOnboarding, token),
+    initWorker: (token: string) => apiCall(initWorker, token),
     loading,
     error,
   };

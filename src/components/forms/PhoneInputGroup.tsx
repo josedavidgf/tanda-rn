@@ -39,6 +39,7 @@ export default function PhoneInputGroup({
       <View style={styles.number}>
         <InputField
           label="Teléfono"
+          placeholder="Introduce tu número de teléfono"
           value={phone}
           onChangeText={(val) => onChange({ prefix, phone: val })}
           keyboardType="phone-pad"

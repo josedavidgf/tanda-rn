@@ -79,3 +79,12 @@ export const completeOnboarding = async (token: string) => {
     throw new Error(handleError(error, 'Error al completar onboarding'));
   }
 };
+
+export const initWorker = async (token: string) => {
+  try {
+    const response = await axios.patch(`${API_URL}/api/workers/init`, {}, authHeaders(token));
+    return response.data;
+  } catch (error) {
+    throw new Error(handleError(error, 'Error al inicializar trabajador'));
+  }
+};
