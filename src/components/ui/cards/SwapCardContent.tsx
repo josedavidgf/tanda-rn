@@ -14,6 +14,7 @@ type Props = {
   otherDate: string;
   otherType: string;
   statusLabel: string; // 'pending', 'accepted', etc.
+  swapType: string;
 };
 
 export default function SwapCardContent({
@@ -23,6 +24,7 @@ export default function SwapCardContent({
   otherDate,
   otherType,
   statusLabel,
+  swapType,
 }: Props) {
   const my = getFriendlyDateParts(myDate);
   const other = getFriendlyDateParts(otherDate);
@@ -42,10 +44,16 @@ export default function SwapCardContent({
       </View>
 
       {/* Descripción */}
+      {/* Descripción */}
       <View style={styles.row}>
-          <Swap size={20} weight="fill" color={colors.gray[900]} />
+        <Swap size={20} weight="fill" color={colors.gray[900]} />
         <AppText variant='p' style={{ flex: 1 }}>
-          Tú haces el {other.short} de {shiftTypeLabels[otherType]} por el {my.short} de {shiftTypeLabels[myType]}
+          {swapType === 'no_return' && myDate && myType
+            ? `Te proponen ceder tu turno del ${getFriendlyDateParts(myDate).short} de ${shiftTypeLabels[myType]}`
+            : swapType === 'no_return'
+              ? `Propones hacer el turno de ${getFriendlyDateParts(otherDate).short} de ${shiftTypeLabels[otherType]}`
+              : `Tú haces el ${getFriendlyDateParts(otherDate).short} de ${shiftTypeLabels[otherType]} por el ${getFriendlyDateParts(myDate).short} de ${shiftTypeLabels[myType]}`
+          }
         </AppText>
       </View>
     </View>

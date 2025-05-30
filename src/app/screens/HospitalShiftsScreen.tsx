@@ -21,6 +21,7 @@ type ShiftType = 'morning' | 'evening' | 'night' | 'reinforcement';
 export default function HospitalShiftsScreen() {
     const { accessToken, isWorker } = useAuth();
     const { getHospitalShifts } = useShiftApi();
+
     const { getSentSwaps } = useSwapApi();
     const navigation = useNavigation();
     const shiftTypes = ['morning', 'evening', 'night', 'reinforcement'] as const;
@@ -32,6 +33,7 @@ export default function HospitalShiftsScreen() {
     const [shifts, setShifts] = useState<any[]>([]);
     const [sentSwapShiftIds, setSentSwapShiftIds] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
+    const [onlyNoReturn, setOnlyNoReturn] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,8 +64,11 @@ export default function HospitalShiftsScreen() {
         const inDateRange =
             (!dateRange.startDate || date >= dateRange.startDate) &&
             (!dateRange.endDate || date <= dateRange.endDate);
-        return matchesType && inDateRange;
+        const matchesReturn = onlyNoReturn ? s.requires_return === false : true;
+
+        return matchesType && inDateRange && matchesReturn;
     });
+
 
     return (
         <FadeInView>
@@ -78,6 +83,12 @@ export default function HospitalShiftsScreen() {
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={{ gap: spacing.sm }}
                         >
+                            <Chip
+                                label="Sin devolución"
+                                selected={onlyNoReturn}
+                                onPress={() => setOnlyNoReturn(!onlyNoReturn)}
+                            />
+
                             {shiftTypes.map((type) => {
                                 const isSelected = selectedTypes.includes(type);
                                 const Icon = shiftTypeIcons[type];

@@ -38,13 +38,38 @@ export default function ChatListScreen() {
                 setWorkerId(worker.worker_id);
 
                 const allSwaps = await getAcceptedSwaps(accessToken);
+                console.log('All swaps:', allSwaps);
                 const active = allSwaps
                     .filter((swap) => {
-                        const d1 = new Date(swap.shift.date);
-                        const d2 = new Date(swap.offered_date);
-                        return new Date() <= (d1 > d2 ? d1 : d2);
+                        const now = new Date().toISOString().split('T')[0];
+                        console.log('Current date:', now);
+
+                        const hasOfferedDate = !!swap.offered_date;
+                        const hasShiftDate = !!swap.shift?.date;
+
+                        // Para swaps normales (return)
+                        if (hasOfferedDate && hasShiftDate) {
+                            console.log('Checking swap:', swap);
+                            const d1 = swap.shift.date;
+                            const d2 = swap.offered_date;
+                            return now <= (d1 > d2 ? d1 : d2);
+                        }
+
+                        // Para swaps no_return
+                        if (swap.swap_type === 'no_return' && hasShiftDate) {
+                            console.log('Checking no_return swap:', swap);
+                            const d1 = swap.shift.date;
+                            console.log('No return swap date d1:', d1);
+                            console.log('No return swap date:', now <= d1);
+                            return now <= d1;
+                        }
+
+                        return false;
                     })
-                    .sort((a, b) => new Date(a.shift.date) - new Date(b.shift.date));
+                    .sort((a, b) =>
+                        new Date(a.shift?.date || 0).getTime() - new Date(b.shift?.date || 0).getTime()
+                    );
+                console.log('Active swaps:', active);
 
                 setSwaps(active);
                 setFilteredSwaps(active);
@@ -114,6 +139,8 @@ export default function ChatListScreen() {
                                 const otherPerson = iAmRequester ? swap.shift.worker : swap.requester;
                                 const hasUnread = unreadSwapIds.includes(swap.swap_id);
 
+                                const swapType = swap.swap_type;
+
                                 return (
                                     <Pressable
                                         key={swap.swap_id}
@@ -126,7 +153,7 @@ export default function ChatListScreen() {
                                             myType={myType}
                                             otherDate={otherDate}
                                             otherType={otherType}
-                                            statusLabel={swap.status}
+                                            swapType={swapType}
                                         />
                                         {hasUnread && <View style={styles.dot} />}
                                     </Pressable>

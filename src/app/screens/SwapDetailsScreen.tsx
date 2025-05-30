@@ -78,11 +78,22 @@ export default function SwapDetails() {
             editable={false}
           />
 
-          <InputField
-            label="Turno ofrecido"
-            value={`${formatFriendlyDate(swap.offered_date)} de ${shiftTypeLabels[swap.offered_type]}`}
-            editable={false}
-          />
+          {swap.swap_type === 'return' && (
+            <InputField
+              label="Turno ofrecido"
+              value={`${formatFriendlyDate(swap.offered_date)} de ${shiftTypeLabels[swap.offered_type]}`}
+              editable={false}
+            />
+          )}
+
+          {swap.swap_type === 'no_return' && (
+            <InputField
+              label="Tipo de intercambio"
+              value="Sin devolución"
+              editable={false}
+            />
+          )}
+
 
           <InputField
             label="Estado"

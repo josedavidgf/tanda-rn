@@ -12,35 +12,43 @@ type Props = {
   myType: string;
   otherDate: string;
   otherType: string;
+  swapType: string;
 };
 
-export default function SwapCardContent({
+export default function ChatCardContent({
   otherPersonName,
   myDate,
   myType,
   otherDate,
   otherType,
+  swapType,
 }: Props) {
-  const my = getFriendlyDateParts(myDate);
-  const other = getFriendlyDateParts(otherDate);
+  const my = myDate ? getFriendlyDateParts(myDate) : null;
+  const other = otherDate ? getFriendlyDateParts(otherDate) : null;
 
   return (
     <View style={styles.card}>
       <View style={styles.row}>
         <ChatCircleText size={20} weight="fill" />
-        <AppText variant='h3'>Chat con {otherPersonName}</AppText>
+        <AppText variant="h3">Chat con {otherPersonName}</AppText>
       </View>
 
       <View style={styles.row}>
         <Swap size={20} />
-        <AppText variant='p' style={{ flex: 1 }}>
-          Tú haces el {other.short} de {shiftTypeLabels[otherType]} por el {my.short} de {shiftTypeLabels[myType]}
+        <AppText variant="p" style={{ flex: 1 }}>
+          {swapType === 'no_return' && my && myType
+            ? `Te proponen ceder tu turno del ${my.short} de ${shiftTypeLabels[myType] || ''}`
+            : swapType === 'no_return' && other
+            ? `Propones hacer el turno de ${other.short} de ${shiftTypeLabels[otherType] || ''}`
+            : my && other
+            ? `Tú haces el ${other.short} de ${shiftTypeLabels[otherType] || ''} por el ${my.short} de ${shiftTypeLabels[myType] || ''}`
+            : 'Intercambio de turno'}
         </AppText>
       </View>
     </View>
-
   );
 }
+
 
 const styles = StyleSheet.create({
 

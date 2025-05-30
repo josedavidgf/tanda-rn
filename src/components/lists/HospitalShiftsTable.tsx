@@ -37,28 +37,33 @@ export default function HospitalShiftsTable({ shifts, workerId, sentSwapShiftIds
         renderItem={({ item }) => {
           const isMine = item.worker_id === workerId;
           const alreadyProposed = sentSwapShiftIds.includes(item.shift_id);
-          const isDisabled = isMine || item.state !== 'published' || alreadyProposed;
+          const isDisabled = item.state !== 'published' || alreadyProposed;
 
           return (
             <View style={styles.cardWrapper}>
               <Pressable
                 onPress={() => {
+
                   if (isDisabled) {
+
                     Alert.alert(
                       'No disponible',
-                      isMine
-                        ? 'Este turno es tuyo.'
-                        : alreadyProposed
-                          ? 'Ya has propuesto un intercambio para este turno.'
-                          : 'Este turno no está disponible.'
+                      alreadyProposed
+                        ? 'Ya has propuesto un intercambio para este turno.'
+                        : 'Este turno no está disponible.'
                     );
-                  } else {
+
+                  } if (isMine) {
+                    navigation.navigate('EditShift', { shiftId: item.shift_id });
+                  }
+                  else {
                     console.log('Selected shift:', item.shift_id);
                     onSelect(item.shift_id);
                   }
                 }}
                 style={{ opacity: isDisabled ? 0.5 : 1 }}
               >
+
                 <ShiftCardContent
                   date={item.date}
                   type={item.shift_type}

@@ -25,7 +25,7 @@ import { shiftTypeLabels } from '@/utils/useLabelMap';
 import { spacing, colors, typography } from '@/styles';
 import { useSwapPreferencesApi } from '@/api/useSwapPreferencesApi';
 import ShiftSelector from '@/components/ui/ShiftSelector';
-
+import InputField from '@/components/forms/InputField';
 
 export default function ProposeSwap() {
 
@@ -49,9 +49,14 @@ export default function ProposeSwap() {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             const target = await getShiftById(shiftId, accessToken);
-            const available = await getMyAvailableShifts(isWorker.worker_id, accessToken);
-            const receiverId = target.worker?.worker_id;
+            console.log('target', target);
+            console.log('isWorker', isWorker);
+            console.log('isWorker.worker_id', isWorker.worker_id || isWorker.worker?.worker_id);
+            const available = await getMyAvailableShifts(isWorker.worker_id || isWorker.worker.worker_id, accessToken);
+            console.log('available', available);
+            const receiverId = target.worker_id || target.worker?.worker_id;
 
             const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
             const preferences = await getMySwapPreferences(receiverId, accessToken);
@@ -76,18 +81,22 @@ export default function ProposeSwap() {
     console.log('availableShifts', availableShifts);
 
     const handleSubmit = async () => {
-        if (!selectedShift) {
+        if (targetShift.requires_return && !selectedShift) {
             Alert.alert('Selecciona un turno para ofrecer');
             return;
         }
 
         try {
-            const form = {
-                offered_date: selectedShift.date,
-                offered_type: selectedShift.type,
-                offered_label: selectedShift.label || 'regular',
+            const form: any = {
                 swap_comments: comments,
             };
+
+            if (targetShift.requires_return) {
+                form.offered_date = selectedShift.date;
+                form.offered_type = selectedShift.type;
+                form.offered_label = selectedShift.label || 'regular';
+            }
+
 
 
             const result = await proposeSwap(shiftId, form, accessToken);
@@ -98,26 +107,35 @@ export default function ProposeSwap() {
             };
             setSubmittedSwap(enrichedSwap);
             setFeedbackVisible(true);
-        } catch (err: any) {r
+        } catch (err: any) {
+            console.error('Error al enviar propuesta:', err);
             Alert.alert('Error', err.message);
         }
     };
 
     if (loading || !targetShift) return <AppLoader message='Cargando propuesta...' onFinish={() => setLoading(false)} />;
+    const shiftDate = `${formatFriendlyDate(targetShift.date)} — ${shiftTypeLabels[targetShift.shift_type]}`;
 
     return (
         <>
             <SimpleLayout title="Proponer intercambio" showBackButton onBack={() => navigation.goBack()}>
                 <ScrollView contentContainerStyle={styles.container}>
-                    <AppText variant="p">Turno a intercambiar</AppText>
-                    <AppText>{formatFriendlyDate(targetShift.date)} — {shiftTypeLabels[targetShift.shift_type]}</AppText>
-
-                    <AppText variant="p" style={{ marginTop: 16 }}>Selecciona un turno tuyo</AppText>
-                    <ShiftSelector
-                        shifts={availableShifts}
-                        selectedShiftId={selectedShift?.id}
-                        onSelect={setSelectedShift}
+                    <InputField
+                        label="Turno a intercambiar"
+                        value={shiftDate}
+                        editable={false}
                     />
+                    {targetShift.requires_return && (
+                        <>
+                            <AppText variant="p" style={{ marginTop: 16 }}>Selecciona un turno tuyo</AppText>
+                            <ShiftSelector
+                                shifts={availableShifts}
+                                selectedShiftId={selectedShift?.id}
+                                onSelect={setSelectedShift}
+                            />
+                        </>
+                    )}
+
                     <AppText variant="p" style={{ marginTop: 16 }}>Comentarios</AppText>
                     <TextInput
                         value={comments}
@@ -133,7 +151,7 @@ export default function ProposeSwap() {
                         size='lg'
                         label="Enviar propuesta"
                         onPress={handleSubmit}
-                        disabled={!selectedShift}
+                        disabled={targetShift.requires_return && !selectedShift}
                     />
                 </ScrollView>
             </SimpleLayout>
