@@ -69,6 +69,14 @@ export default function DayDetailMyShift({
 
         <View style={styles.buttonGroup}>
           <Button
+            label="Editar publicación"
+            variant="outline"
+            size="lg"
+            leftIcon={<Lightning size={20} color={colors.white} />}
+            onPress={() => navigation.navigate('EditShift', { shiftId: shift.shift_id })}
+
+          />
+          <Button
             label="Quitar publicación"
             variant="outline"
             size="lg"

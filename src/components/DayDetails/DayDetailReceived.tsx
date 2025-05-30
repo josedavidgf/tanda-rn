@@ -54,6 +54,7 @@ export default function DayDetailReceived({
           Cedido por: <AppText variant="p">{fullName}</AppText>
         </AppText>
       )}
+      {/* revisar si aquí se necesita un botón para editar el turno publicado y el botón de quitar publicación */}
       <View style={styles.buttonGroup}>
 
         <Button

@@ -43,7 +43,7 @@ export const getMyShiftsPublished = async (token) => {
   }
 };
 
-// Obtener turno por ID -- PUEDE DEPRECARSE
+// Obtener turno por ID
 export const getShiftById = async (id, token) => {
   try {
     const response = await axios.get(`${API_URL}/api/shifts/${id}`, authHeaders(token));
@@ -53,7 +53,7 @@ export const getShiftById = async (id, token) => {
   }
 };
 
-// Actualizar turno --- PUEDE DEPRECARSE
+// Actualizar turno
 export const updateShift = async (id, updates, token) => {
   try {
     const response = await axios.patch(`${API_URL}/api/shifts/${id}`, updates, authHeaders(token));
@@ -108,7 +108,7 @@ export const updateShiftPreferences = async (shiftId: string, preferences: strin
   }
 };
 
-export const getMyAvailableShifts = async (workerId: string) => {
+export const getMyAvailableShifts = async (workerId: string, token: string) => {
   try {
     const now = new Date();
     const allShifts = await getShiftsForMonth(token, workerId);

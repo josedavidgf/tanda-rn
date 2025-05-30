@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet,Switch} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
@@ -14,6 +14,7 @@ import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppLoader from '@/components/ui/AppLoader';
 import FadeInView from '@/components/animations/FadeInView';
+import AppText from '@/components/ui/AppText';
 
 export default function CreateShiftScreen() {
     const navigation = useNavigation();
@@ -22,11 +23,13 @@ export default function CreateShiftScreen() {
     const { isWorker, accessToken, loading: loadingWorker } = useAuth();
     const { showSuccess, showError } = useToast();
     const { createShift, loading: creatingShift } = useShiftApi();
+    const [requiresReturn, setRequiresReturn] = useState(true);
+
 
     const [invalidParams, setInvalidParams] = useState(false);
     const [comments, setComments] = useState('');
 
-    console.log('Navegar a CreateShift con:',{ date,shift_type});
+    console.log('Navegar a CreateShift con:', { date, shift_type });
 
     useEffect(() => {
         if (!isWorker) return;
@@ -51,6 +54,7 @@ export default function CreateShiftScreen() {
                 shift_type,
                 speciality_id: specialityId,
                 shift_comments: comments,
+                requires_return: requiresReturn,
             };
             const success = await createShift(formToSend, accessToken);
 
@@ -105,6 +109,13 @@ export default function CreateShiftScreen() {
                             value={specialityLabel}
                             editable={false}
                         />
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <AppText style={{ fontSize: 16 }}>¿Requiere devolución?</AppText>
+                            <Switch
+                                value={requiresReturn}
+                                onValueChange={(val) => setRequiresReturn(val)}
+                            />
+                        </View>
                         <InputField
                             label="Comentarios"
                             placeholder="Añade comentarios si lo deseas"

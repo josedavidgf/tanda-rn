@@ -17,16 +17,15 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
   if (!swap) return null;
 
   const isAccepted = swap.status === 'accepted';
+  const isNoReturn = swap.swap_type === 'no_return';
 
-  console.log('SwapFeedbackModal', swap);
-  console.log('offeredDate', swap.offered_date);
-  console.log('shift', swap.shiftSelected);
-
-  const offeredDate = formatFriendlyDate(swap.offered_date);
-  const shiftDate = formatFriendlyDate(swap.shiftSelected?.date);
-  const offeredType = shiftTypeLabels[swap.offered_type];
-  const shiftType = shiftTypeLabels[swap.shiftSelected?.type];
+  const shiftDate = formatFriendlyDate(swap.shift?.date);
+  const shiftType = shiftTypeLabels[swap.shift?.shift_type];
   const workerName = `${swap.shift?.worker?.name ?? ''} ${swap.shift?.worker?.surname ?? ''}`;
+
+  // Solo si es un swap regular
+  const offeredDate = swap.offered_date ? formatFriendlyDate(swap.offered_date) : null;
+  const offeredType = swap.offered_type ? shiftTypeLabels[swap.offered_type] : null;
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -40,7 +39,11 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
           </AppText>
 
           <AppText variant='p' style={styles.description}>
-            Has propuesto cambiar tu turno del {offeredDate} de {offeredType} por el del {shiftDate} de {shiftType}.
+            {isNoReturn ? (
+              <>Has ofrecido tu turno sin esperar devolución por el del {shiftDate} de {shiftType}.</>
+            ) : (
+              <>Has propuesto cambiar tu turno del {offeredDate} de {offeredType} por el del {shiftDate} de {shiftType}.</>
+            )}
           </AppText>
 
           <AppText variant='p' style={styles.description}>
@@ -49,8 +52,8 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
               : `Ya hemos avisado a ${workerName}. Podrás ver el estado en “Mis cambios”.`}
           </AppText>
 
-          <Button 
-            label="Genial" 
+          <Button
+            label="Genial"
             size='lg'
             variant='primary'
             style={{ marginTop: spacing.md }}
@@ -60,6 +63,7 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
     </Modal>
   );
 }
+
 
 const styles = StyleSheet.create({
   overlay: {

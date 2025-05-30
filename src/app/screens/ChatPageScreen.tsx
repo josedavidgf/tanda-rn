@@ -115,17 +115,30 @@ export default function ChatPageScreen() {
 
     const renderSwapContext = () => {
         if (!swapContext) return null;
+
+        const isNoReturn = swapContext.swap_type === 'no_return';
         const isMine = swapContext.requester_id === session.user.id;
+
         const myDate = isMine ? swapContext.offered_date : swapContext.shift.date;
         const myType = isMine ? swapContext.offered_type : swapContext.shift.shift_type;
         const otherDate = isMine ? swapContext.shift.date : swapContext.offered_date;
         const otherType = isMine ? swapContext.shift.shift_type : swapContext.offered_type;
+
+        if (isNoReturn) {
+            return (
+                <AppText variant="p" style={styles.contextText}>
+                    Has ofrecido tu turno del {formatFriendlyDate(myDate)} de {shiftTypeLabels[myType]} sin esperar devolución.
+                </AppText>
+            );
+        }
+
         return (
             <AppText variant="p" style={styles.contextText}>
                 Tú haces el {formatFriendlyDate(otherDate)} de {shiftTypeLabels[otherType]} por el {formatFriendlyDate(myDate)} de {shiftTypeLabels[myType]}
             </AppText>
         );
     };
+
 
     return (
         <SimpleLayout title="Conversación">

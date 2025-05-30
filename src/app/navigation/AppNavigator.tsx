@@ -29,7 +29,7 @@ import ProfileResetPassword from '../screens/ProfileResetPasswordScreen';
 
 // Rest
 import CommentEditorScreen from '../screens/CommentEditorScreen';
-
+import EditShiftScreen from '../screens/EditShiftScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +43,7 @@ export default function AppNavigator() {
       <Stack.Screen name='MySwaps' component={MySwaps} />
       <Stack.Screen name='ChatsList' component={ChatsList} />
       <Stack.Screen name='ProposeSwap' component={ProposeSwap} />
+      <Stack.Screen name='EditShift' component={EditShiftScreen} />
       <Stack.Screen name='SwapDetails' component={SwapDetails} />
       <Stack.Screen name='ChatPage' component={ChatPage} />
       <Stack.Screen name='OnboardingCode' component={OnboardingCode} />

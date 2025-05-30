@@ -39,9 +39,12 @@ export default function MySwapScreen() {
       const markedSent = sent.map(s => ({ ...s, direction: 'sent' }));
       const markedReceived = received.map(r => ({ ...r, direction: 'received' }));
 
-      const all = [...markedSent, ...markedReceived].sort((a, b) =>
-        new Date(a.shift?.date).getTime() - new Date(b.shift?.date).getTime()
-      );
+      const all = [...markedSent, ...markedReceived].sort((a, b) => {
+        const dateA = new Date(a.shift?.date || a.offered_date);
+        const dateB = new Date(b.shift?.date || b.offered_date);
+        return dateA.getTime() - dateB.getTime();
+      });
+
 
       setSwaps(all);
       setLoading(false);
@@ -54,12 +57,13 @@ export default function MySwapScreen() {
 
   const filteredSwaps = swaps.filter((s) => {
     const inStatus = statusFilters.length > 0 ? statusFilters.includes(s.status) : true;
-    const date = new Date(s.shift?.date);
+    const date = new Date(s.shift?.date || s.offered_date);
     const inDateRange =
       (!dateRange.startDate || date >= dateRange.startDate) &&
       (!dateRange.endDate || date <= dateRange.endDate);
     return inStatus && inDateRange;
   });
+
 
   return (
     <FadeInView>

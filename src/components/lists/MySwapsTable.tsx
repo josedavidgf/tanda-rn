@@ -32,6 +32,7 @@ export default function MySwapsTable({ swaps, workerId, onSelect }: Props) {
       keyExtractor={(item) => item.swap_id}
       contentContainerStyle={styles.list}
       renderItem={({ item }) => {
+        console.log('Rendering swap item:', item);
         const iAmRequester = item.requester_id === workerId;
         const myDate = iAmRequester ? item.offered_date : item.shift?.date;
         const myType = iAmRequester ? item.offered_type : item.shift?.shift_type;
@@ -40,6 +41,8 @@ export default function MySwapsTable({ swaps, workerId, onSelect }: Props) {
         const otherPersonName = iAmRequester
           ? `${item.shift?.worker?.name ?? ''} ${item.shift?.worker?.surname ?? ''}`
           : `${item.requester?.name ?? ''} ${item.requester?.surname ?? ''}`;
+
+        const swapType = item.swap_type;
 
         return (
           <View style={styles.cardWrapper}>
@@ -51,6 +54,7 @@ export default function MySwapsTable({ swaps, workerId, onSelect }: Props) {
                 otherDate={otherDate}
                 otherType={otherType}
                 statusLabel={item.status}
+                swapType={swapType}
               />
             </Pressable>
           </View>
