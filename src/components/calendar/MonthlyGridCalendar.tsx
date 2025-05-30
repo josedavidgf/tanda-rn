@@ -5,6 +5,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'dat
 import { shiftTypeIcons } from '@/utils/useLabelMap';
 import type { CalendarEntry } from '@/types/calendar';
 import chunk from 'lodash.chunk';
+import { colors } from '@/styles';
 
 type Props = {
   calendarMap: Record<string, CalendarEntry>;
@@ -61,7 +62,7 @@ export default function MonthlyGridCalendar({
           <Text style={styles.calendarDayNumber}>{format(day, 'd')}</Text>
           {Icon && (
             <View style={styles.calendarShiftIcon}>
-              <Icon size={16} weight="fill" color="#fff" />
+              <Icon size={16} color={colors.primary} />
             </View>
           )}
           {isPreference && <View style={styles.calendarAvailabilityDot} />}

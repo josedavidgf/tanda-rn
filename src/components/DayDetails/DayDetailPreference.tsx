@@ -8,6 +8,7 @@ import { spacing, typography, colors } from '@/styles';
 import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { ScrollView } from 'react-native-gesture-handler';
+import CommentButton from '@/components/calendar/DayComment';
 // import { trackEvent } from '@/lib/amplitude';
 // import { EVENTS } from '@/utils/amplitudeEvents';
 
@@ -76,18 +77,22 @@ export default function DayDetailPreference({
 
 
       {activeTypes.length > 0 && (
-        <Button
-          label="Eliminar disponibilidades"
-          variant="outline"
-          size="lg"
-          leftIcon={<Trash size={20} color={colors.black} />}
-          onPress={() => {
-            // trackEvent(EVENTS.REMOVE_ALL_AVAILABILITIES_CLICKED, { day: dateStr });
-            onDeletePreference(dateStr);
-          }}
-          loading={loadingDeletePreference}
-          disabled={loadingDeletePreference}
-        />
+        <View style={styles.buttonGroup}>
+
+          <Button
+            label="Eliminar disponibilidades"
+            variant="outline"
+            size="lg"
+            leftIcon={<Trash size={20} color={colors.black} />}
+            onPress={() => {
+              // trackEvent(EVENTS.REMOVE_ALL_AVAILABILITIES_CLICKED, { day: dateStr });
+              onDeletePreference(dateStr);
+            }}
+            loading={loadingDeletePreference}
+            disabled={loadingDeletePreference}
+          />
+          <CommentButton dateStr={dateStr} />
+        </View>
       )}
     </View>
   );
@@ -103,6 +108,9 @@ const styles = StyleSheet.create({
   chipGroup: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  buttonGroup: {
     gap: spacing.sm,
   },
 });
