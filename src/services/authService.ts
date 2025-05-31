@@ -1,5 +1,7 @@
 // src/services/authService.js
 import axios from 'axios';
+import * as WebBrowser from 'expo-web-browser';
+import { supabase } from '@/lib/supabase'; // Asegúrate de que esta ruta sea correcta
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.94:4000';
 
@@ -65,5 +67,23 @@ export async function resendVerificationEmail(token) {
     return data;
   } catch (error) {
     throw new Error(error.message || 'Error desconocido en reenvío de verificación');
+  }
+}
+
+export async function loginWithGoogle() {
+  const redirectTo = 'https://redirect.apptanda.com/auth/callback';
+
+  const { data, error } = await supabase.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo },
+  });
+
+  if (error) {
+    console.error('[Google Login] Error:', error.message);
+    throw error;
+  }
+
+  if (data?.url) {
+    await WebBrowser.openBrowserAsync(data.url);
   }
 }

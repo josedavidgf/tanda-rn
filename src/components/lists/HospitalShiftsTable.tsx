@@ -4,7 +4,6 @@ import { FlatList, Pressable, StyleSheet, View, Alert } from 'react-native';
 import ShiftCardContent from '@/components/ui/cards/ShiftCardContent';
 import AppText from '@/components/ui/AppText';
 import { spacing } from '@/styles';
-import EmptyState from '@/components/ui/EmptyState';
 import { useNavigation } from '@react-navigation/native';
 
 interface Props {
@@ -16,17 +15,7 @@ interface Props {
 
 export default function HospitalShiftsTable({ shifts, workerId, sentSwapShiftIds, onSelect }: Props) {
   const navigation = useNavigation();
-  if (!shifts.length) {
-    return (
-
-      <EmptyState
-        title="No hay resultados"
-        description="No hay turnos publicados en esta búsqueda."
-        ctaLabel="Limpiar filtros"
-        onCtaClick={() => navigation.navigate('Calendar')}
-      />
-    );
-  }
+  if (!shifts.length) return null;
 
   return (
     <View style={{ flex: 1, justifyContent: 'flex-start' }}>

@@ -1,4 +1,4 @@
-// App.tsx (simplificado y ajustado)
+// App.tsx
 import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
@@ -16,30 +16,56 @@ import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
+import { supabase } from '@/lib/supabase';
 
-/* import {initNotifications} from '@/utils/oneSignal';
- */
 global.Buffer = Buffer;
 global.process = require('process');
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  /*   useEffect(() => {
-      initNotifications();
-    }, []); */
+  // 🔗 Captura de deeplinks con tokens de Supabase
+  useEffect(() => {
+    const handleDeepLink = async (event: { url: string }) => {
+      const parsed = Linking.parse(event.url);
+      if (
+        parsed.path === 'auth-callback' &&
+        parsed.queryParams?.access_token &&
+        parsed.queryParams?.refresh_token
+      ) {
+        const { access_token, refresh_token } = parsed.queryParams;
+        console.log('[LINKING] Recibido deep link con token:', access_token);
+        await supabase.setSession({
+          access_token,
+          refresh_token,
+        });
+      }
+    };
+
+    // Suscribirse a eventos en caliente
+    const sub = Linking.addEventListener('url', handleDeepLink);
+
+    // Manejar apertura en frío
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     Font.loadAsync({
       Custom: require('@assets/fonts/HostGrotesk-Regular.ttf'),
     }).then(() => setFontsLoaded(true));
   }, []);
-  
+
   const linking = {
     prefixes: ['tanda://'],
     config: {
       screens: {
-        Login: 'login', // 👈 esta línea hace que tanda://login abra LoginScreen
+        AuthCallback: 'auth-callback',
+        Login: 'login',
+        // otras rutas...
       },
     },
   };
@@ -48,7 +74,7 @@ export default function App() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" />
-        <AppText variant='p'>Loading fonts...</AppText>
+        <AppText variant="p">Loading fonts...</AppText>
       </View>
     );
   }
@@ -77,7 +103,6 @@ function AuthGate() {
   const { session } = useAuth();
   return session ? <AppNavigator /> : <AuthNavigator />;
 }
-
 
 const styles = StyleSheet.create({
   centered: {

@@ -13,6 +13,9 @@ import { z } from 'zod';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { loginWithGoogle } from '@/services/authService';
+import { GoogleLogo } from 'phosphor-react-native';
+
 
 const schema = z.object({
   email: z.string().email({ message: 'Introduce un correo válido' }),
@@ -86,6 +89,14 @@ export default function LoginScreen() {
         />
 
         <DividerText text="o" />
+
+        <Button
+          label="Login con Google"
+          size="lg"
+          onPress={loginWithGoogle}
+          variant="outline"
+          leftIcon={<GoogleLogo size={20} />}
+        />
 
         <AppText
           variant="link"
