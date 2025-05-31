@@ -40,9 +40,9 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
 
           <AppText variant='p' style={styles.description}>
             {isNoReturn ? (
-              <>Has ofrecido tu turno sin esperar devolución por el del {shiftDate} de {shiftType}.</>
-            ) : (
               <>Has propuesto cambiar tu turno del {offeredDate} de {offeredType} por el del {shiftDate} de {shiftType}.</>
+            ) : (
+              <>Has propuesto hacer el turno del {shiftDate} de {shiftType} sin esperar devolución.</>
             )}
           </AppText>
 

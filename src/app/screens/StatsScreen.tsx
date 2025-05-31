@@ -11,7 +11,7 @@ import { endOfMonth, startOfMonth, format } from 'date-fns';
 import { colors, spacing } from '@/styles';
 import { useIsWorkerReady } from '@/app/hooks/useIsWorkerReady';
 import AppLoader from '@/components/ui/AppLoader';
-import { AlignLeft } from 'phosphor-react-native';
+import { PaintBrush } from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getWorkerShiftHours } from '@/services/shiftHoursService';
 
@@ -75,6 +75,7 @@ export default function StatsScreen() {
             showBackButton
             rightAction={{
                 label: 'Editar',
+                icon: <PaintBrush size={20} color={colors.text.primary} weight="bold" />,
                 onPress: () => navigation.navigate('ShiftHoursSettings'),
             }}
         >

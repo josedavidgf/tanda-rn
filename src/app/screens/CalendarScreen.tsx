@@ -57,7 +57,6 @@ export default function CalendarScreen() {
 
 
     const selectedDayData = useMemo(() => {
-        console.log('selectedDate', selectedDate);
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
         const entry = calendarMap[dateStr];
         return resolveDayTypeFromCalendarMap(entry, selectedDate);
@@ -376,8 +375,8 @@ export default function CalendarScreen() {
                     )}
 
 
-                    {!isMassiveEditMode && !loadingCalendar && <ShiftStats stats={shiftStats} />}
-                    <View style={{ position: 'relative' }}>
+{/*                     {!isMassiveEditMode && !loadingCalendar && <ShiftStats stats={shiftStats} />}
+ */}                    <View style={{ position: 'relative' }}>
                         <MonthlyGridCalendar
                             calendarMap={isMassiveEditMode ? draftShiftMap : calendarMap}
                             selectedDate={selectedDate}

@@ -26,7 +26,7 @@ export default function HeaderSecondLevel({
 
   return (
     <View style={styles.container}>
-      <View style={styles.side}>
+      <View style={styles.sideLeft}>
         {showBackButton && (
           <Pressable
             onPress={onBack || (() => navigation.goBack())}
@@ -38,11 +38,13 @@ export default function HeaderSecondLevel({
         )}
       </View>
 
-      <AppText variant="h3" style={styles.title}>
-        {title}
-      </AppText>
+      <View style={styles.titleWrapper}>
+        <AppText variant="h3" style={styles.title}>
+          {title}
+        </AppText>
+      </View>
 
-      <View style={styles.side}>
+      <View style={styles.sideRight}>
         {rightAction && (
           <Pressable
             onPress={rightAction.onPress}
@@ -58,26 +60,37 @@ export default function HeaderSecondLevel({
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray[200],
     backgroundColor: colors.white,
+    position: 'relative',
   },
-  title: {
-    flexShrink: 1,
-    textAlign: 'center',
-  },
-  side: {
-    width: 80,
+  sideLeft: {
+    position: 'absolute',
+    left: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+  },
+  sideRight: {
+    position: 'absolute',
+    right: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  titleWrapper: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  title: {
+    textAlign: 'center',
   },
   backButton: {
     flexDirection: 'row',

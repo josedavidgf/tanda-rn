@@ -137,6 +137,12 @@ export default function ChatListScreen() {
                                 const otherDate = iAmRequester ? swap.shift.date : swap.offered_date;
                                 const otherType = iAmRequester ? swap.shift.shift_type : swap.offered_type;
                                 const otherPerson = iAmRequester ? swap.shift.worker : swap.requester;
+                                const otherPersonMobileCountryCode = iAmRequester
+                                    ? swap.shift.worker.mobile_country_code
+                                    : swap.requester.mobile_country_code;
+                                const otherPersonMobilePhone = iAmRequester
+                                    ? swap.shift.worker.mobile_phone
+                                    : swap.requester.mobile_phone;
                                 const hasUnread = unreadSwapIds.includes(swap.swap_id);
 
                                 const swapType = swap.swap_type;
@@ -153,6 +159,8 @@ export default function ChatListScreen() {
                                             myType={myType}
                                             otherDate={otherDate}
                                             otherType={otherType}
+                                            otherPersonMobileCountryCode={otherPersonMobileCountryCode}
+                                            otherPersonMobilePhone={otherPersonMobilePhone}
                                             swapType={swapType}
                                         />
                                         {hasUnread && <View style={styles.dot} />}

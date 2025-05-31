@@ -12,6 +12,8 @@ type Props = {
   myType: string;
   otherDate: string;
   otherType: string;
+  otherPersonMobileCountryCode?: string;
+  otherPersonMobilePhone?: string;
   swapType: string;
 };
 
@@ -21,6 +23,8 @@ export default function ChatCardContent({
   myType,
   otherDate,
   otherType,
+  otherPersonMobileCountryCode,
+  otherPersonMobilePhone,
   swapType,
 }: Props) {
   const my = myDate ? getFriendlyDateParts(myDate) : null;

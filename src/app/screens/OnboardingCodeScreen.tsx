@@ -110,6 +110,13 @@ export default function OnboardingCodeScreen() {
       setLoadingForm(false);
     }
   };
+  const handleGoToLogin = () => {
+    console.log('[Onboarding Code] Redirigiendo a Login');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' as never }] // o 'Login' si tienes esa screen directamente
+    });
+  };
 
   return (
     <KeyboardAvoidingView
@@ -137,6 +144,12 @@ export default function OnboardingCodeScreen() {
             loading={loadingForm}
             disabled={code.length !== 4 || loadingForm}
             style={styles.button}
+          />
+          <Button
+            label="Volver al login"
+            size='lg'
+            variant="ghost"
+            onPress={handleGoToLogin}
           />
         </View>
       </SimpleLayout>

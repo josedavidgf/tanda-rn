@@ -11,7 +11,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: 'hermes',
   ios: {
     bundleIdentifier: 'com.apptanda.app',
-    buildNumber: '1.0.1',
+    buildNumber: '1.0.2',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSUserTrackingUsageDescription: 'Tanda uses notifications to keep you informed of shift changes.',

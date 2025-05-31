@@ -7,6 +7,7 @@ import {
     View,
     Pressable,
     StyleSheet,
+    Linking,
 } from 'react-native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import ChatBox from '@/components/chat/Chatbox';
@@ -23,6 +24,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWorkerApi } from '@/api/useWorkerApi';
 import { markMessagesAsRead } from '@/api/useMessagesApi';
 import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
+import { Phone } from 'phosphor-react-native';
+
 
 export default function ChatPageScreen() {
     const route = useRoute();
@@ -119,10 +122,18 @@ export default function ChatPageScreen() {
         const isNoReturn = swapContext.swap_type === 'no_return';
         const isMine = swapContext.requester_id === session.user.id;
 
-        const myDate = isMine ? swapContext.offered_date : swapContext.shift.date;
-        const myType = isMine ? swapContext.offered_type : swapContext.shift.shift_type;
-        const otherDate = isMine ? swapContext.shift.date : swapContext.offered_date;
-        const otherType = isMine ? swapContext.shift.shift_type : swapContext.offered_type;
+        const myDate = isMine
+            ? swapContext.offered_date
+            : swapContext.shift.date;
+        const myType = isMine
+            ? swapContext.offered_type
+            : swapContext.shift.shift_type;
+        const otherDate = isMine
+            ? swapContext.shift.date
+            : swapContext.offered_date;
+        const otherType = isMine
+            ? swapContext.shift.shift_type
+            : swapContext.offered_type;
 
         if (isNoReturn) {
             return (
@@ -139,9 +150,44 @@ export default function ChatPageScreen() {
         );
     };
 
+    // 🔁 Extrae datos del contexto del swap
+    let fullPhone = '';
+    let phoneLink = null;
+
+    if (swapContext && session) {
+        const isMine = swapContext.requester_id === session.user.id;
+        const otherPersonMobileCountryCode = isMine
+            ? swapContext.shift.worker.mobile_country_code
+            : swapContext.requester.mobile_country_code;
+        const otherPersonMobilePhone = isMine
+            ? swapContext.shift.worker.mobile_phone
+            : swapContext.requester.mobile_phone;
+
+        fullPhone = `${otherPersonMobileCountryCode ?? ''}${otherPersonMobilePhone ?? ''}`.replace(/\s+/g, '');
+        phoneLink = fullPhone.length >= 10 ? `tel:${fullPhone}` : null;
+    }
+
+
+
+
 
     return (
-        <SimpleLayout title="Conversación">
+        <SimpleLayout
+            title="Conversación"
+            showBackButton
+            rightAction={
+                phoneLink
+                    ? {
+                        label: 'Llamar',
+                        icon: <Phone size={20} />, // Ajusta color si es necesario
+                        onPress: () => {
+                            //trackEvent(EVENTS.CHAT_CALL_BUTTON_CLICKED, { swapId, phone: fullPhone });
+                            Linking.openURL(phoneLink);
+                        },
+                    }
+                    : undefined
+            }
+        >
             <SafeAreaView style={styles.safeArea}>
                 {renderSwapContext()}
                 <KeyboardAvoidingView

@@ -32,21 +32,34 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   console.log('[AUTH RN] Iniciando AuthProvider...');
 
   async function getOrCreateWorker(token: string) {
-    try {
-      return await getMyWorkerProfile(token);
-    } catch (err) {
-      console.warn('[AUTH RN] No existe worker, intentamos crearlo:', err.message);
+    console.log('[AUTH RN] Obteniendo o creando worker con token:');
 
-      try {
+    try {
+      const worker = await getMyWorkerProfile(token);
+
+      if (!worker) {
+        console.warn('[AUTH RN] Worker es null. Lo creamos...');
         await initWorker(token);
-        console.log('[AUTH RN] Worker creado');
-        return await getMyWorkerProfile(token);
-      } catch (err2) {
-        console.warn('[AUTH RN] Error creando worker:', err2.message);
-        throw err2;
+
+        const newWorker = await getMyWorkerProfile(token);
+        if (!newWorker) {
+          throw new Error('[AUTH RN] Worker sigue siendo null tras crearlo.');
+        }
+
+        console.log('[AUTH RN] Worker creado:', newWorker);
+        return newWorker;
       }
+
+      console.log('[AUTH RN] Worker ya existía:', worker);
+      return worker;
+    } catch (err: any) {
+      console.error('[AUTH RN] Error inesperado en getOrCreateWorker:', err.message);
+      throw err;
     }
   }
+
+
+
 
   const restoreSession = async () => {
     console.log('[AUTH RN] Restaurando sesión desde SecureStore...');
