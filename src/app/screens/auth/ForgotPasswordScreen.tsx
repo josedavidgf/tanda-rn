@@ -4,22 +4,38 @@ import AppText from '@/components/ui/AppText';
 import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '@/contexts/AuthContext';
 import { colors, spacing } from '@/styles';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/app/hooks/useToast';
+
 
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation();
-  const { requestPasswordReset } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showError, showInfo } = useToast();
 
-  const handleSubmit = async () => {
-    if (!email) return;
+  const handlePasswordReset = async () => {
+    if (!email || !email.includes('@')) {
+      showError("Introduce un correo válido.");
+      return;
+    }
+
     setLoading(true);
-    await requestPasswordReset(email);
+    const redirectTo = 'https://redirect.apptanda.com/auth/callback';
+
+    const { error } = await supabase.resetPasswordForEmail(email, { redirectTo });
+
+    if (error) {
+      showError(error.message || "No hemos podido enviar el email.");
+    } else {
+      showInfo("Si tu correo está registrado, te hemos enviado instrucciones.");
+      setTimeout(() => navigation.navigate('Login'), 1000);
+    }
+
     setLoading(false);
-    navigation.navigate('Login');
   };
+
 
   return (
     <View style={styles.container}>
@@ -38,9 +54,10 @@ export default function ForgotPasswordScreen() {
         label="Enviar enlace"
         size='lg'
         variant='primary'
-        onPress={handleSubmit}
+        onPress={handlePasswordReset}
         loading={loading}
         style={styles.button}
+        disabled={loading || !email}
       />
     </View>
   );

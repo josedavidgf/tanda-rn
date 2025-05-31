@@ -10,6 +10,8 @@ import { colors, spacing } from '@/styles';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
+import { loginWithGoogle } from '@/services/authService';
+
 
 export default function RegisterScreen() {
   const navigation = useNavigation();
@@ -57,10 +59,6 @@ export default function RegisterScreen() {
     }
   };
 
-  const signInWithGoogle = () => {
-    Alert.alert('No implementado aún', 'El login con Google se añadirá próximamente.');
-  };
-
   return (
     <SimpleLayout showBackButton>
       <View style={styles.container}>
@@ -97,9 +95,9 @@ export default function RegisterScreen() {
         <Button
           label="Registrarme con Google"
           size="lg"
-          onPress={signInWithGoogle}
+          onPress={loginWithGoogle}
           variant="outline"
-          leftIcon={<GoogleLogo size={20} color={colors.text} />}
+          leftIcon={<GoogleLogo size={20} />}
         />
       </View>
     </SimpleLayout>

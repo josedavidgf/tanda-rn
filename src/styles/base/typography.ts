@@ -31,5 +31,11 @@ export const typography = {
     fontWeight: '400',
     fontFamily: 'HostGrotesk-Regular',
   },
+  link: {
+    fontSize: 16,
+    fontWeight: '500',
+    fontFamily: 'HostGrotesk-Medium',
+    color: colors.primary,
+  },
 };
 

@@ -25,7 +25,7 @@ export default function DayDetailEmpty({
 }: Props) {
   return (
     <View style={styles.container}>
-      <AppText variant="h2">{dayLabel} - Día libre</AppText>
+      <AppText variant="h2">{dayLabel}</AppText>
       <AppText variant="p">
         Hoy no tienes turno ni lo tienes seleccionado como disponible para trabajar.
       </AppText>

@@ -4,7 +4,6 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import SwapCardContent from '@/components/ui/cards/SwapCardContent';
 import AppText from '@/components/ui/AppText';
 import { spacing } from '@/styles';
-import EmptyState from '@/components/ui/EmptyState';
 import { useNavigation } from '@react-navigation/native';
 
 interface Props {
@@ -15,16 +14,7 @@ interface Props {
 
 export default function MySwapsTable({ swaps, workerId, onSelect }: Props) {
   const navigation = useNavigation();
-  if (!swaps.length) {
-    return (
-      <EmptyState
-        title="No hay intercambios"
-        description="No tienes intercambios aún."
-        ctaLabel="Proponer uno nuevo"
-        onCtaClick={() => navigation.navigate('HospitalShifts')}
-      />
-    );
-  }
+  if (!swaps.length) return null;
 
   return (
     <FlatList

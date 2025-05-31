@@ -9,10 +9,11 @@ import { useNavigation } from '@react-navigation/native';
 import { swapStatusLabels } from '@/utils/useLabelMap';
 import Chip from '@/components/ui/Chip';
 import { ScrollView } from 'react-native';
-import DateRangeFilter from '@/components/ui/DateRangeFilter';
+import DateRangePicker from '@/components/ui/DataRangePicker';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { spacing } from '@/styles';
 import FadeInView from '@/components/animations/FadeInView';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function MySwapScreen() {
   const { accessToken, isWorker } = useAuth();
@@ -64,13 +65,36 @@ export default function MySwapScreen() {
     return inStatus && inDateRange;
   });
 
+  if (filteredSwaps.length === 0) {
+    return (
+      <FadeInView>
+        <AppLayout title="Tus intercambios">
+          <View style={{ flex: 1, justifyContent: 'center', padding: spacing.lg }}>
+            <EmptyState
+              title="No hay resultados"
+              description="No hay intercambios en esta búsqueda."
+              ctaLabel="Limpiar filtros"
+              onCtaClick={() => {
+                setStatusFilters([]);
+                setDateRange({
+                  startDate: startOfMonth(new Date()),
+                  endDate: endOfMonth(new Date()),
+                });
+              }}
+            />
+          </View>
+        </AppLayout>
+      </FadeInView>
+    );
+  }
+
 
   return (
     <FadeInView>
       <AppLayout title="Tus intercambios">
         <View style={{ flex: 1 }}>
           <View style={{ padding: spacing.md }}>
-            <DateRangeFilter range={dateRange} onChange={setDateRange} />
+            <DateRangePicker range={dateRange} onChange={setDateRange} />
           </View>
           <View style={{ paddingHorizontal: spacing.md }}>
             <ScrollView
