@@ -3,8 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import { CalendarPlus, Lightbulb } from '@/theme/icons';
-//import { trackEvent } from '@/lib/amplitude';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { spacing, typography } from '@/styles';
 import { colors } from '@/styles/utilities/colors';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
@@ -37,7 +37,7 @@ export default function DayDetailEmpty({
           size="lg"
           leftIcon={<CalendarPlus size={20} color={colors.white} />}
           onPress={() => {
-            //trackEvent(EVENTS.ADD_SINGLE_SHIFT_BUTTON_CLICKED, { day: dateStr });
+            trackEvent(EVENTS.ADD_SINGLE_SHIFT_BUTTON_CLICKED, { day: dateStr });
             onAddShift(dateStr);
           }}
         />
@@ -47,7 +47,7 @@ export default function DayDetailEmpty({
           size="lg"
           leftIcon={<Lightbulb size={20} color={colors.white} />}
           onPress={() => {
-            //trackEvent(EVENTS.ADD_SINGLE_AVAILABILITY_BUTTON_CLICKED, { day: dateStr });
+            trackEvent(EVENTS.ADD_SINGLE_AVAILABILITY_BUTTON_CLICKED, { day: dateStr });
             onAddPreference(dateStr);
           }}
         />
