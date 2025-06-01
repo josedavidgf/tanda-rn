@@ -26,6 +26,9 @@ import { spacing, colors, typography } from '@/styles';
 import { useSwapPreferencesApi } from '@/api/useSwapPreferencesApi';
 import ShiftSelector from '@/components/ui/ShiftSelector';
 import InputField from '@/components/forms/InputField';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
+import { track } from '@amplitude/analytics-react-native';
 
 export default function ProposeSwap() {
 
@@ -97,7 +100,14 @@ export default function ProposeSwap() {
                 form.offered_label = selectedShift.label || 'regular';
             }
 
-
+            track(EVENTS.SWAP_PROPOSAL_SUBMITTED, {
+                offeredShiftId: selectedShift.id,
+                offeredShiftDate: !!selectedShift.date,
+                offeredShiftType: !!selectedShift.type,
+                hasComments: !!comments,
+                commentsLength: comments.length || 0,
+                targetShiftId: shiftId,
+            });
 
             const result = await proposeSwap(shiftId, form, accessToken);
             const enrichedSwap = {
