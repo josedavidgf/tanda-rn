@@ -15,6 +15,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { loginWithGoogle } from '@/services/authService';
 import { GoogleLogo } from 'phosphor-react-native';
+import {EVENTS} from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 
 
 const schema = z.object({
@@ -42,13 +44,18 @@ export default function LoginScreen() {
 
 
   const onSubmit = async ({ email, password }: { email: string; password: string }) => {
+    trackEvent(EVENTS.LOGIN_ATTEMPTED_WITH_EMAIL);
+
     const { data, error } = await supabase.signInWithPassword({ email, password });
 
     if (error || !data?.session) {
+      trackEvent(EVENTS.LOGIN_FAILED);
       setError('email', { message: 'Credenciales incorrectas' });
       Alert.alert('Error', 'El correo o la contraseña no son correctos');
       return;
     }
+
+    trackEvent(EVENTS.LOGIN_SUCCESS);
 
     await SecureStore.setItemAsync(
       'supabase.session',
@@ -65,7 +72,6 @@ export default function LoginScreen() {
     <SimpleLayout title="" showBackButton>
       <View style={styles.container}>
         <AppText variant="h1" style={styles.title}>Inicia sesión</AppText>
-
         <InputField
           label="Correo electrónico"
           name="email"
@@ -75,7 +81,6 @@ export default function LoginScreen() {
           control={control}
           error={errors.email?.message}
         />
-
         <InputField
           label="Contraseña"
           name="password"
@@ -100,7 +105,10 @@ export default function LoginScreen() {
         <Button
           label="Login con Google"
           size="lg"
-          onPress={loginWithGoogle}
+          onPress={() => {
+            trackEvent(EVENTS.LOGIN_ATTEMPTED_WITH_GOOGLE);
+            loginWithGoogle();
+          }}
           variant="outline"
           leftIcon={<GoogleLogo size={20} />}
         />
@@ -108,7 +116,10 @@ export default function LoginScreen() {
         <AppText
           variant="link"
           style={styles.link}
-          onPress={() => navigation.navigate('ForgotPassword')}
+          onPress={() => {
+            trackEvent(EVENTS.FORGOT_PASSWORD_CLICKED);
+            navigation.navigate('ForgotPassword');
+          }}
         >
           ¿Has olvidado tu contraseña?
         </AppText>
