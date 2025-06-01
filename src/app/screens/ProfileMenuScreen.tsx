@@ -25,7 +25,13 @@ export default function ProfileMenuScreen() {
     const { logout } = useAuth();
 
     const handleLogout = async () => {
-        await logout();
+        try {
+            trackEvent(EVENTS.LOGOUT_CLICKED);
+            await logout();
+        }
+        catch (error) {
+            console.error('Error tracking logout event:', error);
+        }
     };
 
     const items = [
