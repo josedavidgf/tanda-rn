@@ -12,6 +12,8 @@ import AppText from '@/components/ui/AppText';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import { spacing } from '@/styles';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents'; 
 
 
 export default function OnboardingPhoneScreen() {
@@ -37,6 +39,12 @@ export default function OnboardingPhoneScreen() {
     return;
   }
 
+  trackEvent(EVENTS.ONBOARDING_PHONE_SUBMITTED, {
+    workerId: isWorker?.worker_id,
+    prefix,
+    phone: cleanPhone,
+  });
+
   try {
     setSaving(true);
 
@@ -57,6 +65,12 @@ export default function OnboardingPhoneScreen() {
     showSuccess('Teléfono guardado correctamente');
     navigation.navigate('OnboardingSuccess');
   } catch (err: any) {
+    trackEvent(EVENTS.ONBOARDING_PHONE_FAILED, {
+      workerId: isWorker?.worker_id,
+      prefix,
+      phone: cleanPhone,
+      error: err?.message,
+    });
     showError('Error guardando el teléfono');
   } finally {
     setSaving(false);
