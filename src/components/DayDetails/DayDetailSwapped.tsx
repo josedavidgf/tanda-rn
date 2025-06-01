@@ -4,8 +4,8 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import { Lightning, Lightbulb, Eye } from '@/theme/icons';
 import { spacing, typography, colors } from '@/styles';
-//import { trackEvent } from '@/lib/amplitude';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { useNavigation } from '@react-navigation/native';
 import CommentButton from '@/components/calendar/DayComment';
 
@@ -62,7 +62,7 @@ export default function DayDetailSwapped({
           size="lg"
           leftIcon={<Lightning size={20} color={colors.white} />}
           onPress={() => {
-            //trackEvent(EVENTS.ADD_SINGLE_SHIFT_BUTTON_CLICKED, { day: dateStr });
+            trackEvent(EVENTS.ADD_SINGLE_SHIFT_BUTTON_CLICKED, { day: dateStr });
             onAddShift(dateStr);
           }}
         />
@@ -72,7 +72,7 @@ export default function DayDetailSwapped({
           size="lg"
           leftIcon={<Lightbulb size={20} color={colors.white} />}
           onPress={() => {
-            //trackEvent(EVENTS.ADD_SINGLE_AVAILABILITY_BUTTON_CLICKED, { day: dateStr });
+            trackEvent(EVENTS.ADD_SINGLE_AVAILABILITY_BUTTON_CLICKED, { day: dateStr });
             onAddPreference(dateStr);
           }}
         />
@@ -83,7 +83,7 @@ export default function DayDetailSwapped({
             size="lg"
             leftIcon={<Eye size={20} color={colors.black} />}
             onPress={() => {
-              //trackEvent(EVENTS.SHOW_SWAPPED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
+              trackEvent(EVENTS.SHOW_SWAPPED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
               navigation.navigate('SwapDetails', { swapId: entry.swap_id });
             }}
           />
