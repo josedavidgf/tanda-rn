@@ -11,6 +11,8 @@ import SimpleLayout from '@/components/layout/SimpleLayout';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
 import { loginWithGoogle } from '@/services/authService';
+import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 
 
 export default function RegisterScreen() {
@@ -25,6 +27,7 @@ export default function RegisterScreen() {
   const isDisabled = loading || !email || !password || !isEmailValid;
 
   const handleRegister = async () => {
+    trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_EMAIL);
     setLoading(true);
 
     try {
@@ -32,16 +35,18 @@ export default function RegisterScreen() {
         email,
         password,
         options: {
-          emailRedirectTo: 'https://redirect.apptanda.com/auth/callback', // ajusta a tu entorno real
+          emailRedirectTo: 'https://redirect.apptanda.com/auth/callback',
         },
       });
 
       if (error) {
+        trackEvent(EVENTS.REGISTER_FAILED);
         Alert.alert('Error', error.message);
         return;
       }
 
-      // Si devuelve sesión directamente (caso poco común), la guardamos
+      trackEvent(EVENTS.REGISTER_SUCCESS);
+
       if (data.session) {
         await SecureStore.setItemAsync(
           'supabase.session',
@@ -59,6 +64,7 @@ export default function RegisterScreen() {
         );
       }
     } catch (err) {
+      trackEvent(EVENTS.REGISTER_FAILED);
       Alert.alert('Error inesperado', err.message);
     } finally {
       setLoading(false);
@@ -102,7 +108,10 @@ export default function RegisterScreen() {
         <Button
           label="Registrarme con Google"
           size="lg"
-          onPress={loginWithGoogle}
+          onPress={() => {
+            trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_GOOGLE);
+            loginWithGoogle();
+          }}
           variant="outline"
           leftIcon={<GoogleLogo size={20} />}
         />
