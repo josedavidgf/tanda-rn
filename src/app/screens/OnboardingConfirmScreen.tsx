@@ -13,6 +13,8 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/ui/Checkbox';
 import AppLoader from '@/components/ui/AppLoader';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function OnboardingConfirmScreen() {
   const route = useRoute();
@@ -55,6 +57,13 @@ export default function OnboardingConfirmScreen() {
       return;
     }
 
+    trackEvent(EVENTS.ONBOARDING_CONFIRM_SUBMITTED, {
+      hospitalId,
+      workerTypeId,
+      hospitalName,
+      workerTypeName,
+    });
+
     try {
       setLoading(true);
       const response = await createWorker({ workerTypeId }, accessToken);
@@ -67,9 +76,20 @@ export default function OnboardingConfirmScreen() {
         setIsWorker(newProfile);
       }
 
+      trackEvent(EVENTS.ONBOARDING_CONFIRM_SUCCESS, {
+        workerId: response.worker.worker_id,
+        hospitalId,
+        workerTypeId,
+      });
+
       showSuccess('Cuenta creada con éxito');
       navigation.navigate('OnboardingSpeciality');
     } catch (err: any) {
+      trackEvent(EVENTS.ONBOARDING_CONFIRM_FAILED, {
+        hospitalId,
+        workerTypeId,
+        error: err?.message,
+      });
       showError('Error creando el perfil. Intenta de nuevo.');
     } finally {
       setLoading(false);
@@ -109,7 +129,10 @@ export default function OnboardingConfirmScreen() {
           label="Contactar con Tanda"
           size="lg"
           variant="outline"
-          onPress={() => Linking.openURL('https://tally.so/r/3NOK0j')}
+          onPress={() => {
+            trackEvent(EVENTS.ONBOARDING_CONTACT_CLICKED);
+            Linking.openURL('https://tally.so/r/3NOK0j');
+          }}
           disabled={loading}
           style={{ marginTop: spacing.sm }}
         />
