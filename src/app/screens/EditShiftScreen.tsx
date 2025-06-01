@@ -13,6 +13,8 @@ import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppLoader from '@/components/ui/AppLoader';
 import FadeInView from '@/components/animations/FadeInView';
 import AppText from '@/components/ui/AppText';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function EditShiftScreen() {
     const { accessToken, isWorker } = useAuth();
@@ -89,7 +91,10 @@ export default function EditShiftScreen() {
                             variant="primary"
                             style={{ marginTop: spacing.md }}
                             disabled={!comments.trim() && !requiresReturn}
-                            onPress={handleSave}
+                            onPress={() => {
+                                handleSave();
+                                trackEvent(EVENTS.EDIT_SHIFT_SAVE_BUTTON_CLICKED, { shiftId });
+                            }}
                         />
                     </View>
                 </View>
