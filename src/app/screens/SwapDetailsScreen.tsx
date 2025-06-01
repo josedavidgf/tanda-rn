@@ -12,6 +12,8 @@ import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { spacing } from '@/styles';
 import InputField from '@/components/forms/InputField';
 import FadeInView from '@/components/animations/FadeInView';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function SwapDetails() {
   const route = useRoute();
@@ -108,7 +110,10 @@ export default function SwapDetails() {
                 label="Aceptar"
                 size='lg'
                 variant='primary'
-                onPress={() => handleRespond('accepted')}
+                onPress={() => {
+                  handleRespond('accepted'); 
+                  trackEvent(EVENTS.ACCEPT_SWAP_BUTTON_CLICKED, { swapId: swapId });
+                }}
                 style={{ marginTop: spacing.sm }}
                 disabled={isAccepting} />
               <Button
@@ -116,7 +121,10 @@ export default function SwapDetails() {
                 size='lg'
                 variant='outline'
                 style={{ marginTop: spacing.sm }}
-                onPress={() => handleRespond('rejected')}
+                onPress={() => {
+                  handleRespond('rejected'); 
+                  trackEvent(EVENTS.REJECT_SWAP_BUTTON_CLICKED, { swapId: swapId });
+                }}
                 disabled={isRejecting} />
             </View>
           )}
@@ -127,7 +135,10 @@ export default function SwapDetails() {
               size='lg'
               variant='outline'
               style={{ marginTop: spacing.md }}
-              onPress={handleCancelSwap}
+              onPress={() => {
+                handleCancelSwap();
+                trackEvent(EVENTS.CANCEL_SWAP_BUTTON_CLICKED, { swapId: swapId });
+              }}
               disabled={isCancelling} />
           )}
         </ScrollView>
