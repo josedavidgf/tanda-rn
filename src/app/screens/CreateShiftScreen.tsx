@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/app/hooks/useToast';
 import { useShiftApi } from '@/api/useShiftApi';
-//import { trackEvent } from '@/lib/amplitude';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { shiftTypeLabels } from '@/utils/useLabelMap';
 import { spacing } from '@/styles';
@@ -58,13 +58,13 @@ export default function CreateShiftScreen() {
             };
             const success = await createShift(formToSend, accessToken);
 
-            /* trackEvent(EVENTS.PUBLISH_SHIFT_BUTTON_CLICKED, {
-              date: form.date,
-              shiftType: form.shift_type,
-              specialityId: form.speciality_id,
-              hasComments: !!form.shift_comments,
-              commentsLength: form.shift_comments.length,
-            }); */
+            trackEvent(EVENTS.PUBLISH_SHIFT_BUTTON_CLICKED, {
+              date: formToSend.date,
+              shiftType: formToSend.shift_type,
+              specialityId: formToSend.speciality_id,
+              hasComments: !!formToSend.shift_comments,
+              commentsLength: formToSend.shift_comments.length,
+            });
 
             if (success) {
                 showSuccess('Turno publicado correctamente');
