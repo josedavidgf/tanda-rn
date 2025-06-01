@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet } from 'react-native';
 import AppLayout from '@/components/layout/AppLayout';
 import AppLoader from '@/components/ui/AppLoader';
@@ -30,29 +31,31 @@ export default function MySwapScreen() {
     endDate: endOfMonth(new Date()),
   });
 
-  useEffect(() => {
-    const fetchSwaps = async () => {
-      const [sent, received] = await Promise.all([
-        getSentSwaps(accessToken),
-        getReceivedSwaps(accessToken),
-      ]);
+  const fetchSwaps = async () => {
+    setLoading(true);
+    const [sent, received] = await Promise.all([
+      getSentSwaps(accessToken),
+      getReceivedSwaps(accessToken),
+    ]);
 
-      const markedSent = sent.map(s => ({ ...s, direction: 'sent' }));
-      const markedReceived = received.map(r => ({ ...r, direction: 'received' }));
+    const markedSent = sent.map(s => ({ ...s, direction: 'sent' }));
+    const markedReceived = received.map(r => ({ ...r, direction: 'received' }));
 
-      const all = [...markedSent, ...markedReceived].sort((a, b) => {
-        const dateA = new Date(a.shift?.date || a.offered_date);
-        const dateB = new Date(b.shift?.date || b.offered_date);
-        return dateA.getTime() - dateB.getTime();
-      });
+    const all = [...markedSent, ...markedReceived].sort((a, b) => {
+      const dateA = new Date(a.shift?.date || a.offered_date);
+      const dateB = new Date(b.shift?.date || b.offered_date);
+      return dateA.getTime() - dateB.getTime();
+    });
 
 
-      setSwaps(all);
-      setLoading(false);
-    };
-
-    fetchSwaps();
-  }, []);
+    setSwaps(all);
+    setLoading(false);
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchSwaps();
+    }, [accessToken])
+  );
 
   if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando intercambios...' />;
 
