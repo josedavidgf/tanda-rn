@@ -9,6 +9,8 @@ import { useUserApi } from '@/api/useUserApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/app/hooks/useToast';
 import { spacing } from '@/styles';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function ProfilePersonalInfo() {
     const { getFullWorkerProfile, updateWorkerInfo } = useUserApi();
@@ -61,12 +63,33 @@ export default function ProfilePersonalInfo() {
 
     const handleSubmit = async () => {
         if (!validate()) return;
+
+        trackEvent(EVENTS.PERSONAL_INFO_SUBMITTED, {
+            name: form.name,
+            surname: form.surname,
+            prefix: form.prefix,
+            mobile_phone: form.mobile_phone,
+        });
+
         try {
             setSaving(true);
             await updateWorkerInfo(form, accessToken);
             showSuccess('Datos actualizados correctamente');
+            trackEvent(EVENTS.PERSONAL_INFO_SUCCESS, {
+                name: form.name,
+                surname: form.surname,
+                prefix: form.prefix,
+                mobile_phone: form.mobile_phone,
+            });
         } catch (err) {
             showError('No se pudo guardar la información');
+            trackEvent(EVENTS.PERSONAL_INFO_FAILED, {
+                name: form.name,
+                surname: form.surname,
+                prefix: form.prefix,
+                mobile_phone: form.mobile_phone,
+                error: err?.message,
+            });
         } finally {
             setSaving(false);
         }
