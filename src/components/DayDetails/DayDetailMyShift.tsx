@@ -6,6 +6,7 @@ import { Lightning, PencilSimple, Trash } from '@/theme/icons';
 import { shiftTypeLabels } from '@/utils/useLabelMap';
 //import { trackEvent } from '@/lib/amplitude';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { colors } from '@/styles/utilities/colors';
 import { spacing, typography } from '@/styles';
 import { Schedule } from '@/types/calendar';
@@ -47,10 +48,6 @@ export default function DayDetailMyShift({
 
   const textLine = `El ${dayLabel} tienes turno propio de ${shiftTypeLabels[shift.shift_type]} ${hourRange[shift.shift_type] || ''}`;
 
-  console.log('🔁 Navegar a CreateShift con:', {
-    date: dateStr,
-    shift_type: shift.shift_type,
-  });
 
   return (
     <View style={[styles.container, styles[`shift_${shift.shift_type}`]]}>
@@ -73,8 +70,10 @@ export default function DayDetailMyShift({
             variant="outline"
             size="lg"
             leftIcon={<Lightning size={20} color={colors.white} />}
-            onPress={() => navigation.navigate('EditShift', { shiftId: shift.shift_id })}
-
+            onPress={() => {
+              trackEvent(EVENTS.EDIT_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
+              navigation.navigate('EditShift', { shiftId: shift.shift_id });
+            }}
           />
           <Button
             label="Quitar publicación"
@@ -82,7 +81,7 @@ export default function DayDetailMyShift({
             size="lg"
             leftIcon={<Trash size={20} color={colors.black} />}
             onPress={() => {
-              //trackEvent(EVENTS.REMOVE_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
+              trackEvent(EVENTS.REMOVE_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
               onDeletePublication(shift.shift_id, dateStr);
             }}
             loading={loadingDeletePublication}
@@ -99,7 +98,7 @@ export default function DayDetailMyShift({
             size="lg"
             leftIcon={<Lightning size={20} color={colors.white} />}
             onPress={() => {
-              // trackEvent(EVENTS.PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: shift.shift_type });
+              trackEvent(EVENTS.PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: shift.shift_type });
               navigation.navigate('CreateShift', {
                 date: dateStr,
                 shift_type: shift.shift_type,
@@ -113,7 +112,7 @@ export default function DayDetailMyShift({
               size="md"
               leftIcon={<PencilSimple size={20} color={colors.black} />}
               onPress={() => {
-                //trackEvent(EVENTS.EDIT_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr });
+                trackEvent(EVENTS.EDIT_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr });
                 onEditShift(dateStr);
               }}
             />
@@ -123,7 +122,7 @@ export default function DayDetailMyShift({
               size="md"
               leftIcon={<Trash size={20} color={colors.black} />}
               onPress={() => {
-                //trackEvent(EVENTS.DELETE_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr });
+                trackEvent(EVENTS.DELETE_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr });
                 onRemoveShift(dateStr);
               }}
               loading={loadingRemoveShift}
