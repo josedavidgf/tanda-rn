@@ -25,6 +25,8 @@ import { useWorkerApi } from '@/api/useWorkerApi';
 import { markMessagesAsRead } from '@/api/useMessagesApi';
 import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
 import { Phone } from 'phosphor-react-native';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 
 export default function ChatPageScreen() {
@@ -181,7 +183,7 @@ export default function ChatPageScreen() {
                         label: 'Llamar',
                         icon: <Phone size={20} />, // Ajusta color si es necesario
                         onPress: () => {
-                            //trackEvent(EVENTS.CHAT_CALL_BUTTON_CLICKED, { swapId, phone: fullPhone });
+                            trackEvent(EVENTS.CHAT_CALL_BUTTON_CLICKED, { swapId, phone: fullPhone });
                             Linking.openURL(phoneLink);
                         },
                     }
