@@ -17,6 +17,7 @@ import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
+import NavigationTracker from '@/components/analytics/NavigationTracker';
 
 global.Buffer = Buffer;
 global.process = require('process');
@@ -90,6 +91,7 @@ export default function App() {
       >
         <AuthProvider>
           <OnboardingProvider>
+            <NavigationTracker /> {/* 👈 Aquí */}
             <AuthGate />
           </OnboardingProvider>
         </AuthProvider>

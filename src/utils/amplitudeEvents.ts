@@ -57,7 +57,6 @@ export const EVENTS = {
     LOGIN_FAILED: 'Login failed',
     FORGOT_PASSWORD_CLICKED: 'Forgot password link clicked',
     REGISTER_ATTEMPTED_WITH_EMAIL: 'Register attempted with email',
-    REGISTER_ATTEMPTED_WITH_GOOGLE: 'Register attempted with Google',
     REGISTER_SUCCESS: 'Register successful',
     REGISTER_FAILED: 'Register failed',
     REGISTER_ATTEMPTED_WITH_GOOGLE: 'Register attempted with Google',
