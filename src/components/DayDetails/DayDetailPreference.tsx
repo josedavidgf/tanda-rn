@@ -69,7 +69,7 @@ export default function DayDetailPreference({
               selected={isActive}
               icon={Icon}
               onPress={() => {
-                trackEvent(EVENTS.EDIT_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: type, day: dateStr });
+                trackEvent(EVENTS.SWITCH_AVAILABILITY_CLICKED, { shiftId: type, day: dateStr });
                 onEditPreference(dateStr, type);
               }}
               disabled={loadingDeletePreference}
