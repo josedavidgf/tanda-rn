@@ -19,6 +19,11 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isEmailValid = /\S+@\S+\.\S+/.test(email);
+
+
+  const isDisabled = loading || !email || !password || !isEmailValid;
+
   const handleRegister = async () => {
     setLoading(true);
 
@@ -47,6 +52,7 @@ export default function RegisterScreen() {
         );
         navigation.navigate('OnboardingCode');
       } else {
+        setTimeout(() => navigation.navigate('Login'), 1000);
         Alert.alert(
           'Revisa tu correo',
           'Hemos enviado un enlace de confirmación para activar tu cuenta.'
@@ -87,6 +93,7 @@ export default function RegisterScreen() {
           variant="primary"
           onPress={handleRegister}
           loading={loading}
+          disabled={isDisabled}
           style={styles.primaryButton}
         />
 

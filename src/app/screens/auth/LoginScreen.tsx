@@ -28,12 +28,18 @@ export default function LoginScreen() {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
     setError,
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   });
+
+  const email = watch('email');
+  const password = watch('password');
+  const isDisabled = isSubmitting || !email || !password;
+
 
   const onSubmit = async ({ email, password }: { email: string; password: string }) => {
     const { data, error } = await supabase.signInWithPassword({ email, password });
@@ -85,6 +91,7 @@ export default function LoginScreen() {
           variant="primary"
           onPress={handleSubmit(onSubmit)}
           loading={isSubmitting}
+          disabled={isDisabled}
           style={styles.primaryButton}
         />
 
