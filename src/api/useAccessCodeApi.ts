@@ -1,18 +1,16 @@
-// src/api/useAccessCodeApi.js
 import { useState } from 'react';
-import { validateAccessCode } from '../services/accessCodeService';
+import { validateAccessCode, getAccessCode } from '../services/accessCodeService';
 
 export function useAccessCodeApi() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const apiCall = async (code) => {
+  const handle = async <T>(fn: () => Promise<T>): Promise<T | null> => {
     setLoading(true);
     setError(null);
     try {
-      const data = await validateAccessCode(code);
-      return data;
-    } catch (err) {
+      return await fn();
+    } catch (err: any) {
       setError(err.message);
       return null;
     } finally {
@@ -20,5 +18,18 @@ export function useAccessCodeApi() {
     }
   };
 
-  return { validateAccessCode: apiCall, loading, error };
+  const validate = async (code: string) => {
+    return handle(() => validateAccessCode(code));
+  };
+
+  const fetchAccessCode = async (hospitalId: string, workerTypeId: string) => {
+    return handle(() => getAccessCode(hospitalId, workerTypeId));
+  };
+
+  return {
+    validateAccessCode: validate,
+    getAccessCode: fetchAccessCode,
+    loading,
+    error,
+  };
 }
