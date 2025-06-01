@@ -19,7 +19,7 @@ import { useHospitalApi } from '@/api/useHospitalApi';
 import { useWorkerApi } from '@/api/useWorkerApi';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { useOnboardingGuard } from '@/app/hooks/useOnboardingGuard';
-//import { trackEvent } from '@/lib/amplitude';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { spacing } from '@/styles';
 
@@ -58,7 +58,7 @@ export default function OnboardingCodeScreen() {
         return;
       }
 
-      //trackEvent(EVENTS.ONBOARDING_CODE_SUBMITTED, { code });
+      trackEvent(EVENTS.ONBOARDING_CODE_SUBMITTED, { code });
       setLoadingForm(true);
 
       const { hospital_id, worker_type_id } = await validateAccessCode(code);
@@ -89,11 +89,11 @@ export default function OnboardingCodeScreen() {
         workerTypeId: worker_type_id,
       });
 
-      /* trackEvent(EVENTS.ONBOARDING_CODE_SUCCESS, {
+      trackEvent(EVENTS.ONBOARDING_CODE_SUCCESS, {
         code,
         hospitalId: hospital_id,
         workerTypeId: worker_type_id,
-      }); */
+      });
       navigation.navigate('OnboardingConfirm', {
         hospitalId: hospital_id,
         workerTypeId: worker_type_id,
@@ -102,10 +102,10 @@ export default function OnboardingCodeScreen() {
       });
     } catch (err: any) {
       showError('Código inválido o error al validar. Verifica e intenta de nuevo.');
-      /* trackEvent(EVENTS.ONBOARDING_CODE_FAILED, {
+      trackEvent(EVENTS.ONBOARDING_CODE_FAILED, {
         code,
         error: err.message,
-      }); */
+      });
     } finally {
       setLoadingForm(false);
     }
