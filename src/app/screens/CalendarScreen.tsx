@@ -34,6 +34,8 @@ import FadeInView from '@/components/animations/FadeInView';
 import { relative } from 'path';
 import { useNavigation } from '@react-navigation/native';
 import { spacing } from '@/styles';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function CalendarScreen() {
 
@@ -349,6 +351,11 @@ export default function CalendarScreen() {
                         <MonthSelector
                             selectedMonth={selectedMonth}
                             onChange={(newMonth) => {
+                                if (newMonth < selectedMonth) {
+                                    trackEvent(EVENTS.PREV_MONTH_CLICKED);
+                                } else {
+                                    trackEvent(EVENTS.NEXT_MONTH_CLICKED);
+                                }
                                 setSelectedMonth(newMonth);
                                 setSelectedDate(new Date(newMonth.getFullYear(), newMonth.getMonth(), 1));
                             }}
@@ -361,6 +368,7 @@ export default function CalendarScreen() {
                                 variant="outline"
                                 style={{ margin: 0 }}
                                 onPress={() => {
+                                    trackEvent(EVENTS.BULK_SHIFT_BUTTON_CLICKED);
                                     setDraftShiftMap({ ...calendarMap });
                                     setIsMassiveEditMode(true);
                                 }}
@@ -375,7 +383,7 @@ export default function CalendarScreen() {
                     )}
 
 
-{/*                     {!isMassiveEditMode && !loadingCalendar && <ShiftStats stats={shiftStats} />}
+                    {/*                     {!isMassiveEditMode && !loadingCalendar && <ShiftStats stats={shiftStats} />}
  */}                    <View style={{ position: 'relative' }}>
                         <MonthlyGridCalendar
                             calendarMap={isMassiveEditMode ? draftShiftMap : calendarMap}
@@ -384,8 +392,10 @@ export default function CalendarScreen() {
                             onSelectDate={(date) => {
                                 const dateStr = format(date, 'yyyy-MM-dd');
                                 if (!isMassiveEditMode) {
+                                    trackEvent(EVENTS.CALENDAR_DAY_CLICKED);
                                     setSelectedDate(date);
                                 } else {
+                                    trackEvent(EVENTS.BULK_SHIFT_DAY_TAP_CLICKED);
                                     const entry = draftShiftMap[dateStr] || {};
                                     if (entry.source === 'received_swap' || entry.isPreference) return;
 
@@ -421,6 +431,7 @@ export default function CalendarScreen() {
                                     size="md"
                                     variant="outline"
                                     onPress={() => {
+                                        trackEvent(EVENTS.BULK_SHIFT_CANCEL_BUTTON_CLICKED);
                                         setDraftShiftMap({});
                                         setIsMassiveEditMode(false);
                                     }}
@@ -431,6 +442,7 @@ export default function CalendarScreen() {
                                     size="md"
                                     variant="primary"
                                     onPress={async () => {
+                                        trackEvent(EVENTS.BULK_SHIFT_SAVE_BUTTON_CLICKED);
                                         const updates = Object.entries(draftShiftMap).map(([dateStr, entry]) =>
                                             entry.shift_type
                                                 ? setShiftForDay(accessToken, isWorker.worker_id, dateStr, entry.shift_type)
