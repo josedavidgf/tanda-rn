@@ -12,8 +12,9 @@ export const supabase = new GoTrueClient({
     apikey: supabaseAnonKey,
   },
   storage: AsyncStorage,
-  autoRefreshToken: false,
-  persistSession: false,
+  autoRefreshToken: true,     // tú controlas cuándo refrescar
+  persistSession: true,       // tú decides cuándo persistirla (ej. SecureStore)
+  detectSessionInUrl: true
 });
 
 export const db = new PostgrestClient(`${supabaseUrl}/rest/v1`, {

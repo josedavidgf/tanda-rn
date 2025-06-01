@@ -8,6 +8,8 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import AppLoader from '@/components/ui/AppLoader';
 import { spacing } from '@/styles';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function OnboardingSuccessScreen() {
   const { accessToken, setIsWorker } = useAuth();
@@ -26,15 +28,18 @@ export default function OnboardingSuccessScreen() {
         setIsWorker(updated);
 
         if (updated?.onboarding_completed) {
+          trackEvent(EVENTS.ONBOARDING_COMPLETED, { workerId: updated.worker_id });
           navigation.reset({
             index: 0,
             routes: [{ name: 'Calendar' as never }],
           });
         } else {
+          trackEvent(EVENTS.ONBOARDING_SUCCESS_FAILED, { reason: 'Profile not updated' });
           showError('Tu perfil no se ha actualizado correctamente.');
           setFailed(true);
         }
       } catch (err: any) {
+        trackEvent(EVENTS.ONBOARDING_SUCCESS_FAILED, { error: err?.message });
         showError('Error finalizando el onboarding.');
         setFailed(true);
       } finally {
@@ -42,6 +47,7 @@ export default function OnboardingSuccessScreen() {
       }
     };
 
+    trackEvent(EVENTS.ONBOARDING_SUCCESS_CONFIRMED);
     completeAndRedirect();
   }, []);
 
