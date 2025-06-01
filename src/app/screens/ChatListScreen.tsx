@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Alert, Pressable, View, StyleSheet } from 'react-native';
 import AppLayout from '@/components/layout/AppLayout';
 import AppLoader from '@/components/ui/AppLoader';
-//import EmptyState from '@/components/ui/EmptyState';
 import ChatCardContent from '@/components/ui/cards/ChatCardContent';
 import SearchFilterInput from '@/components/forms/SearchFilterInput';
 import { useNavigation } from '@react-navigation/native';
@@ -14,7 +13,8 @@ import AppText from '@/components/ui/AppText';
 import FadeInView from '@/components/animations/FadeInView';
 import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
 import EmptyState from '@/components/ui/EmptyState';
-
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 
 export default function ChatListScreen() {
@@ -120,7 +120,15 @@ export default function ChatListScreen() {
                     <ScrollView contentContainerStyle={{ gap: 12, padding: 16 }}>
                         <SearchFilterInput
                             value={searchQuery}
-                            onChange={setSearchQuery}
+                            onChange={text => {
+                              if (searchQuery.length === 0 && text.length > 0) {
+                                trackEvent(EVENTS.CHAT_SEARCH_STARTED);
+                              }
+                              if (searchQuery.length > 0 && text.length === 0) {
+                                trackEvent(EVENTS.CHAT_FILTER_CLEARED);
+                              }
+                              setSearchQuery(text);
+                            }}
                             placeholder="Buscar por nombre..."
                         />
 
@@ -149,9 +157,12 @@ export default function ChatListScreen() {
 
                                 return (
                                     <Pressable
-                                        key={swap.swap_id}
-                                        onPress={() => navigation.navigate('ChatPage', { swapId: swap.swap_id })}
-                                        style={styles.cardWrapper}
+                                      key={swap.swap_id}
+                                      onPress={() => {
+                                        trackEvent(EVENTS.CHAT_CARD_CLICKED, { swapId: swap.swap_id });
+                                        navigation.navigate('ChatPage', { swapId: swap.swap_id });
+                                      }}
+                                      style={styles.cardWrapper}
                                     >
                                         <ChatCardContent
                                             otherPersonName={`${otherPerson.name} ${otherPerson.surname}`}
