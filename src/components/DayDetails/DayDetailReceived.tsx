@@ -8,6 +8,8 @@ import { spacing, typography, colors } from '@/styles';
 import { useNavigation } from '@react-navigation/native';
 import { Lightning } from 'phosphor-react-native';
 import CommentButton from '@/components/calendar/DayComment';
+import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 
 
 type Props = {
@@ -63,7 +65,7 @@ export default function DayDetailReceived({
           size="lg"
           leftIcon={<Lightning size={20} color={colors.white} />}
           onPress={() => {
-            // trackEvent(EVENTS.PUBLISH_RECEIVED_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: entry.shift_type });
+            trackEvent(EVENTS.PUBLISH_RECEIVED_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: entry.shift_type });
             navigation.navigate('CreateShift', {
               date: dateStr,
               shift_type: entry.shift_type,
@@ -79,7 +81,7 @@ export default function DayDetailReceived({
             size="lg"
             leftIcon={<ArrowRight size={20} color={colors.white} />}
             onPress={() => {
-              // trackEvent(EVENTS.SHOW_RECEIVED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
+              trackEvent(EVENTS.SHOW_RECEIVED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
               navigation.navigate('SwapDetails', { swapId: entry.swap_id });
             }}
           />
