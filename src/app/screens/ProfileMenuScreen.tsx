@@ -17,6 +17,8 @@ import {
     Lock,
 } from 'phosphor-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { trackEvent } from '../hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function ProfileMenuScreen() {
     const navigation = useNavigation();
@@ -73,6 +75,12 @@ export default function ProfileMenuScreen() {
 
     const handlePress = (item: any) => {
         if (item.external) {
+            if (item.label === 'Términos y condiciones') {
+                trackEvent(EVENTS.LEGAL_TERMS_CLICKED);
+            }
+            if (item.label === 'Política de privacidad') {
+                trackEvent(EVENTS.LEGAL_PRIVACY_CLICKED);
+            }
             Linking.openURL(item.url).catch(() =>
                 Alert.alert('Error', 'No se pudo abrir el enlace.')
             );
