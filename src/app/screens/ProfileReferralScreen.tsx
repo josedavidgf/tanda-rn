@@ -8,11 +8,15 @@ import * as Linking from 'expo-linking';
 import { spacing } from '@/styles';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import { useAccessCodeApi } from '@/api/useAccessCodeApi';
+import { useToast } from '../hooks/useToast';
+import { trackEvent } from '../hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';   
 
 export default function ProfileReferral() {
     const { isWorker } = useAuth();
     const { getAccessCode } = useAccessCodeApi();
     const [referralCode, setReferralCode] = useState<string | null>(null);
+    const { showError } = useToast();
 
     useEffect(() => {
         const fetchCode = async () => {
@@ -28,12 +32,18 @@ export default function ProfileReferral() {
 
 ¡Te va a encantar!`;
 
-    const handleShare = () => {
-        if (!referralCode) return;
+    const handleShare = async () => {
+        const message = encodeURIComponent(shareMessage);
+        const url = `whatsapp://send?text=${message}`;
 
-        Linking.openURL(`https://wa.me/?text=${encodeURIComponent(shareMessage)}`);
+        const canOpen = await Linking.canOpenURL(url);
+        if (canOpen) {
+            Linking.openURL(url);
+            trackEvent(EVENTS.SHARED_REFERRAL_CODE);
+        } else {
+            showError('WhatsApp no está instalado');
+        }
     };
-
 
     return (
         <SimpleLayout title="Invitar a un compañero" showBackButton>
