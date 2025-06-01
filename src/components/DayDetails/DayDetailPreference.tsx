@@ -9,8 +9,8 @@ import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { ScrollView } from 'react-native-gesture-handler';
 import CommentButton from '@/components/calendar/DayComment';
-// import { trackEvent } from '@/lib/amplitude';
-// import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 const ALL_TYPES = ['morning', 'evening', 'night', 'reinforcement'];
 
@@ -68,7 +68,10 @@ export default function DayDetailPreference({
               label={shiftTypeLabels[type]}
               selected={isActive}
               icon={Icon}
-              onPress={() => onEditPreference(dateStr, type)}
+              onPress={() => {
+                trackEvent(EVENTS.EDIT_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: type, day: dateStr });
+                onEditPreference(dateStr, type);
+              }}
               disabled={loadingDeletePreference}
             />
           );
@@ -85,7 +88,7 @@ export default function DayDetailPreference({
             size="lg"
             leftIcon={<Trash size={20} color={colors.black} />}
             onPress={() => {
-              // trackEvent(EVENTS.REMOVE_ALL_AVAILABILITIES_CLICKED, { day: dateStr });
+              trackEvent(EVENTS.REMOVE_ALL_AVAILABILITIES_CLICKED, { day: dateStr });
               onDeletePreference(dateStr);
             }}
             loading={loadingDeletePreference}
