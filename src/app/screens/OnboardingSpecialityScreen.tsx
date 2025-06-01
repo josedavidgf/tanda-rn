@@ -13,7 +13,8 @@ import SearchFilterInput from '@/components/forms/SearchFilterInput';
 import SpecialitiesGrid from '@/components/lists/SpecialitiesListTable'; // nuevo
 import { useWorkerApi } from '@/api/useWorkerApi'; // nuevo
 import { useOnboardingContext } from '@/contexts/OnboardingContext'; // nuevo
-
+import { trackEvent } from '../hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function OnboardingSpecialityScreen() {
   const { isWorker, accessToken, setIsWorker } = useAuth();
@@ -71,9 +72,19 @@ export default function OnboardingSpecialityScreen() {
       const updated = await getMyWorkerProfile(accessToken);
       setIsWorker(updated);
 
+      trackEvent(EVENTS.ONBOARDING_SPECIALITY_CONFIRMED, {
+        workerId: isWorker?.worker_id,
+        specialityId: selectedSpeciality,
+      });
+
       showSuccess('Especialidad guardada correctamente');
       navigation.navigate('OnboardingName');
     } catch (err: any) {
+      trackEvent(EVENTS.ONBOARDING_SPECIALITY_FAILED, {
+        workerId: isWorker?.worker_id,
+        specialityId: selectedSpeciality,
+        error: err?.message,
+      });
       showError('Error guardando la especialidad.');
     } finally {
       setSaving(false);
