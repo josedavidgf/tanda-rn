@@ -31,7 +31,7 @@ export default function NavigationTracker() {
       const sanitizedScreen = sanitizeScreenName(currentScreen);
 
       if (currentScreenRef.current !== sanitizedScreen) {
-        AmplitudeService.track('screen-viewed', { screen: sanitizedScreen });
+        AmplitudeService.track(`${sanitizedScreen.toLowerCase()}-viewed`);
         currentScreenRef.current = sanitizedScreen;
       }
     });
