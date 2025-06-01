@@ -115,4 +115,5 @@ export const EVENTS = {
     HOSPITAL_SHIFTS_FILTER_NO_RETURN_TOGGLED: 'Hospital shifts filter no return toggled',
     HOSPITAL_SHIFTS_FILTER_TYPE_TOGGLED: 'Hospital shifts filter type toggled',
     COMMENT_BUTTON_CLICKED: 'Comment button clicked',
+    SHARED_REFERRAL_CODE: 'Shared referral code',
 }
