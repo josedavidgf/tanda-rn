@@ -10,6 +10,8 @@ import Button from '@/components/ui/Button';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import { spacing } from '@/styles';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents'; 
 
 
 export default function OnboardingNameScreen() {
@@ -39,6 +41,12 @@ export default function OnboardingNameScreen() {
       return;
     }
 
+    trackEvent(EVENTS.ONBOARDING_NAME_SUBMITTED, {
+      workerId: isWorker?.worker_id,
+      name: name.trim(),
+      surname: surname.trim(),
+    });
+
     try {
       setSaving(true);
       const formattedName = capitalizeWords(name.trim());
@@ -53,13 +61,25 @@ export default function OnboardingNameScreen() {
         accessToken
       );
 
-
       const updated = await getFullWorkerProfile(accessToken);
       setIsWorker(updated);
       setOnboardingData({ name: formattedName, surname: formattedSurname }); // nuevo
+
+      trackEvent(EVENTS.ONBOARDING_NAME_SUCCESS, {
+        workerId: isWorker?.worker_id,
+        name: formattedName,
+        surname: formattedSurname,
+      });
+
       showSuccess('Información actualizada');
       navigation.navigate('OnboardingPhone'); // 👈 usa param o contexto
     } catch (err: any) {
+      trackEvent(EVENTS.ONBOARDING_NAME_FAILED, {
+        workerId: isWorker?.worker_id,
+        name: name.trim(),
+        surname: surname.trim(),
+        error: err?.message,
+      });
       console.error('❌ Error:', err.message);
       showError('Error guardando los datos.');
     } finally {
