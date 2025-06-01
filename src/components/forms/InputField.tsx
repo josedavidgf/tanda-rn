@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, TextInput, TextInputProps, StyleSheet } from 'react-native';
+import { View, TextInput, TextInputProps, StyleSheet, Pressable } from 'react-native';
 import AppText from '../ui/AppText';
 import { spacing, typography, colors } from '@/styles';
 import { Controller } from 'react-hook-form';
+import { Eye, EyeSlash } from 'phosphor-react-native';
+
 
 type Props = TextInputProps & {
   label?: string;
@@ -35,19 +37,42 @@ export default function InputField(props: Props) {
     const valueStr = typeof fieldProps.value === 'string' ? fieldProps.value : '';
     const showLabel = !!label && (valueStr.length > 0 || rest.placeholder);
 
+    const [showPassword, setShowPassword] = React.useState(false);
+    const isPassword = props.secureTextEntry ?? false;
+
+
     return (
       <View style={styles.container}>
         {showLabel && <AppText variant="caption" style={styles.label}>{label}</AppText>}
 
-        <TextInput
-          style={[styles.input, !!errorText && styles.inputError]}
-          value={valueStr}
-          onChangeText={fieldProps.onChange}
-          placeholderTextColor={colors.text.secondary}
-          maxLength={maxLength}
-          editable={!disabled}
-          {...rest}
-        />
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={[
+              styles.input,
+              !!errorText && styles.inputError,
+              isPassword && styles.inputWithIcon
+            ]}
+            value={valueStr}
+            onChangeText={fieldProps.onChange}
+            placeholderTextColor={colors.text.secondary}
+            maxLength={maxLength}
+            editable={!disabled}
+            secureTextEntry={isPassword && !showPassword}
+          />
+
+          {isPassword && (
+            <Pressable
+              onPress={() => setShowPassword(prev => !prev)}
+              style={styles.iconWrapper}
+              hitSlop={10}
+            >
+              {showPassword
+                ? <EyeSlash size={20} color={colors.text.secondary} />
+                : <Eye size={20} color={colors.text.secondary} />
+              }
+            </Pressable>
+          )}
+        </View>
 
         <View style={styles.helper}>
           {errorText ? (
@@ -64,6 +89,7 @@ export default function InputField(props: Props) {
       </View>
     );
   };
+
 
   if (control && name) {
     return (
@@ -115,4 +141,17 @@ const styles = StyleSheet.create({
   charCount: {
     color: colors.text.tertiary,
   },
+  inputWithIcon: {
+    paddingRight: spacing.xl + spacing.sm,
+  },
+  iconWrapper: {
+    position: 'absolute',
+    right: spacing.sm,
+    top: spacing.sm + 2,
+  },
+  inputWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+
 });

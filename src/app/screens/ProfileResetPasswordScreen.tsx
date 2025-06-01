@@ -13,8 +13,14 @@ export default function ProfileResetPasswordScreen() {
     const [saving, setSaving] = useState(false);
 
     const handleChange = (key: 'password' | 'confirm', val: string) => {
-        setForm({ ...form, [key]: val });
+        setForm((prev) => ({ ...prev, [key]: val }));
     };
+
+    const isDisabled =
+        saving ||
+        form.password.length < 6 ||
+        form.confirm.length < 6 ||
+        form.password !== form.confirm;
 
     const validate = () => {
         if (form.password.length < 6) {
@@ -60,10 +66,11 @@ export default function ProfileResetPasswordScreen() {
                 />
                 <Button
                     label="Actualizar contraseña"
-                    size='lg'
+                    size="lg"
                     variant="primary"
                     onPress={handleSubmit}
                     loading={saving}
+                    disabled={isDisabled}
                 />
             </ScrollView>
         </SimpleLayout>
