@@ -10,7 +10,7 @@ import { useUserApi } from '@/api/useUserApi';
 import { useToast } from '@/app/hooks/useToast';
 import { translateWorkerType } from '@/utils/useTranslateServices';
 import { EVENTS } from '@/utils/amplitudeEvents';
-//import { trackEvent } from '@/lib/amplitude';
+import { trackEvent } from '../hooks/useTrackPageView';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import ViewStep from '@/components/workInfoSteps/ViewStep';
 import CodeStep from '@/components/workInfoSteps/CodeStep';
@@ -45,6 +45,7 @@ export default function ProfileWorkingInfoScreen() {
 
     const handleLoadSpecialities = async () => {
         try {
+            trackEvent(EVENTS.WORK_SETTINGS_EDIT_SPECIALITY_CLICKED);
             const effectiveHospitalId = hospitalId || isWorker?.workers_hospitals?.[0]?.hospital_id;
             const data = await getSpecialitiesByHospital(effectiveHospitalId, accessToken);
             setSpecialities(data);
@@ -56,7 +57,7 @@ export default function ProfileWorkingInfoScreen() {
 
     const handleValidateCode = async () => {
         try {
-            //trackEvent(EVENTS.WORK_SETTINGS_CODE_SUBMITTED, { code });
+            trackEvent(EVENTS.WORK_SETTINGS_CODE_SUBMITTED, { code });
             const response = await validateAccessCode(code);
             setHospitalId(response.hospital_id);
             setWorkerTypeId(response.worker_type_id);
@@ -75,6 +76,7 @@ export default function ProfileWorkingInfoScreen() {
             setHospitalName(hospital?.name || '');
             setWorkerTypeName(translateWorkerType[workerType?.worker_type_name] || '');
             setStep('confirm');
+            trackEvent(EVENTS.WORK_SETTINGS_CONFIRM_CODE_ACCEPTED, { code });
         } catch (err) {
             //trackEvent(EVENTS.WORK_SETTINGS_CODE_FAILED, { code, error: err.message });
             showError('Código inválido. Verifica e inténtalo de nuevo.');
@@ -82,6 +84,10 @@ export default function ProfileWorkingInfoScreen() {
     };
     const handleConfirmChanges = async () => {
         try {
+            trackEvent(EVENTS.WORK_SETTINGS_SAVE_CHANGES_SUBMITTED, {
+                hospitalId,
+                specialityId: selectedSpeciality,
+            });
             const effectiveHospitalId = hospitalId || isWorker?.workers_hospitals?.[0]?.hospital_id;
 
             if (!effectiveHospitalId || !selectedSpeciality) {
@@ -95,8 +101,17 @@ export default function ProfileWorkingInfoScreen() {
             setIsWorker(updated);
             showSuccess('Cambios guardados');
             setStep('view');
+            trackEvent(EVENTS.WORK_SETTINGS_SAVE_CHANGES_SUCCESS, {
+                hospitalId: effectiveHospitalId,
+                specialityId: selectedSpeciality,
+            });
         } catch (err) {
             showError('Error guardando los cambios.');
+            trackEvent(EVENTS.WORK_SETTINGS_SAVE_CHANGES_FAILED, {
+                hospitalId,
+                specialityId: selectedSpeciality,
+                error: err?.message,
+            });
         }
     };
 
@@ -107,11 +122,11 @@ export default function ProfileWorkingInfoScreen() {
                 <ViewStep
                     worker={isWorker}
                     onChangeSpeciality={() => {
-                        //trackEvent(EVENTS.WORK_SETTINGS_EDIT_SPECIALITY_CLICKED);
+                        trackEvent(EVENTS.WORK_SETTINGS_EDIT_SPECIALITY_CLICKED);
                         handleLoadSpecialities();
                     }}
                     onChangeHospital={() => {
-                        //trackEvent(EVENTS.WORK_SETTINGS_EDIT_HOSPITAL_CLICKED);
+                        trackEvent(EVENTS.WORK_SETTINGS_EDIT_HOSPITAL_CLICKED);
                         setStep('code');
                         setSelectedSpeciality('');
                     }}

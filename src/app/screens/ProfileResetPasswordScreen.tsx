@@ -6,6 +6,8 @@ import Button from '@/components/ui/Button';
 import { useToast } from '@/app/hooks/useToast';
 import { spacing } from '@/styles';
 import { supabase } from '../../lib/supabase';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function ProfileResetPasswordScreen() {
     const { showSuccess, showError } = useToast();
@@ -36,14 +38,17 @@ export default function ProfileResetPasswordScreen() {
 
     const handleSubmit = async () => {
         if (!validate()) return;
+        trackEvent(EVENTS.RESET_PASSWORD_SUBMITTED);
         setSaving(true);
         const { error } = await supabase.updateUser({ password: form.password });
         setSaving(false);
 
         if (error) {
             showError('Error al actualizar la contraseña');
+            trackEvent(EVENTS.RESET_PASSWORD_FAILED, { error: error.message });
         } else {
             showSuccess('Contraseña actualizada correctamente');
+            trackEvent(EVENTS.RESET_PASSWORD_SUCCESS);
         }
     };
 

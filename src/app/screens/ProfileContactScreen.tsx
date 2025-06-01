@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/app/hooks/useToast';
 import { useNavigation } from '@react-navigation/native';
 import { useSupportApi } from '@/api/useSupportApi'; // Asegúrate de tener esta función
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function ProfileContactScreen() {
     const navigation = useNavigation();
@@ -28,13 +30,19 @@ export default function ProfileContactScreen() {
         if (!isValid) return;
         setLoading(true);
 
+        trackEvent(EVENTS.CONTACT_FORM_SUBMITTED, {});
+
         try {
             await sendSupportContact(form.title.trim(), form.description.trim());
             showSuccess('Mensaje enviado con éxito');
+            trackEvent(EVENTS.CONTACT_FORM_SUCCESS, {});
             setForm({ title: '', description: '' });
             navigation.navigate('ProfileMenu');
-        } catch {
+        } catch (err) {
             showError('No se pudo enviar el mensaje. Intenta más tarde.');
+            trackEvent(EVENTS.CONTACT_FORM_FAILED, {
+                error: err?.message,
+            });
         } finally {
             setLoading(false);
         }

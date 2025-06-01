@@ -7,6 +7,8 @@ import { spacing } from '@/styles';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/app/hooks/useToast';
 import { useUserApi } from '@/api/useUserApi'; // crea si hace falta
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 export default function ProfilePreferencesScreen() {
   const { accessToken } = useAuth();
@@ -39,6 +41,8 @@ export default function ProfilePreferencesScreen() {
     key: 'receive_emails_swap' | 'receive_emails_reminders',
     newValue: boolean
   ) => {
+    trackEvent(EVENTS.COMM_PREF_TOGGLED, { key, value: newValue });
+
     if (key === 'receive_emails_swap') setLoadingSwap(true);
     else setLoadingReminder(true);
 
@@ -48,8 +52,10 @@ export default function ProfilePreferencesScreen() {
         ? setSwapEmails(newValue)
         : setReminderEmails(newValue);
       showSuccess('Preferencias actualizadas');
+      trackEvent(EVENTS.COMM_PREF_SAVE_SUCCESS, { key, value: newValue });
     } catch {
       showError('No se pudo guardar la preferencia');
+      trackEvent(EVENTS.COMM_PREF_SAVE_FAILED, { key, value: newValue });
     } finally {
       key === 'receive_emails_swap'
         ? setLoadingSwap(false)
