@@ -10,19 +10,22 @@ import { Text } from 'react-native-gesture-handler';
 import { DotIconWrapper } from '@/components/ui/DotIconWrapper';
 import { useSwapNotifications } from '@/app/hooks/useSwapNotifications';
 import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
+import { trackEvent } from '../hooks/useTrackPageView';
+import { EVENTS } from '@/utils/amplitudeEvents';
 
 type TabItem = {
   name: string;
   label: string;
   route: string;
   icon: any;
+  trackEvent: () => void;
 };
 
 const tabs: TabItem[] = [
-  { name: 'Calendar', label: 'Calendario', route: 'Calendar', icon: CalendarCheck },
-  { name: 'HospitalShifts', label: 'Turnos', route: 'HospitalShifts', icon: MagnifyingGlass },
-  { name: 'MySwaps', label: 'Cambios', route: 'MySwaps', icon: Lightning },
-  { name: 'ChatsList', label: 'Mensajes', route: 'ChatsList', icon: ChatCircle },
+  { name: 'Calendar', label: 'Calendario', route: 'Calendar', icon: CalendarCheck, trackEvent: () => trackEvent(EVENTS.CALENDAR_TAB_CLICKED) },
+  { name: 'HospitalShifts', label: 'Turnos', route: 'HospitalShifts', icon: MagnifyingGlass, trackEvent: () => trackEvent(EVENTS.HOSPITAL_SHIFTS_TAB_CLICKED) },
+  { name: 'MySwaps', label: 'Cambios', route: 'MySwaps', icon: Lightning, trackEvent: () => trackEvent(EVENTS.MY_SWAPS_TAB_CLICKED) },
+  { name: 'ChatsList', label: 'Mensajes', route: 'ChatsList', icon: ChatCircle, trackEvent: () => trackEvent(EVENTS.CHATS_LIST_TAB_CLICKED) },
 ];
 
 export default function BottomNav() {
