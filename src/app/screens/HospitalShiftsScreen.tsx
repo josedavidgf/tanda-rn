@@ -17,6 +17,8 @@ import { spacing } from '@/styles';
 import FadeInView from '@/components/animations/FadeInView';
 import { margin } from '@/styles/utilities/spacing';
 import EmptyState from '@/components/ui/EmptyState';
+import { EVENTS } from '@/utils/amplitudeEvents';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
 
 type ShiftType = 'morning' | 'evening' | 'night' | 'reinforcement';
 
@@ -114,7 +116,10 @@ export default function HospitalShiftsScreen() {
                             <Chip
                                 label="Sin devolución"
                                 selected={onlyNoReturn}
-                                onPress={() => setOnlyNoReturn(!onlyNoReturn)}
+                                onPress={() => {
+                                    setOnlyNoReturn(!onlyNoReturn);
+                                    trackEvent(EVENTS.HOSPITAL_SHIFTS_FILTER_NO_RETURN_TOGGLED, { enabled: !onlyNoReturn });
+                                }}
                             />
 
                             {shiftTypes.map((type) => {
@@ -131,6 +136,7 @@ export default function HospitalShiftsScreen() {
                                                 ? selectedTypes.filter((t) => t !== type)
                                                 : [...selectedTypes, type];
                                             setSelectedTypes(updated);
+                                            trackEvent(EVENTS.HOSPITAL_SHIFTS_FILTER_TYPE_TOGGLED, { type, selected: !isSelected });
                                         }}
                                     />
                                 );
