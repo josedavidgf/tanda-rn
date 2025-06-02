@@ -18,6 +18,7 @@ import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
 import NavigationTracker from '@/components/analytics/NavigationTracker';
+import { configureGoogleSignin } from '@/services/authService';
 
 global.Buffer = Buffer;
 global.process = require('process');
@@ -28,20 +29,30 @@ export default function App() {
   // 🔗 Captura de deeplinks con tokens de Supabase
   useEffect(() => {
     const handleDeepLink = async (event: { url: string }) => {
-      const parsed = Linking.parse(event.url);
+      const url = new URL(event.url);
+
       if (
-        parsed.path === 'auth-callback' &&
-        parsed.queryParams?.access_token &&
-        parsed.queryParams?.refresh_token
+        url.hash.includes('access_token') &&
+        url.hash.includes('type=recovery')
       ) {
-        const { access_token, refresh_token } = parsed.queryParams;
-        console.log('[LINKING] Recibido deep link con token:', access_token);
-        await supabase.setSession({
-          access_token,
-          refresh_token,
-        });
+        const fragmentParams = new URLSearchParams(url.hash.slice(1)); // elimina el "#" inicial
+        const access_token = fragmentParams.get('access_token');
+        const refresh_token = fragmentParams.get('refresh_token');
+
+        if (access_token && refresh_token) {
+          console.log('[RESET] Recuperación detectada. Restaurando sesión...');
+          await supabase.setSession({ access_token, refresh_token });
+
+          // Redirige a la pantalla de cambio de contraseña
+          if (navigationRef.isReady()) {
+            navigationRef.navigate('ProfileResetPassword');
+          } else {
+            setTimeout(() => navigationRef.navigate('ProfileResetPassword'), 200);
+          }
+        }
       }
     };
+
 
     // Suscribirse a eventos en caliente
     const sub = Linking.addEventListener('url', handleDeepLink);
@@ -52,6 +63,10 @@ export default function App() {
     });
 
     return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    configureGoogleSignin();
   }, []);
 
   useEffect(() => {

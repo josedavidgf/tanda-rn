@@ -30,12 +30,14 @@ export default function RegisterScreen() {
     trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_EMAIL);
     setLoading(true);
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
       const { data, error } = await supabase.signUp({
-        email,
+        email: cleanEmail,
         password,
         options: {
-          emailRedirectTo: 'https://redirect.apptanda.com/auth/callback',
+          emailRedirectTo: 'tanda://auth-callback',
         },
       });
 
