@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { colors, spacing } from '@/styles';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/app/hooks/useToast';
+import { makeRedirectUri } from 'expo-auth-session'
 
 
 export default function ForgotPasswordScreen() {
@@ -22,7 +23,10 @@ export default function ForgotPasswordScreen() {
     }
 
     setLoading(true);
-    const redirectTo = 'https://redirect.apptanda.com/auth/callback';
+    const redirectTo = makeRedirectUri({
+      path: 'auth-callback',
+      scheme: 'tanda',
+    });
 
     const { error } = await supabase.resetPasswordForEmail(email, { redirectTo });
 
