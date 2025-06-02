@@ -44,8 +44,14 @@ export default function DayDetailPreference({
   const isDisabled = isPast || isWeekend;
   const isTodayLabel = isToday ? 'Hoy' : isTomorrow ? 'Mañana' : formattedDate;
   const isTomorrowLabel = isTomorrow ? 'Mañana' : formattedDate;
+
+  const title = `${dayLabel} `;
+
   return (
     <View style={styles.container}>
+            <AppText variant="h2">
+        {title}
+      </AppText>
       <AppText variant="p" style={{ fontWeight: '600' }}>
         {isToday
           ? `Hoy no tienes turno. Disponibilidad marcada${activeTypes.length > 1 ? 's' : ''}:`
@@ -106,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245, 246, 248, 0.8)',
     borderRadius: 12,
     padding: spacing.md,
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   chipGroup: {
     flexDirection: 'row',
