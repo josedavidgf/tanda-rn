@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     padding: spacing.md,
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   buttonGroup: {
     gap: spacing.sm,

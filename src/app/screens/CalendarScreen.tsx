@@ -334,12 +334,11 @@ export default function CalendarScreen() {
         );
     }
 
-
-
+const rawName = isWorker?.name || 'Trabajador';
+const workerName = rawName.length > 14 ? `${rawName.slice(0, 14).trim()}...` : rawName;
     return (
         <FadeInView>
-            <AppLayout title="Tus turnos">
-
+            <AppLayout title={`Hola, ${workerName}`}>
                 <ScrollView>
                     <View style={{
                         flexDirection: 'row',
