@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245, 246, 248, 0.8)',
     borderRadius: 12,
     padding: spacing.md,
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   buttonGroup: {
     gap: spacing.sm,

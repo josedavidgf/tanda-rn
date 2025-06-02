@@ -66,7 +66,7 @@ export default function ProfilePreferencesScreen() {
   if (loading) return <AppLoader onFinish={() => setLoading(false)} message='Cargando preferencias...' />;
 
   return (
-    <SimpleLayout title="Preferencias de comunicación" showBackButton>
+    <SimpleLayout title="Preferencias" showBackButton>
       <ScrollView contentContainerStyle={styles.container}>
         <ToggleSwitch
           label="Recibir emails sobre actividad de swaps"

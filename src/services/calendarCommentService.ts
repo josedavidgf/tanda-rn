@@ -1,4 +1,5 @@
 import { getDbWithAuth } from '@/lib/supabase';
+import { endOfMonth, format } from 'date-fns';
 
 export async function getCommentByDate(workerId: string, date: string, token: string) {
     const db = getDbWithAuth(token);
@@ -13,17 +14,18 @@ export async function getCommentByDate(workerId: string, date: string, token: st
     return data || null;
 }
 
-export async function getCommentsByMonth(workerId: string, year: number, month: number, token: string) {
-    const firstDay = `${year}-${String(month).padStart(2, '0')}-01`;
-    const lastDay = `${year}-${String(month).padStart(2, '0')}-31`;
+export async function getCommentsByMonth(token: string, workerId: string, year: number, month: number) {
+      const from = `${year}-${month.toString().padStart(2, '0')}-01`;
+      const endDate = endOfMonth(new Date(year, month - 1));
+      const to = format(endDate, 'yyyy-MM-dd');
     const db = getDbWithAuth(token);
 
     const { data, error } = await db
         .from('calendar_comments')
         .select('comment_id, comment, date')
         .eq('worker_id', workerId)
-        .gte('date', firstDay)
-        .lte('date', lastDay)
+        .gte('date', from)
+        .lte('date', to)
 
     if (error) throw new Error(error.message);
     return data;

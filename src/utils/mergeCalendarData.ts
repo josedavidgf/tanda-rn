@@ -5,6 +5,7 @@ export function mergeCalendarData({
   preferences,
   shifts, // SOLO publicados
   swaps,
+  comments,
 }: MergeCalendarParams): CalendarMap {
   const map: CalendarMap = {};
 
@@ -53,6 +54,18 @@ export function mergeCalendarData({
   }
 
   // 4. (Opcional) procesar swaps si los quieres integrar aquí
+  // 5. Añadir los comentarios
+  if (comments && Array.isArray(comments)) {
+    for (const c of comments) {
+      if (!c.date) continue;
+      map[c.date] = {
+        ...map[c.date],
+        hasComment: !!c.comment && c.comment.trim() !== '',
+        comment: c.comment || '',
+        comment_id: c.comment_id || null,
+      };
+    }
+  }
 
   return map;
 }

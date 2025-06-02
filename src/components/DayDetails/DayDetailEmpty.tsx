@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: spacing.md,
     width: '100%',
+    gap: spacing.sm,
   },
   buttonGroup: {
     gap: spacing.sm,

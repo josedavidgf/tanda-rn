@@ -69,7 +69,7 @@ export default function DayDetailMyShift({
             label="Editar publicación"
             variant="outline"
             size="lg"
-            leftIcon={<Lightning size={20} color={colors.white} />}
+            leftIcon={<Lightning size={20} color={colors.black} />}
             onPress={() => {
               trackEvent(EVENTS.EDIT_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
               navigation.navigate('EditShift', { shiftId: shift.shift_id });
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     padding: spacing.md,
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   buttonGroup: {
     gap: spacing.sm,
