@@ -6,6 +6,7 @@ import { shiftTypeIcons } from '@/utils/useLabelMap';
 import type { CalendarEntry } from '@/types/calendar';
 import chunk from 'lodash.chunk';
 import { colors } from '@/styles';
+import { PencilLine } from 'phosphor-react-native';
 
 type Props = {
   calendarMap: Record<string, CalendarEntry>;
@@ -66,6 +67,11 @@ export default function MonthlyGridCalendar({
             </View>
           )}
           {isPreference && <View style={styles.calendarAvailabilityDot} />}
+          {entry.hasComment && (
+            <View style={{ position: 'absolute', bottom: 4, left: 4 }}>
+              <PencilLine size={12} weight="regular" color={colors.gray[400]} />
+            </View>
+          )}
         </Pressable>
       </View>
     );
