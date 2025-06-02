@@ -49,7 +49,7 @@ export default function ViewStep({ worker, onChangeSpeciality, onChangeHospital 
 const styles = StyleSheet.create({
   wrapper: {
     padding: spacing.lg,
-    gap: spacing.md,
+    gap: spacing.xs,
   },
   description: {
     marginBottom: spacing.md,

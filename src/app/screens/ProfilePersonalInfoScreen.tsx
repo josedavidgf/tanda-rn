@@ -129,6 +129,6 @@ export default function ProfilePersonalInfo() {
 const styles = StyleSheet.create({
     container: {
         padding: spacing.md,
-        gap: spacing.md,
+        gap: spacing.xs,
     },
 });
