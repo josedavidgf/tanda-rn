@@ -36,6 +36,7 @@ import { useNavigation } from '@react-navigation/native';
 import { spacing } from '@/styles';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { getCommentsByMonth } from '@/services/calendarCommentService';
 
 export default function CalendarScreen() {
 
@@ -72,11 +73,12 @@ export default function CalendarScreen() {
             setLoadingCalendar(true);
 
             try {
-                const [data, prefs, sws, shift] = await Promise.all([
+                const [data, prefs, sws, shift, comment] = await Promise.all([
                     getMonthlySchedules(accessToken, isWorker.worker_id, selectedMonth.getFullYear(), selectedMonth.getMonth() + 1),
                     getMySwapPreferences(isWorker.worker_id, accessToken),
                     getAcceptedSwaps(accessToken),
                     getMyShiftsPublished(accessToken),
+                    getCommentsByMonth(accessToken, isWorker.worker_id, selectedMonth.getFullYear(), selectedMonth.getMonth() + 1),
                 ]);
                 setSchedules(data);
 
@@ -85,6 +87,7 @@ export default function CalendarScreen() {
                     preferences: prefs,
                     shifts: shift,
                     swaps: sws,
+                    comments: comment,
                 });
 
                 setCalendarMap(merged);

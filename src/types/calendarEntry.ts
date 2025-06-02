@@ -14,4 +14,7 @@ export type CalendarEntry = {
   isPreference?: boolean;
   preference_types?: string[];
   preferenceIds?: Record<string, string>;
+  hasComment?: boolean;
+  comment?: string;
+  comment_id?: string | null;
 };
