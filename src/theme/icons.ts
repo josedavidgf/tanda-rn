@@ -47,5 +47,12 @@ export {
     Sun,
     SunHorizon,
     Moon,
-    ShieldCheck
+    ShieldCheck,
+    Dot,
+    Note,
+    Notepad,
+    FlagPennant,
+    Flag,
+    Signature,
+    PencilLine
 } from 'phosphor-react-native'
