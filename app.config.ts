@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: 'hermes',
   ios: {
     bundleIdentifier: 'com.apptanda.app',
-    googleServicesFile: process.env.EXPO_PUBLIC_GOOGLE_SERVICES_PLIST,
+    googleServicesFile: './ios/GoogleService-Info.plist',
     supportsTablet: false,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -32,11 +32,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     '@react-native-google-signin/google-signin'
   ],
   extra: {
-    SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+    EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
+    EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     EXPO_PUBLIC_BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
     // Para Google Sign-In
-    GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 /*     ONESIGNAL_APP_ID: process.env.ONESIGNAL_APP_ID,
  */    eas: {
       projectId: 'c3526404-d409-4a31-8471-085a324c0adc'

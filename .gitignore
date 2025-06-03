@@ -58,14 +58,16 @@ __MACOSX/
 # -----------------------
 # Android/iOS native
 # -----------------------
-android/
-ios/
+android/*
 *.keystore
 *.jks
 *.p8
 *.key
 *.pem
 *.mobileprovision
+ios/*
+!ios/GoogleService-Info.plist
+
 
 # -----------------------
 # Supabase (if CLI used)
