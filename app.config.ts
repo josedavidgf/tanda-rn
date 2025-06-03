@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: 'hermes',
   ios: {
     bundleIdentifier: 'com.apptanda.app',
-    googleServicesFile: './ios/GoogleService-Info.plist',
+    googleServicesFile: process.env.GOOGLE_SERVICES_PLIST_PATH ?? './ios/GoogleService-Info.plist',
     supportsTablet: false,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
