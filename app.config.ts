@@ -1,5 +1,9 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
+import fs from 'fs';
+
+const plistPath = './ios/GoogleService-Info.plist';
+
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -14,7 +18,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: 'hermes',
   ios: {
     bundleIdentifier: 'com.apptanda.app',
-    googleServicesFile: process.env.GOOGLE_SERVICES_PLIST_PATH ?? './ios/GoogleService-Info.plist',
+    googleServicesFile: fs.existsSync(plistPath) ? plistPath : undefined,
     supportsTablet: false,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
