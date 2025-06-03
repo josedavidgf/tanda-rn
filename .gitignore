@@ -66,7 +66,10 @@ android/*
 *.pem
 *.mobileprovision
 ios/*
-!ios/GoogleService-Info.plist
+ios/GoogleService-Info.plist
+android/app/google-services.json
+
+
 
 
 # -----------------------
