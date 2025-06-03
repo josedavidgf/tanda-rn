@@ -21,5 +21,15 @@
         "prebuildCommand": "bash -c \"echo $GOOGLE_SERVICES_JSON | base64 -d > android/app/google-services.json && echo '[BUILD] ✅ .json recreado OK'\""
       }
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "josedavidgarciafernandez@gmail.com"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json"
+      }
+    }
   }
 }
