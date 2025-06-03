@@ -1,15 +1,11 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
-import fs from 'fs';
-
-const plistPath = './ios/GoogleService-Info.plist';
-
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Tanda',
   slug: 'tanda-rn',
-  scheme: "tanda",
+  scheme: 'tanda',
   platforms: ['ios', 'android'],
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
@@ -18,32 +14,32 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: 'hermes',
   ios: {
     bundleIdentifier: 'com.apptanda.app',
-    googleServicesFile: fs.existsSync(plistPath) ? plistPath : undefined,
     supportsTablet: false,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSUserTrackingUsageDescription: 'Tanda uses notifications to keep you informed of shift changes.',
       UIBackgroundModes: ['remote-notification'],
-      LSApplicationQueriesSchemes: ["whatsapp"],
+      LSApplicationQueriesSchemes: ['whatsapp'],
     },
   },
   android: {
-    package: 'com.apptanda.app',
-    // Para Google Sign-In nativo
-    googleServicesFile: process.env.EXPO_PUBLIC_GOOGLE_SERVICES_JSON
+    package: 'com.apptanda.app'
   },
   plugins: [
-    '@react-native-google-signin/google-signin'
+    [
+      '@react-native-google-signin/google-signin',
+      {
+        iosUrlScheme: 'com.googleusercontent.apps.161823689095-51njcp75miao8hkatl83r2g6v5r624bo',
+      },
+    ],
   ],
   extra: {
     EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
     EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     EXPO_PUBLIC_BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
-    // Para Google Sign-In
     EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-/*     ONESIGNAL_APP_ID: process.env.ONESIGNAL_APP_ID,
- */    eas: {
-      projectId: 'c3526404-d409-4a31-8471-085a324c0adc'
-    }
+    eas: {
+      projectId: 'c3526404-d409-4a31-8471-085a324c0adc',
+    },
   },
 });
