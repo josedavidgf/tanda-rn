@@ -18,6 +18,7 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
 
   const isAccepted = swap.status === 'accepted';
   const isNoReturn = swap.swap_type === 'no_return';
+  console.log('isNoReturn', isNoReturn);
 
   const shiftDate = formatFriendlyDate(swap.shift?.date);
   const shiftType = shiftTypeLabels[swap.shift?.shift_type];
@@ -26,6 +27,11 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
   // Solo si es un swap regular
   const offeredDate = swap.offered_date ? formatFriendlyDate(swap.offered_date) : null;
   const offeredType = swap.offered_type ? shiftTypeLabels[swap.offered_type] : null;
+
+  const description = isNoReturn
+    ? `Has propuesto hacer el turno del ${shiftDate} de ${shiftType} sin esperar devolución.`
+    : `Has propuesto hacer el turno del ${shiftDate} de ${shiftType} por el ${offeredDate} de ${offeredType}.`;
+
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -38,12 +44,8 @@ export default function SwapFeedbackModal({ visible, swap, onClose }: Props) {
               : `Turno propuesto a ${workerName}`}
           </AppText>
 
-          <AppText variant='p' style={styles.description}>
-            {isNoReturn ? (
-              <>Has propuesto cambiar tu turno del {offeredDate} de {offeredType} por el del {shiftDate} de {shiftType}.</>
-            ) : (
-              <>Has propuesto hacer el turno del {shiftDate} de {shiftType} sin esperar devolución.</>
-            )}
+          <AppText variant="p" style={styles.description}>
+            {description}
           </AppText>
 
           <AppText variant='p' style={styles.description}>
