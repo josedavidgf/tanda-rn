@@ -32,7 +32,7 @@ export default function ProfileWorkingInfoScreen() {
     const { getHospitals } = useHospitalApi();
     const { getWorkerTypes } = useWorkerApi();
     const { getSpecialitiesByHospital } = useSpecialityApi();
-    const { updateWorkerHospital, updateWorkerSpeciality } = useUserApi();
+    const { updateWorkerHospital, updateWorkerSpeciality, updateWorkerType } = useUserApi();
     const { showError, showSuccess } = useToast();
     const navigation = useNavigation();
 
@@ -97,6 +97,7 @@ export default function ProfileWorkingInfoScreen() {
 
             await updateWorkerHospital({ hospital_id: effectiveHospitalId }, accessToken);
             await updateWorkerSpeciality({ speciality_id: selectedSpeciality }, accessToken);
+            await updateWorkerType({ worker_type_id: workerTypeId }, accessToken);
             const updated = await getHospitals(accessToken);
             setIsWorker(updated);
             showSuccess('Cambios guardados');

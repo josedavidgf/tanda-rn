@@ -106,3 +106,13 @@ export const updateUserPreferences = async (payload, token) => {
     throw new Error('Error al actualizar preferencias');
   }
 };
+
+export const updateWorkerType = async (data, token) => {
+  try {
+    const response = await axios.put(`${API_URL}/api/workers/me/type`, data, authHeaders(token));
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error en updateWorkerType:', error.message);
+    throw new Error('Error al actualizar tipo de trabajador');
+  }
+}

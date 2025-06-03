@@ -6,7 +6,8 @@ import {
   updateWorkerHospital,
   updateWorkerSpeciality, 
   getUserPreferences, 
-  updateUserPreferences  
+  updateUserPreferences,
+  updateWorkerType,
 } from '../services/userService';
 
 export function useUserApi() {
@@ -28,13 +29,13 @@ export function useUserApi() {
   };
 
   return {
-    getFullWorkerProfile: (token) => callApi(getFullWorkerProfile, token), 
-    updateWorkerInfo: (data, token) => callApi(updateWorkerInfo, data, token),
-    updateWorkerHospital: (data, token) => callApi(updateWorkerHospital, data, token),
-    updateWorkerSpeciality: (data, token) => callApi(updateWorkerSpeciality, data, token),
-    getUserPreferences: (token) => callApi(getUserPreferences, token),
-    updateUserPreferences: (data, token) => callApi(updateUserPreferences, data, token),
-
+    getFullWorkerProfile: (token: string) => callApi(getFullWorkerProfile, token), 
+    updateWorkerInfo: (data: any, token: string) => callApi(updateWorkerInfo, data, token),
+    updateWorkerHospital: (data: any, token: string) => callApi(updateWorkerHospital, data, token),
+    updateWorkerSpeciality: (data: any, token: string) => callApi(updateWorkerSpeciality, data, token),
+    getUserPreferences: (token: string) => callApi(getUserPreferences, token),
+    updateUserPreferences: (data: any, token: string) => callApi(updateUserPreferences, data, token),
+    updateWorkerType: (data: any, token: string) => callApi(updateWorkerType, data, token),
     loading,
     error,
   };

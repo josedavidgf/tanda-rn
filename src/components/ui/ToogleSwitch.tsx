@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Switch, Text, StyleSheet } from 'react-native';
 import { spacing, colors, typography } from '@/styles';
+import AppText from './AppText';
 
 type Props = {
   label: string;
@@ -12,7 +13,7 @@ type Props = {
 export default function ToggleSwitch({ label, value, onChange, disabled }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      <AppText variant='p'>{label}</AppText>
       <Switch
         value={value}
         onValueChange={onChange}
@@ -33,9 +34,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomColor: colors.gray[200],
     borderBottomWidth: 1,
-  },
-  label: {
-    fontSize: typography.md,
-    color: colors.text.primary,
   },
 });
