@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { loginWithGoogle } from '@/services/authService';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { makeRedirectUri } from 'expo-auth-session'
 
 
 export default function RegisterScreen() {
@@ -30,6 +31,11 @@ export default function RegisterScreen() {
     trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_EMAIL);
     setLoading(true);
 
+    const redirectTo = makeRedirectUri({
+          path: 'auth-callback',
+          scheme: 'tanda',
+        });
+
     const cleanEmail = email.trim().toLowerCase();
 
     try {
@@ -37,7 +43,7 @@ export default function RegisterScreen() {
         email: cleanEmail,
         password,
         options: {
-          emailRedirectTo: 'tanda://auth-callback',
+          emailRedirectTo: redirectTo,
         },
       });
 

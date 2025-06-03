@@ -31,33 +31,46 @@ export default function App() {
     const handleDeepLink = async (event: { url: string }) => {
       const url = new URL(event.url);
 
-      if (
-        url.hash.includes('access_token') &&
-        url.hash.includes('type=recovery')
-      ) {
-        const fragmentParams = new URLSearchParams(url.hash.slice(1)); // elimina el "#" inicial
-        const access_token = fragmentParams.get('access_token');
-        const refresh_token = fragmentParams.get('refresh_token');
+      if (!url.hash.includes('access_token')) return;
 
-        if (access_token && refresh_token) {
-          console.log('[RESET] Recuperación detectada. Restaurando sesión...');
-          await supabase.setSession({ access_token, refresh_token });
+      const fragmentParams = new URLSearchParams(url.hash.slice(1)); // elimina el "#" inicial
+      const access_token = fragmentParams.get('access_token');
+      const refresh_token = fragmentParams.get('refresh_token');
+      const type = fragmentParams.get('type');
 
-          // Redirige a la pantalla de cambio de contraseña
-          if (navigationRef.isReady()) {
-            navigationRef.navigate('ProfileResetPassword');
-          } else {
-            setTimeout(() => navigationRef.navigate('ProfileResetPassword'), 200);
-          }
+      if (!access_token || !refresh_token || !type) {
+        console.warn('[DEEPLINK] Falta algún parámetro necesario');
+        return;
+      }
+
+      console.log(`[DEEPLINK] Tipo de evento detectado: ${type}`);
+      await supabase.setSession({ access_token, refresh_token });
+
+      const navigateWithDelay = (route: string) => {
+        if (navigationRef.isReady()) {
+          navigationRef.navigate(route);
+        } else {
+          setTimeout(() => navigationRef.navigate(route), 200);
         }
+      };
+
+      switch (type) {
+        case 'recovery':
+          console.log('[RESET] Restaurando sesión para recuperación...');
+          navigateWithDelay('ProfileResetPassword');
+          break;
+
+        case 'signup':
+          console.log('[SIGNUP] Restaurando sesión tras registro...');
+          navigateWithDelay('OnboardingCode');
+          break;
+
+        default:
+          console.warn('[DEEPLINK] Tipo no reconocido:', type);
       }
     };
 
-
-    // Suscribirse a eventos en caliente
     const sub = Linking.addEventListener('url', handleDeepLink);
-
-    // Manejar apertura en frío
     Linking.getInitialURL().then((url) => {
       if (url) handleDeepLink({ url });
     });
@@ -65,9 +78,13 @@ export default function App() {
     return () => sub.remove();
   }, []);
 
+
   useEffect(() => {
-    configureGoogleSignin();
+    if (process.env.EAS_BUILD === 'true') {
+      configureGoogleSignin();
+    }
   }, []);
+
 
   useEffect(() => {
     Font.loadAsync({

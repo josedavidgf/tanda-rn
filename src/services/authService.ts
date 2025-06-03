@@ -1,77 +1,60 @@
 // src/services/authService.js
 import axios from 'axios';
 import { supabase } from '@/lib/supabase';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
+import { GoogleSignin } from '@/lib/googleSignInClient'; // ✅ cambio aquí
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.94:4000';
-
 const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
-// ✅ Configuración inicial — llama a esto en App.tsx o en un hook global
 export function configureGoogleSignin() {
-  console.log('[Google Signin] Configurando Google Signin...');
-  console.log('[Expo Config] iosUrlScheme:', process.env.EXPO_PUBLIC_GOOGLE_REVERSED_CLIENT_ID);
-  console.log('[Google Signin] Variables de entorno:', {
-    webClientId,
-    iosClientId,
-  });
-  //androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-  if (!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || !process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID) {
-    console.warn('[Google Signin] Variables de entorno EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID y EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID no están definidas');
+  console.log('[Google Signin] Configurando...');
+  if (!GoogleSignin) return console.warn('[Google Signin] No disponible en este entorno');
+
+  if (!webClientId || !iosClientId) {
+    console.warn('[Google Signin] Faltan variables de entorno');
     return;
   }
+
   GoogleSignin.configure({
-    webClientId: webClientId, // ID de cliente web de Google
-    iosClientId: iosClientId, // ID de cliente iOS de Google
-    //androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    webClientId,
+    iosClientId,
     offlineAccess: true,
-    forceCodeForRefreshToken: true, // opcional, pero recomendable para consistencia con Supabase
+    forceCodeForRefreshToken: true,
   });
 }
 
-
-// ✅ Login nativo con Google + Supabase
 export async function loginWithGoogle() {
+  if (!GoogleSignin) throw new Error('[Google Login] GoogleSignin no disponible');
+
   try {
-    console.log('[Google Login] Iniciando login nativo...');
-
-    // 1. Verifica si Google Play Services están disponibles (Android)
-    await GoogleSignin.hasPlayServices();
-
-    // 2. Inicia sesión con Google
+    console.log('[Google Login] Iniciando...');
+    await GoogleSignin.hasPlayServices?.();
     const userInfo = await GoogleSignin.signIn();
-    console.log('[Google Login] Usuario obtenido:', userInfo);
-
     const idToken = userInfo?.idToken;
-    if (!idToken) throw new Error('No se pudo obtener el ID Token de Google');
+    if (!idToken) throw new Error('No se obtuvo ID Token de Google');
 
-    // 3. Autenticación en Supabase con el token de Google
     const { data, error } = await supabase.signInWithIdToken({
       provider: 'google',
       token: idToken,
     });
 
-    if (error) {
-      console.error('[Google Login] Error en Supabase:', error);
-      throw error;
-    }
+    if (error) throw error;
 
-    console.log('[Google Login] Autenticación exitosa en Supabase');
+    console.log('[Google Login] Supabase login OK');
     return data;
   } catch (err: any) {
-    console.error('[Google Login] Error general:', err.message);
+    console.error('[Google Login] Error:', err.message);
     throw err;
   }
 }
-// Cerrar sesión de Google también
+
 export async function signOutGoogle() {
   try {
-    await GoogleSignin.signOut();
+    if (GoogleSignin?.signOut) await GoogleSignin.signOut();
     await supabase.signOut();
   } catch (error) {
-    console.error('Error signing out from Google:', error);
+    console.error('[Google SignOut] Error:', error);
   }
 }
 
