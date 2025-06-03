@@ -8,7 +8,6 @@ type Props = {
   hospitalName: string;
   workerTypeName: string;
   onConfirm: () => void;
-  onBack: () => void;
 };
 
 export default function ConfirmStep({ hospitalName, workerTypeName, onConfirm }: Props) {
@@ -28,13 +27,6 @@ export default function ConfirmStep({ hospitalName, workerTypeName, onConfirm }:
         variant="primary"
         onPress={onConfirm}
         style={styles.button}
-      />
-      <Button
-        label="Volver"
-        variant="outline"
-        size="lg"
-        onPress={onBack}
-        style={{ marginTop: spacing.sm }}
       />
     </View>
   );
