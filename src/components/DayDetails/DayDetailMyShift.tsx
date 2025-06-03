@@ -4,7 +4,6 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import { Lightning, PencilSimple, Trash } from '@/theme/icons';
 import { shiftTypeLabels } from '@/utils/useLabelMap';
-//import { trackEvent } from '@/lib/amplitude';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { colors } from '@/styles/utilities/colors';
@@ -12,7 +11,6 @@ import { spacing, typography } from '@/styles';
 import { Schedule } from '@/types/calendar';
 import { useNavigation } from '@react-navigation/native';
 import CommentButton from '@/components/calendar/DayComment';
-
 
 type Props = {
   dateStr: string;
@@ -35,6 +33,7 @@ export default function DayDetailMyShift({
   onDeletePublication,
   onEditShift,
   onRemoveShift,
+  onPublishShift,
   loadingDeletePublication,
   loadingRemoveShift,
 }: Props) {
@@ -48,12 +47,12 @@ export default function DayDetailMyShift({
 
   const textLine = `El ${dayLabel} tienes turno propio de ${shiftTypeLabels[shift.shift_type]} ${hourRange[shift.shift_type] || ''}`;
 
+  // Validación para deshabilitar publicación si el día es anterior a hoy
+  const isPastDate = new Date(dateStr) < new Date();
 
   return (
     <View style={[styles.container, styles[`shift_${shift.shift_type}`]]}>
-      <AppText variant="h2">
-        {dayLabel}
-      </AppText>
+      <AppText variant="h2">{dayLabel}</AppText>
 
       <AppText variant="p">
         {textLine}
@@ -63,7 +62,6 @@ export default function DayDetailMyShift({
       </AppText>
 
       {isPublished ? (
-
         <View style={styles.buttonGroup}>
           <Button
             label="Editar publicación"
@@ -71,7 +69,10 @@ export default function DayDetailMyShift({
             size="lg"
             leftIcon={<Lightning size={20} color={colors.black} />}
             onPress={() => {
-              trackEvent(EVENTS.EDIT_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
+              trackEvent(EVENTS.EDIT_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, {
+                shiftId: shift.shift_id,
+                day: dateStr,
+              });
               navigation.navigate('EditShift', { shiftId: shift.shift_id });
             }}
           />
@@ -81,7 +82,10 @@ export default function DayDetailMyShift({
             size="lg"
             leftIcon={<Trash size={20} color={colors.black} />}
             onPress={() => {
-              trackEvent(EVENTS.REMOVE_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { shiftId: shift.shift_id, day: dateStr });
+              trackEvent(EVENTS.REMOVE_PUBLISH_OWN_SHIFT_BUTTON_CLICKED, {
+                shiftId: shift.shift_id,
+                day: dateStr,
+              });
               onDeletePublication(shift.shift_id, dateStr);
             }}
             loading={loadingDeletePublication}
@@ -89,7 +93,6 @@ export default function DayDetailMyShift({
           />
           <CommentButton dateStr={dateStr} />
         </View>
-
       ) : (
         <View style={styles.buttonGroup}>
           <Button
@@ -98,12 +101,16 @@ export default function DayDetailMyShift({
             size="lg"
             leftIcon={<Lightning size={20} color={colors.white} />}
             onPress={() => {
-              trackEvent(EVENTS.PUBLISH_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: shift.shift_type });
+              trackEvent(EVENTS.PUBLISH_OWN_SHIFT_BUTTON_CLICKED, {
+                day: dateStr,
+                shiftType: shift.shift_type,
+              });
               navigation.navigate('CreateShift', {
                 date: dateStr,
                 shift_type: shift.shift_type,
               });
             }}
+            disabled={isPastDate} // Deshabilita si es una fecha pasada
           />
           <View style={styles.buttonGroupRow}>
             <Button

@@ -1,6 +1,6 @@
 // lib/formatFriendlyDate.ts
 import { parseISO, format, isToday, isTomorrow } from 'date-fns';
-import es from 'date-fns/locale/es';
+import {es} from 'date-fns/locale/es';
 
 export function formatFriendlyDate(date: string | Date): string {
   const d = typeof date === 'string' ? parseISO(date) : date;
