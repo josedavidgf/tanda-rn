@@ -36,7 +36,7 @@ export default function ShiftSelector({ shifts, selectedShiftId, onSelect }: Pro
 
         <CustomSelectorInput
             name="shift"
-            label="Turno que ofreces"
+            label="Selecciona el turno que ofreces"
             value={selectedShiftId}
             onChange={handleChange}
             options={options}

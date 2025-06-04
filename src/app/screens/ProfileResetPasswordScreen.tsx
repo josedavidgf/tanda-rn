@@ -61,7 +61,9 @@ export default function ProfileResetPasswordScreen() {
                     value={form.password}
                     onChangeText={(val) => handleChange('password', val)}
                     secureTextEntry
+                    textContentType="password"
                 />
+
                 <InputField
                     label="Repetir contraseña"
                     placeholder="Repite tu nueva contraseña"

@@ -79,6 +79,7 @@ export default function SwapDetails() {
             label="Turno original"
             value={`${formatFriendlyDate(swap.shift?.date)} de ${shiftTypeLabels[swap.shift?.shift_type]}`}
             editable={false}
+            disabled
           />
 
           {swap.swap_type === 'return' && (
@@ -86,6 +87,7 @@ export default function SwapDetails() {
               label="Turno ofrecido"
               value={`${formatFriendlyDate(swap.offered_date)} de ${shiftTypeLabels[swap.offered_type]}`}
               editable={false}
+              disabled
             />
           )}
 
@@ -94,6 +96,7 @@ export default function SwapDetails() {
               label="Tipo de intercambio"
               value="Sin devolución"
               editable={false}
+              disabled
             />
           )}
 
@@ -101,11 +104,13 @@ export default function SwapDetails() {
             label="Solicitado por"
             value={`${swap.requester.name} ${swap.requester.surname}`}
             editable={false}
+            disabled
           />
           <InputField
             label="Estado"
             value={swapStatusLabels[swap.status]}
             editable={false}
+            disabled
           />
 
           <InputFieldArea
@@ -113,6 +118,7 @@ export default function SwapDetails() {
             value={`${swap.swap_comments || 'Sin comentarios'}`}
             editable={false}
             multiline
+            disabled
           />
 
 
