@@ -30,6 +30,8 @@ import InputFieldArea from '@/components/forms/InputFieldArea';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { track } from '@amplitude/analytics-react-native';
+import { format } from 'date-fns';
+
 
 export default function ProposeSwap() {
 
@@ -54,6 +56,7 @@ export default function ProposeSwap() {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            console.log('accessToken primero', accessToken);
             const target = await getShiftById(shiftId, accessToken);
             console.log('target', target);
             console.log('isWorker', isWorker);
@@ -61,9 +64,12 @@ export default function ProposeSwap() {
             const available = await getMyAvailableShifts(isWorker.worker_id || isWorker.worker.worker_id, accessToken);
             console.log('available', available);
             const receiverId = target.worker_id || target.worker?.worker_id;
+            console.log('receiverId', receiverId);
 
             const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
+            console.log('receiverSchedules', receiverSchedules);
             const preferences = await getMySwapPreferences(receiverId, accessToken);
+            console.log('preferences', preferences);
 
             const receiverHasShift = new Set(receiverSchedules.map((r) => r.date));
 
@@ -71,7 +77,7 @@ export default function ProposeSwap() {
                 .filter((s) => !receiverHasShift.has(s.date))
                 .map((s) => ({
                     ...s,
-                    preferred: preferences.some(p => p.date === s.date && p.preference_type === s.type),
+                    preferred: preferences.some(p => p.date === s.date && p.preference_type === s.type)
                 }));
 
             setTargetShift(target);
@@ -82,7 +88,7 @@ export default function ProposeSwap() {
         fetchData();
     }, []);
 
-    console.log('availableShifts', availableShifts);
+    console.log('availableShifts final', availableShifts);
 
     const handleSubmit = async () => {
         if (targetShift.requires_return && !selectedShift) {

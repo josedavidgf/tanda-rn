@@ -4,11 +4,13 @@ import {
   Text,
   Modal,
   Pressable,
-  FlatList,
+  ScrollView,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { spacing, colors, typography } from '@/styles';
 import AppText from '../ui/AppText';
+import Button from '../ui/Button';
 
 export type Option = {
   value: string;
@@ -50,31 +52,44 @@ export default function CustomSelectorInput({
         onPress={() => !disabled && setOpen(true)}
         style={[styles.selector, disabled && styles.disabled]}
       >
-        <AppText variant='p' style={styles.selectedText}>
+        <AppText variant='h2' style={styles.selectedText}>
           {current?.label || 'Selecciona una opción'}
         </AppText>
       </Pressable>
 
-      <Modal visible={open} animationType="slide" transparent>
-        <Pressable style={styles.overlay} onPress={() => setOpen(false)}>
-          <View style={styles.modalContent}>
-            <FlatList
-              data={options}
-              keyExtractor={(item) => item.value}
-              renderItem={({ item }) => (
-                <Pressable
-                  onPress={() => {
-                    onChange(item.value);
-                    setOpen(false);
-                  }}
-                  style={styles.option}
-                >
-                  <Text style={styles.optionText}>{item.label}</Text>
-                </Pressable>
-              )}
-            />
+      <Modal visible={open} animationType="fade" transparent>
+        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+          <View style={styles.overlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.sheet}>
+                <AppText variant='h2' style={styles.modalTitle}>Selecciona una opción</AppText>
+
+                <ScrollView contentContainerStyle={styles.optionList}>
+                  {options.map((item) => (
+                    <Pressable
+                      key={item.value}
+                      onPress={() => {
+                        onChange(item.value);
+                        setOpen(false);
+                      }}
+                      style={styles.option}
+                    >
+                      <Text style={styles.optionText}>{item.label}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+
+                <Button
+                  label='Cerrar'
+                  size='lg'
+                  variant="primary"
+                  disabled={false}
+                  onPress={() => setOpen(false)}
+                />
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </Pressable>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
@@ -115,17 +130,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
   },
-  modalContent: {
+  sheet: {
+    height: '60%',
     backgroundColor: colors.white,
-    padding: spacing.md,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    maxHeight: '60%',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
+  },
+  modalTitle: {
+    marginBottom: spacing.md,
+  },
+  optionList: {
+    gap: spacing.sm,
   },
   option: {
     paddingVertical: spacing.sm,
   },
   optionText: {
     color: colors.gray[900],
+    fontSize: 16,
   },
+
 });
