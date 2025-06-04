@@ -74,7 +74,8 @@ export default function ProfileWorkingInfoScreen() {
             }
 
             setHospitalName(hospital?.name || '');
-            setWorkerTypeName(translateWorkerType[workerType?.worker_type_name] || '');
+            const name = translateWorkerType(workerType?.worker_type_name || '');
+            setWorkerTypeName(name || 'tu especialidad');
             setStep('confirm');
             trackEvent(EVENTS.WORK_SETTINGS_CONFIRM_CODE_ACCEPTED, { code });
         } catch (err) {

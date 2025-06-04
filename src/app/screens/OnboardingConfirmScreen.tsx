@@ -15,6 +15,7 @@ import Checkbox from '@/components/ui/Checkbox';
 import AppLoader from '@/components/ui/AppLoader';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { translateWorkerType } from '@/utils/useTranslateServices';
 
 export default function OnboardingConfirmScreen() {
   const route = useRoute();
@@ -24,6 +25,7 @@ export default function OnboardingConfirmScreen() {
   const { isWorker, accessToken, setIsWorker } = useAuth();
   const { createWorker, createWorkerHospital, getMyWorkerProfile } = useWorkerApi();
   const { showError, showSuccess } = useToast();
+
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
@@ -100,7 +102,7 @@ export default function OnboardingConfirmScreen() {
     <SimpleLayout title="Confirmar cuenta" showBackButton>
       <View style={styles.container}>
         <AppText variant="h3" style={styles.intro}>
-          El código te habilita como {workerTypeName} en {hospitalName}
+          El código te habilita como {translateWorkerType(workerTypeName)} en {hospitalName}
         </AppText>
 
         <Checkbox

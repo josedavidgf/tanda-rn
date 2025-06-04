@@ -10,28 +10,35 @@ import SimpleLayout from '@/components/layout/SimpleLayout';
 import { useAccessCodeApi } from '@/api/useAccessCodeApi';
 import { useToast } from '../hooks/useToast';
 import { trackEvent } from '../hooks/useTrackPageView';
-import { EVENTS } from '@/utils/amplitudeEvents';   
+import { EVENTS } from '@/utils/amplitudeEvents';
+import { translateWorkerType } from '@/utils/useTranslateServices';
+
 
 export default function ProfileReferral() {
     const { isWorker } = useAuth();
     const { getAccessCode } = useAccessCodeApi();
     const [referralCode, setReferralCode] = useState<string | null>(null);
     const { showError } = useToast();
+    const [workerTypeName, setWorkerTypeName] = useState('');
+
 
     useEffect(() => {
         const fetchCode = async () => {
             if (!isWorker) return;
             const code = await getAccessCode(isWorker.workers_hospitals?.[0]?.hospital_id, isWorker.worker_type_id);
             setReferralCode(code);
+            const name = translateWorkerType(isWorker?.worker_type_name || '');
+            setWorkerTypeName(name || 'tu especialidad');
         };
         fetchCode();
     }, [isWorker]);
 
-    const workerTypeName = isWorker?.worker_types?.worker_type_name || 'tu rol';
+
     const shareMessage = `Hola 👋 Quiero invitarte a usar Tanda para gestionar tus turnos. Puedes descargarla desde https://apptanda.com/download y usar este código de acceso para tu hospital: *${referralCode}*, como *${workerTypeName}*.
 
 ¡Te va a encantar!`;
 
+    console.log('shareMessage', shareMessage);
     const handleShare = async () => {
         const message = encodeURIComponent(shareMessage);
         const url = `whatsapp://send?text=${message}`;

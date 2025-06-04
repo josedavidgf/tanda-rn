@@ -16,9 +16,9 @@ import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
-import { supabase } from '@/lib/supabase';
-import NavigationTracker from '@/components/analytics/NavigationTracker';
 import { configureGoogleSignin } from '@/services/authService';
+import NavigationTracker from '@/components/analytics/NavigationTracker';
+import { handleDeeplink } from '@/utils/deeplinkHandler';
 
 global.Buffer = Buffer;
 global.process = require('process');
@@ -26,65 +26,19 @@ global.process = require('process');
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  // 🔗 Captura de deeplinks con tokens de Supabase
   useEffect(() => {
-    const handleDeepLink = async (event: { url: string }) => {
-      const url = new URL(event.url);
-
-      if (!url.hash.includes('access_token')) return;
-
-      const fragmentParams = new URLSearchParams(url.hash.slice(1)); // elimina el "#" inicial
-      const access_token = fragmentParams.get('access_token');
-      const refresh_token = fragmentParams.get('refresh_token');
-      const type = fragmentParams.get('type');
-
-      if (!access_token || !refresh_token || !type) {
-        console.warn('[DEEPLINK] Falta algún parámetro necesario');
-        return;
-      }
-
-      console.log(`[DEEPLINK] Tipo de evento detectado: ${type}`);
-      await supabase.setSession({ access_token, refresh_token });
-
-      const navigateWithDelay = (route: string) => {
-        if (navigationRef.isReady()) {
-          navigationRef.navigate(route);
-        } else {
-          setTimeout(() => navigationRef.navigate(route), 200);
-        }
-      };
-
-      switch (type) {
-        case 'recovery':
-          console.log('[RESET] Restaurando sesión para recuperación...');
-          navigateWithDelay('ProfileResetPassword');
-          break;
-
-        case 'signup':
-          console.log('[SIGNUP] Restaurando sesión tras registro...');
-          navigateWithDelay('OnboardingCode');
-          break;
-
-        default:
-          console.warn('[DEEPLINK] Tipo no reconocido:', type);
-      }
-    };
-
-    const sub = Linking.addEventListener('url', handleDeepLink);
+    const sub = Linking.addEventListener('url', handleDeeplink);
     Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
+      if (url) handleDeeplink({ url });
     });
-
     return () => sub.remove();
   }, []);
-
 
   useEffect(() => {
     if (process.env.EAS_BUILD === 'true') {
       configureGoogleSignin();
     }
   }, []);
-
 
   useEffect(() => {
     Font.loadAsync({
@@ -98,6 +52,8 @@ export default function App() {
       screens: {
         AuthCallback: 'auth-callback',
         Login: 'login',
+        SwapDetails: 'SwapDetails/:swapId',
+        ProposeSwap: 'ProposeSwap/:shiftId',
         // otras rutas...
       },
     },
@@ -123,7 +79,7 @@ export default function App() {
       >
         <AuthProvider>
           <OnboardingProvider>
-            <NavigationTracker /> {/* 👈 Aquí */}
+            <NavigationTracker />
             <AuthGate />
           </OnboardingProvider>
         </AuthProvider>
