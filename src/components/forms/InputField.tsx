@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TextInput, TextInputProps, StyleSheet, Pressable } from 'react-native';
-import AppText from '../ui/AppText';
+import AppText from '@/components/ui/AppText';
 import { spacing, typography, colors } from '@/styles';
 import { Controller } from 'react-hook-form';
 import { Eye, EyeSlash } from 'phosphor-react-native';
@@ -14,7 +14,6 @@ type Props = TextInputProps & {
   maxLength?: number;
   disabled?: boolean;
   error?: string | boolean;
-  // For react-hook-form
   control?: any;
   name?: string;
 };
@@ -40,17 +39,17 @@ export default function InputField(props: Props) {
     const [showPassword, setShowPassword] = React.useState(false);
     const isPassword = props.secureTextEntry ?? false;
 
-
     return (
       <View style={styles.container}>
         {showLabel && <AppText variant="caption" style={styles.label}>{label}</AppText>}
 
-        <View style={styles.inputWrapper}>
+        <View style={[styles.inputWrapper, disabled && styles.inputWrapperDisabled]}>
           <TextInput
-            style={[
+            style={[ 
               styles.input,
               !!errorText && styles.inputError,
-              isPassword && styles.inputWithIcon
+              isPassword && styles.inputWithIcon,
+              disabled && styles.inputDisabled,
             ]}
             value={valueStr}
             onChangeText={fieldProps.onChange}
@@ -58,9 +57,11 @@ export default function InputField(props: Props) {
             maxLength={maxLength}
             editable={!disabled}
             secureTextEntry={isPassword && !showPassword}
+            showSoftInputOnFocus={!disabled}
+            {...rest}
           />
 
-          {isPassword && (
+          {isPassword && !disabled && (
             <Pressable
               onPress={() => setShowPassword(prev => !prev)}
               style={styles.iconWrapper}
@@ -89,7 +90,6 @@ export default function InputField(props: Props) {
       </View>
     );
   };
-
 
   if (control && name) {
     return (
@@ -127,6 +127,10 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: colors.danger,
   },
+  inputDisabled: {
+    backgroundColor: colors.gray[100],
+    color: colors.text.tertiary,
+  },
   helper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -153,5 +157,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
   },
-
+  inputWrapperDisabled: {
+    opacity: 0.6,
+  },
 });
