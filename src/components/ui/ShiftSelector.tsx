@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import SelectorInput from '@/components/forms/SelectorInput';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { shiftTypeLabels } from '@/utils/useLabelMap';
 import { spacing } from '@/styles';
