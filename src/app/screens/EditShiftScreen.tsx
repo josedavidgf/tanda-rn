@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { View, StyleSheet, Switch } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import InputField from '@/components/forms/InputField';
+import InputFieldArea from '@/components/forms/InputFieldArea';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/app/hooks/useToast';
@@ -71,13 +72,13 @@ export default function EditShiftScreen() {
             <SimpleLayout title="Editar turno" showBackButton onBack={() => navigation.goBack()}>
                 <View style={styles.page}>
                     <View style={styles.container}>
-                        <InputField label="Turno" value={shiftLabel} editable={false} />
-                        <InputField label="Servicio" value={specialityLabel} editable={false} />
+                        <InputField label="Turno" value={shiftLabel} editable={false} disabled />
+                        <InputField label="Servicio" value={specialityLabel} editable={false} disabled />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                             <AppText style={{ fontSize: 16 }}>¿Requiere devolución?</AppText>
                             <Switch value={requiresReturn} onValueChange={setRequiresReturn} />
                         </View>
-                        <InputField
+                        <InputFieldArea
                             label="Comentarios"
                             placeholder="Añade comentarios si lo deseas"
                             value={comments}

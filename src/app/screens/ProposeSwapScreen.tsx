@@ -132,9 +132,10 @@ export default function ProposeSwap() {
             <SimpleLayout title="Proponer intercambio" showBackButton onBack={() => navigation.goBack()}>
                 <ScrollView contentContainerStyle={styles.container}>
                     <InputField
-                        label="Turno a intercambiar"
+                        label="Turno que recibirías"
                         value={shiftDate}
                         editable={false}
+                        disabled
                     />
                     {targetShift.comments?.trim().length > 0 ? (
                         <InputFieldArea
@@ -147,7 +148,19 @@ export default function ProposeSwap() {
                             label="Comentarios del turno"
                             value="Sin comentarios"
                             editable={false}
+                            disabled
                         />
+                    )}
+                    {!targetShift.requires_return && (
+                        <>
+
+                            <InputField
+                                label="Tipología de intercambio"
+                                value="Sin devolución"
+                                disabled
+                                editable={false}
+                            />
+                        </>
                     )}
                     {targetShift.requires_return && (
                         <>

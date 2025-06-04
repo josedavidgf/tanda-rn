@@ -29,15 +29,16 @@ export default function InputField(props: Props) {
     error = false,
     control,
     name,
+    secureTextEntry,
     ...rest
   } = props;
+
+  const [showPassword, setShowPassword] = React.useState(false);
+  const isPassword = secureTextEntry ?? false;
 
   const renderInput = (fieldProps: any) => {
     const valueStr = typeof fieldProps.value === 'string' ? fieldProps.value : '';
     const showLabel = !!label && (valueStr.length > 0 || rest.placeholder);
-
-    const [showPassword, setShowPassword] = React.useState(false);
-    const isPassword = props.secureTextEntry ?? false;
 
     return (
       <View style={styles.container}>
@@ -49,7 +50,7 @@ export default function InputField(props: Props) {
               styles.input,
               !!errorText && styles.inputError,
               isPassword && styles.inputWithIcon,
-              disabled && styles.inputDisabled,
+              disabled && styles.readOnlyInput,
             ]}
             value={valueStr}
             onChangeText={fieldProps.onChange}
@@ -57,11 +58,10 @@ export default function InputField(props: Props) {
             maxLength={maxLength}
             editable={!disabled}
             secureTextEntry={isPassword && !showPassword}
-            showSoftInputOnFocus={!disabled}
             {...rest}
           />
 
-          {isPassword && !disabled && (
+          {isPassword && (
             <Pressable
               onPress={() => setShowPassword(prev => !prev)}
               style={styles.iconWrapper}
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: colors.danger,
   },
-  inputDisabled: {
+  readOnlyInput: {
     backgroundColor: colors.gray[100],
     color: colors.text.tertiary,
   },
