@@ -26,6 +26,7 @@ import { spacing, colors, typography } from '@/styles';
 import { useSwapPreferencesApi } from '@/api/useSwapPreferencesApi';
 import ShiftSelector from '@/components/ui/ShiftSelector';
 import InputField from '@/components/forms/InputField';
+import InputFieldArea from '@/components/forms/InputFieldArea';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { track } from '@amplitude/analytics-react-native';
@@ -135,9 +136,22 @@ export default function ProposeSwap() {
                         value={shiftDate}
                         editable={false}
                     />
+                    {targetShift.comments?.trim().length > 0 ? (
+                        <InputFieldArea
+                            label="Comentarios del turno"
+                            value={targetShift.comments}
+                            editable={false}
+                        />
+                    ) : (
+                        <InputField
+                            label="Comentarios del turno"
+                            value="Sin comentarios"
+                            editable={false}
+                        />
+                    )}
                     {targetShift.requires_return && (
                         <>
-                            <AppText variant="p" style={{ marginTop: 16 }}>Selecciona un turno tuyo</AppText>
+
                             <ShiftSelector
                                 shifts={availableShifts}
                                 selectedShiftId={selectedShift?.id}
@@ -146,13 +160,12 @@ export default function ProposeSwap() {
                         </>
                     )}
 
-                    <AppText variant="p" style={{ marginTop: 16 }}>Comentarios</AppText>
-                    <TextInput
+                    <InputFieldArea
+                        label="Comentarios opcionales"
                         value={comments}
                         onChangeText={setComments}
                         placeholder="Escribe algo opcional..."
                         multiline
-                        style={styles.input}
                     />
 
                     <Button

@@ -11,6 +11,7 @@ import { shiftTypeLabels, swapStatusLabels } from '@/utils/useLabelMap';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { spacing } from '@/styles';
 import InputField from '@/components/forms/InputField';
+import InputFieldArea from '@/components/forms/InputFieldArea';
 import FadeInView from '@/components/animations/FadeInView';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
@@ -96,12 +97,24 @@ export default function SwapDetails() {
             />
           )}
 
-
+          <InputField
+            label="Solicitado por"
+            value={`${swap.requester.name} ${swap.requester.surname}`}
+            editable={false}
+          />
           <InputField
             label="Estado"
             value={swapStatusLabels[swap.status]}
             editable={false}
           />
+
+          <InputFieldArea
+            label="Comentarios"
+            value={`${swap.swap_comments || 'Sin comentarios'}`}
+            editable={false}
+            multiline
+          />
+
 
 
           {swap.status === 'proposed' && iAmReceiver && (
@@ -111,7 +124,7 @@ export default function SwapDetails() {
                 size='lg'
                 variant='primary'
                 onPress={() => {
-                  handleRespond('accepted'); 
+                  handleRespond('accepted');
                   trackEvent(EVENTS.ACCEPT_SWAP_BUTTON_CLICKED, { swapId: swapId });
                 }}
                 style={{ marginTop: spacing.sm }}
@@ -122,7 +135,7 @@ export default function SwapDetails() {
                 variant='outline'
                 style={{ marginTop: spacing.sm }}
                 onPress={() => {
-                  handleRespond('rejected'); 
+                  handleRespond('rejected');
                   trackEvent(EVENTS.REJECT_SWAP_BUTTON_CLICKED, { swapId: swapId });
                 }}
                 disabled={isRejecting} />
