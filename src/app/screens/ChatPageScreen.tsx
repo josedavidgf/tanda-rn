@@ -155,15 +155,14 @@ export default function ChatPageScreen() {
     // 🔁 Extrae datos del contexto del swap
     let fullPhone = '';
     let phoneLink = null;
-
+    let otherPersonName = '';
+console.log('swapContext', swapContext);
     if (swapContext && session) {
         const isMine = swapContext.requester_id === session.user.id;
-        const otherPersonMobileCountryCode = isMine
-            ? swapContext.shift.worker.mobile_country_code
-            : swapContext.requester.mobile_country_code;
-        const otherPersonMobilePhone = isMine
-            ? swapContext.shift.worker.mobile_phone
-            : swapContext.requester.mobile_phone;
+        const otherPerson = isMine ? swapContext.requester : swapContext.shift.worker;
+        otherPersonName = `${otherPerson.name || ''} `.trim();
+        const otherPersonMobileCountryCode = otherPerson.mobile_country_code;
+        const otherPersonMobilePhone = otherPerson.mobile_phone;
 
         fullPhone = `${otherPersonMobileCountryCode ?? ''}${otherPersonMobilePhone ?? ''}`.replace(/\s+/g, '');
         phoneLink = fullPhone.length >= 10 ? `tel:${fullPhone}` : null;
@@ -175,7 +174,7 @@ export default function ChatPageScreen() {
 
     return (
         <SimpleLayout
-            title="Conversación"
+            title={otherPersonName || 'Conversación'}
             showBackButton
             rightAction={
                 phoneLink
