@@ -37,6 +37,7 @@ import { spacing } from '@/styles';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { getCommentsByMonth } from '@/services/calendarCommentService';
+import { useToast } from '../hooks/useToast';
 
 export default function CalendarScreen() {
 
@@ -56,6 +57,7 @@ export default function CalendarScreen() {
     const [draftShiftMap, setDraftShiftMap] = useState<Record<string, OriginalCalendarEntry>>({});
     const [loadingCalendar, setLoadingCalendar] = useState(false);
     const navigation = useNavigation();
+    const { showError } = useToast();
 
 
 
@@ -92,8 +94,7 @@ export default function CalendarScreen() {
 
                 setCalendarMap(merged);
             } catch (e) {
-                console.log('Aqui error', e);
-                Alert.alert('Error al cargar turnos', e.message);
+                showError('Error al cargar turnos');
             } finally {
                 setLoadingCalendar(false);
             }
@@ -101,7 +102,6 @@ export default function CalendarScreen() {
 
         loadSchedules();
     }, [isWorker, selectedMonth]);
-    console.log('[CALENDAR] Flags', { ready });
 
     if (!ready) return <AppLoader message="Cargando Calendario..." />;
 
@@ -337,8 +337,8 @@ export default function CalendarScreen() {
         );
     }
 
-const rawName = isWorker?.name || 'Trabajador';
-const workerName = rawName.length > 14 ? `${rawName.slice(0, 14).trim()}...` : rawName;
+    const rawName = isWorker?.name || 'Trabajador';
+    const workerName = rawName.length > 14 ? `${rawName.slice(0, 14).trim()}...` : rawName;
     return (
         <FadeInView>
             <AppLayout title={`Hola, ${workerName}`}>
@@ -384,9 +384,7 @@ const workerName = rawName.length > 14 ? `${rawName.slice(0, 14).trim()}...` : r
                         </AppText>
                     )}
 
-
-                    {/*                     {!isMassiveEditMode && !loadingCalendar && <ShiftStats stats={shiftStats} />}
- */}                    <View style={{ position: 'relative' }}>
+                    <View style={{ position: 'relative' }}>
                         <MonthlyGridCalendar
                             calendarMap={isMassiveEditMode ? draftShiftMap : calendarMap}
                             selectedDate={selectedDate}
