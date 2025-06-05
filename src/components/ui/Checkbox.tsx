@@ -7,7 +7,7 @@ type Props = {
     checked: boolean;
     onChange: () => void;
     disabled?: boolean;
-    label: string;
+    label: React.ReactNode;
 };
 
 export default function Checkbox({ checked, onChange, label, disabled = false }: Props) {
