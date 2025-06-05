@@ -2,16 +2,11 @@ import { getDbWithAuth } from '@/lib/supabase';
 
 export async function getMySwapPreferences(workerId: string, token: string) {
   const db = await getDbWithAuth(token);
-  console.log('workerId de service', workerId);
-  console.log('token', token);
   const { data, error } = await db
     .from('swap_preferences')
     .select('*')
     .eq('worker_id', workerId)
     .order('date', { ascending: true });
-
-    console.log('data', data);
-
   if (error) throw new Error(error.message || 'Error al cargar preferencias');
   return data;
 };

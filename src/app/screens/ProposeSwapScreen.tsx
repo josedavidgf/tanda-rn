@@ -56,20 +56,12 @@ export default function ProposeSwap() {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            console.log('accessToken primero', accessToken);
             const target = await getShiftById(shiftId, accessToken);
-            console.log('target', target);
-            console.log('isWorker', isWorker);
-            console.log('isWorker.worker_id', isWorker.worker_id || isWorker.worker?.worker_id);
             const available = await getMyAvailableShifts(isWorker.worker_id || isWorker.worker.worker_id, accessToken);
-            console.log('available', available);
             const receiverId = target.worker_id || target.worker?.worker_id;
-            console.log('receiverId', receiverId);
 
             const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
-            console.log('receiverSchedules', receiverSchedules);
             const preferences = await getMySwapPreferences(receiverId, accessToken);
-            console.log('preferences', preferences);
 
             const receiverHasShift = new Set(receiverSchedules.map((r) => r.date));
 
