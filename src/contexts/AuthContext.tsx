@@ -7,10 +7,6 @@ import { getPendingOnboardingStep } from '@/utils/onboarding';
 import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 import AmplitudeService from '@/lib/amplitude';
-import { AppState } from 'react-native';
-import { signOutGoogle } from '@/services/authService';
-import { registerForPushNotificationsAsync } from '@/lib/registerForPushNotifications';
-
 
 interface AuthContextType {
   session: any;
@@ -80,37 +76,27 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           }
         }
 
-        (async () => {
-          try {
-            const worker = await getOrCreateWorker(token);
-            setIsWorker(worker);
-            AmplitudeService.identify(worker);
-
-            try {
-              await registerForPushNotificationsAsync(data.session.user.id, token);
-            } catch (err) {
-              console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+        getOrCreateWorker(token).then((worker) => {
+          setIsWorker(worker);
+          AmplitudeService.identify(worker); // ✅ añade esto
+          const step = getPendingOnboardingStep(worker);
+          const navigateToStep = () => {
+            if (navigationRef.isReady()) {
+              navigationRef.reset({
+                index: 0,
+                routes: [{ name: step ?? 'Calendar' }],
+              });
+            } else {
+              setTimeout(navigateToStep, 50);
             }
+          };
 
-            const step = getPendingOnboardingStep(worker);
-            const navigateToStep = () => {
-              if (navigationRef.isReady()) {
-                navigationRef.reset({
-                  index: 0,
-                  routes: [{ name: step ?? 'Calendar' }],
-                });
-              } else {
-                setTimeout(navigateToStep, 50);
-              }
-            };
-
-            navigateToStep();
-            setAppState('ready');
-          } catch (err) {
-            console.warn('[AUTH RN] Error en getOrCreateWorker inicial:', err.message);
-            setAppState('error');
-          }
-        })();
+          navigateToStep();
+          setAppState('ready');
+        }).catch((err) => {
+          console.warn('[AUTH RN] Error en getOrCreateWorker inicial:', err.message);
+          setAppState('error');
+        });
       } else {
         setAppState('ready');
       }
@@ -126,14 +112,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           const worker = await getOrCreateWorker(token);
           setIsWorker(worker);
           AmplitudeService.identify(worker); // ✅ añade esto
-
-          // 🔔 Registrar token push
-          try {
-            await registerForPushNotificationsAsync(session.user.id, token);
-          } catch (err) {
-            console.warn('[PUSH RN] No se pudo registrar token:', err.message);
-          }
-
           const step = getPendingOnboardingStep(worker);
           if (navigationRef.isReady()) {
             navigationRef.reset({
@@ -162,60 +140,12 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     };
   }, []);
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', async (nextState) => {
-      if (nextState === 'active') {
-        console.log('[AUTH RN] AppState changed to active → forzamos getSession');
-
-        try {
-          const { data, error } = await supabase.getSession();
-          if (error) {
-            console.warn('[AUTH RN] Error al recuperar sesión desde storage:', error.message);
-          }
-
-          if (data?.session) {
-            console.log('[AUTH RN] Sesión recuperada tras volver a primer plano');
-            setSession(data.session);
-
-            const token = data.session.access_token;
-
-            if (!isWorker) {
-              console.log('[AUTH RN] No había worker cargado, obteniendo...');
-              const worker = await getOrCreateWorker(token);
-              setIsWorker(worker);
-              AmplitudeService.identify(worker);
-              // 🔔 Registrar token push
-              try {
-                await registerForPushNotificationsAsync(data.session.user.id, token);
-              } catch (err) {
-                console.warn('[PUSH RN] No se pudo registrar token:', err.message);
-              }
-
-            } else {
-              console.log('[AUTH RN] Worker ya estaba definido, no lo recargo');
-            }
-          } else {
-            console.warn('[AUTH RN] No hay sesión activa tras reentrada');
-          }
-        } catch (err: any) {
-          console.error('[AUTH RN] Falló el refresh al reactivar app:', err.message);
-        }
-      }
-    });
-
-    return () => subscription.remove();
-  }, [isWorker]); // 👈 importante incluir isWorker como dependencia
-
-
   const logout = async () => {
     console.log('[AUTH RN] Cerrar sesión');
     try {
-      console.log('[AUTH RN] Cerrando sesión en Supabase y Google...');
-
-      // Cerrar sesión en Google (si aplica)
-      await signOutGoogle(); // esta función ya hace signOut en Supabase y Google
-
-    } catch (err: any) {
+      console.log('[AUTH RN] Llamando a supabase.signOut()');
+      await supabase.signOut();
+    } catch (err) {
       console.warn('Error during logout:', err.message);
     } finally {
       setSession(null);
@@ -223,7 +153,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       AmplitudeService.reset();
     }
   };
-
 
   if (appState === 'loading') return <AppLoader message="Cargando Tanda..." />;
   if (appState === 'error') return <ErrorScreen retry={() => setAppState('loading')} />;
