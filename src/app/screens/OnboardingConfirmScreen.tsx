@@ -6,7 +6,7 @@ import { useOnboardingContext } from '@/contexts/OnboardingContext';
 import { useWorkerApi } from '@/api/useWorkerApi';
 import { useToast } from '@/app/hooks/useToast';
 import { useOnboardingGuard } from '@/app/hooks/useOnboardingGuard';
-import { spacing } from '@/styles';
+import { spacing, colors } from '@/styles';
 
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppText from '@/components/ui/AppText';
@@ -16,6 +16,8 @@ import AppLoader from '@/components/ui/AppLoader';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { translateWorkerType } from '@/utils/useTranslateServices';
+import { getDbWithAuth } from '@/lib/supabase';
+
 
 export default function OnboardingConfirmScreen() {
   const route = useRoute();
@@ -25,7 +27,6 @@ export default function OnboardingConfirmScreen() {
   const { isWorker, accessToken, setIsWorker } = useAuth();
   const { createWorker, createWorkerHospital, getMyWorkerProfile } = useWorkerApi();
   const { showError, showSuccess } = useToast();
-
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
@@ -41,7 +42,6 @@ export default function OnboardingConfirmScreen() {
   useOnboardingGuard('confirm');
 
   useEffect(() => {
-    // Garantizamos consistencia de datos también en el contexto
     setOnboardingData({
       accessCode,
       hospitalId,
@@ -51,7 +51,7 @@ export default function OnboardingConfirmScreen() {
     });
   }, [hospitalId, workerTypeId, hospitalName, workerTypeName]);
 
-  if (!isWorker?.worker_id) return <AppLoader onFinish={() => setLoading(false)} message='Cargando trabajador...' />;
+  if (!isWorker?.worker_id) return <AppLoader onFinish={() => setLoading(false)} message="Cargando trabajador..." />;
 
   const handleConfirm = async () => {
     if (!hospitalId || !workerTypeId) {
@@ -72,6 +72,15 @@ export default function OnboardingConfirmScreen() {
       if (!response?.success) throw new Error(response?.message);
 
       await createWorkerHospital(response.worker.worker_id, hospitalId, accessToken);
+
+      // Guardar aceptación legal (versión hardcoded)
+      const db = await getDbWithAuth(accessToken);
+      await db.from('legal_acceptance').insert({
+        worker_id: response.worker.worker_id,
+        terms_version: 'v1',
+        privacy_version: 'v1',
+        user_agent: 'react-native',
+      });
 
       const newProfile = await getMyWorkerProfile(accessToken);
       if (newProfile) {
@@ -101,20 +110,42 @@ export default function OnboardingConfirmScreen() {
   return (
     <SimpleLayout title="Confirmar cuenta" showBackButton>
       <View style={styles.container}>
-        <AppText variant="h3" style={styles.intro}>
-          El código te habilita como {translateWorkerType(workerTypeName)} en {hospitalName}
+        <AppText variant="h2" style={styles.intro}>
+          El código que has introducido te habilita Tanda como{' '}
+          <AppText variant="h2" style={styles.highlight}>{translateWorkerType(workerTypeName)}</AppText> en{' '}
+          <AppText variant="h2" style={styles.highlight}>{hospitalName}</AppText>
         </AppText>
 
         <Checkbox
           checked={acceptedTerms}
           onChange={() => setAcceptedTerms(!acceptedTerms)}
-          label="He leído y acepto los Términos y Condiciones"
+          label={
+            <>
+              He leído y acepto los{' '}
+              <AppText
+                variant="link"
+                onPress={() => Linking.openURL('https://apptanda.com/legal/terminos-y-condiciones')}
+              >
+                Términos y Condiciones
+              </AppText>
+            </>
+          }
         />
 
         <Checkbox
           checked={acceptedPrivacy}
           onChange={() => setAcceptedPrivacy(!acceptedPrivacy)}
-          label="He leído y acepto la Política de Privacidad"
+          label={
+            <>
+              He leído y acepto la{' '}
+              <AppText
+                variant="link"
+                onPress={() => Linking.openURL('https://apptanda.com/legal/politica-privacidad')}
+              >
+                Política de Privacidad
+              </AppText>
+            </>
+          }
         />
 
         <Button
@@ -147,6 +178,9 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.lg,
     gap: spacing.md,
+  },
+  highlight: {
+    color: colors.secondary,
   },
   intro: {
     marginBottom: spacing.md,
