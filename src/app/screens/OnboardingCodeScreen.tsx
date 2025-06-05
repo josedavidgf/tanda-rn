@@ -54,7 +54,7 @@ export default function OnboardingCodeScreen() {
   const handleSubmit = async () => {
     try {
       if (code.length !== 4) {
-        Alert.alert('Código inválido', 'Introduce los 4 dígitos del código.');
+        showError('Código inválido. Introduce los 4 dígitos del código.');
         return;
       }
 
