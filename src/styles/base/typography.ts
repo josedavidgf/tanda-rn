@@ -33,9 +33,9 @@ export const typography = {
   },
   link: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     fontFamily: 'HostGrotesk-Medium',
-    color: colors.primary,
+    color: colors.secondary,
   },
 };
 
