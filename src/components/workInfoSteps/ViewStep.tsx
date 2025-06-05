@@ -14,7 +14,9 @@ type Props = {
 
 export default function ViewStep({ worker, onChangeSpeciality, onChangeHospital }: Props) {
   const hospitalName = worker?.workers_hospitals?.[0]?.hospitals?.name || '';
-  const role = translateWorkerType[worker?.worker_types?.worker_type_name] || '';
+  console.log('worker', worker);
+  const role = translateWorkerType(worker?.worker_types?.worker_type_name || '');
+  console.log('role', role);
   const speciality = worker?.workers_specialities?.[0]?.specialities?.speciality_category || '';
 
   return (

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
-import { spacing } from '@/styles';
+import { spacing, colors } from '@/styles';
 
 type Props = {
   hospitalName: string;
@@ -13,13 +13,12 @@ type Props = {
 export default function ConfirmStep({ hospitalName, workerTypeName, onConfirm }: Props) {
   return (
     <View style={styles.wrapper}>
-      <AppText variant="h3" style={styles.title}>
-        El código que has introducido te habilita como
+      <AppText variant="h2" style={styles.title}>
+        El código que has introducido te habilita Tanda como{' '}
+        <AppText variant="h2" style={styles.highlight}>{workerTypeName}</AppText> en{' '}
+        <AppText variant="h2" style={styles.highlight}>{hospitalName}</AppText>
       </AppText>
 
-      <AppText variant="h2" style={styles.highlight}>
-        {workerTypeName} en {hospitalName}
-      </AppText>
 
       <Button
         label="Confirmar cambio"
@@ -41,8 +40,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   highlight: {
-    marginBottom: spacing.md,
-    textAlign: 'center',
+    color: colors.secondary, // o el que corresponda a tu diseño
   },
   button: {
     marginTop: spacing.lg,

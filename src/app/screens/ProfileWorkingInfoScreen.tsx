@@ -67,6 +67,7 @@ export default function ProfileWorkingInfoScreen() {
 
             const hospital = hospitals.find(h => h.hospital_id === response.hospital_id);
             const workerType = workerTypes.find(w => w.worker_type_id === response.worker_type_id);
+            console.log('workerType', workerType);
 
             if (code.length !== 4) {
                 showError('El código debe tener exactamente 4 caracteres.');
@@ -74,7 +75,7 @@ export default function ProfileWorkingInfoScreen() {
             }
 
             setHospitalName(hospital?.name || '');
-            const name = translateWorkerType(workerType?.worker_type_name || '');
+            const name = translateWorkerType(workerType.worker_type_name || '');
             setWorkerTypeName(name || 'tu especialidad');
             setStep('confirm');
             trackEvent(EVENTS.WORK_SETTINGS_CONFIRM_CODE_ACCEPTED, { code });
