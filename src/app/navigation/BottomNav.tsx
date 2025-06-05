@@ -1,4 +1,4 @@
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Text } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   CalendarCheck,
@@ -6,7 +6,6 @@ import {
   MagnifyingGlass,
   ChatCircle,
 } from '@/theme/icons';
-import { Text } from 'react-native-gesture-handler';
 import { DotIconWrapper } from '@/components/ui/DotIconWrapper';
 import { useSwapNotifications } from '@/app/hooks/useSwapNotifications';
 import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
