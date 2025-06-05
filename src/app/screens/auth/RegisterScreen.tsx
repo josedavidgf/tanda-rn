@@ -14,13 +14,14 @@ import { loginWithGoogle } from '@/services/authService';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { makeRedirectUri } from 'expo-auth-session'
-
+import {useToast} from '@/app/hooks/useToast';
 
 export default function RegisterScreen() {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showInfo } = useToast();
 
   const isEmailValid = /\S+@\S+\.\S+/.test(email);
 
@@ -118,7 +119,8 @@ export default function RegisterScreen() {
           size="lg"
           onPress={() => {
             trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_GOOGLE);
-            loginWithGoogle();
+            /* loginWithGoogle(); */
+            showInfo('Próximamente');
           }}
           variant="outline"
           leftIcon={<GoogleLogo size={20} />}

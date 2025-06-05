@@ -17,6 +17,7 @@ import { loginWithGoogle } from '@/services/authService';
 import { GoogleLogo } from 'phosphor-react-native';
 import {EVENTS} from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { useToast } from '@/app/hooks/useToast';
 
 
 const schema = z.object({
@@ -37,6 +38,7 @@ export default function LoginScreen() {
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   });
+  const { showInfo } = useToast();
 
   const email = watch('email');
   const password = watch('password');
@@ -107,7 +109,8 @@ export default function LoginScreen() {
           size="lg"
           onPress={() => {
             trackEvent(EVENTS.LOGIN_ATTEMPTED_WITH_GOOGLE);
-            loginWithGoogle();
+            /* loginWithGoogle(); */
+            showInfo("Próximamente");
           }}
           variant="outline"
           leftIcon={<GoogleLogo size={20} />}
