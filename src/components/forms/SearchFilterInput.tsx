@@ -8,16 +8,17 @@ type Props = {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
+  label?: string; // Nuevo prop opcional para el label
 };
 
-export default function SearchFilterInput({ value, onChange, placeholder = 'Busca tu especialidad...' }: Props) {
+export default function SearchFilterInput({ value, onChange, placeholder = 'Busca tu especialidad...', label = 'Especialidad' }: Props) {
   return (
     <View style={styles.wrapper}>
       <InputField
         value={value}
         onChangeText={onChange}
         placeholder={placeholder}
-        label="Especialidad"
+        label={label} // Usar el nuevo prop label
       />
 
       {value.length > 0 && (

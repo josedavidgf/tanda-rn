@@ -130,6 +130,7 @@ export default function ChatListScreen() {
                               setSearchQuery(text);
                             }}
                             placeholder="Buscar por nombre..."
+                            label="Buscar por nombre"
                         />
 
                         {filteredSwaps.length === 0 && searchQuery.length >= 3 ? (
