@@ -8,7 +8,6 @@ import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { spacing, typography } from '@/styles';
 import { colors } from '@/styles/utilities/colors';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
-import  CommentButton  from '@/components/calendar/DayComment';
 
 type Props = {
   dateStr: string; // 'YYYY-MM-DD'
@@ -51,7 +50,6 @@ export default function DayDetailEmpty({
             onAddPreference(dateStr);
           }}
         />
-        <CommentButton dateStr={dateStr} />
       </View>
     </View>
   );

@@ -90,7 +90,6 @@ export default function DayDetailMyShift({
             loading={loadingDeletePublication}
             disabled={loadingDeletePublication}
           />
-          <CommentButton dateStr={dateStr} />
         </View>
       ) : (
         <View style={styles.buttonGroup}>
