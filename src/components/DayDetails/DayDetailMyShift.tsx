@@ -10,7 +10,6 @@ import { colors } from '@/styles/utilities/colors';
 import { spacing, typography } from '@/styles';
 import { Schedule } from '@/types/calendar';
 import { useNavigation } from '@react-navigation/native';
-import CommentButton from '@/components/calendar/DayComment';
 
 type Props = {
   dateStr: string;
@@ -136,7 +135,6 @@ export default function DayDetailMyShift({
               disabled={loadingRemoveShift}
             />
           </View>
-          <CommentButton dateStr={dateStr} />
         </View>
       )}
     </View>

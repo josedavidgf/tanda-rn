@@ -7,6 +7,8 @@ import { getPendingOnboardingStep } from '@/utils/onboarding';
 import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 import AmplitudeService from '@/lib/amplitude';
+import { registerForPushNotificationsAsync } from '@/lib/registerForPushNotifications';
+
 
 interface AuthContextType {
   session: any;
@@ -76,27 +78,37 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           }
         }
 
-        getOrCreateWorker(token).then((worker) => {
-          setIsWorker(worker);
-          AmplitudeService.identify(worker); // ✅ añade esto
-          const step = getPendingOnboardingStep(worker);
-          const navigateToStep = () => {
-            if (navigationRef.isReady()) {
-              navigationRef.reset({
-                index: 0,
-                routes: [{ name: step ?? 'Calendar' }],
-              });
-            } else {
-              setTimeout(navigateToStep, 50);
-            }
-          };
+        (async () => {
+          try {
+            const worker = await getOrCreateWorker(token);
+            setIsWorker(worker);
+            AmplitudeService.identify(worker);
 
-          navigateToStep();
-          setAppState('ready');
-        }).catch((err) => {
-          console.warn('[AUTH RN] Error en getOrCreateWorker inicial:', err.message);
-          setAppState('error');
-        });
+            try {
+              await registerForPushNotificationsAsync(data.session.user.id, token);
+            } catch (err) {
+              console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+            }
+
+            const step = getPendingOnboardingStep(worker);
+            const navigateToStep = () => {
+              if (navigationRef.isReady()) {
+                navigationRef.reset({
+                  index: 0,
+                  routes: [{ name: step ?? 'Calendar' }],
+                });
+              } else {
+                setTimeout(navigateToStep, 50);
+              }
+            };
+
+            navigateToStep();
+            setAppState('ready');
+          } catch (err) {
+            console.warn('[AUTH RN] Error en getOrCreateWorker inicial:', err.message);
+            setAppState('error');
+          }
+        })();
       } else {
         setAppState('ready');
       }
@@ -112,6 +124,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           const worker = await getOrCreateWorker(token);
           setIsWorker(worker);
           AmplitudeService.identify(worker); // ✅ añade esto
+
+          // 🔔 Registrar token push
+          try {
+            await registerForPushNotificationsAsync(session.user.id, token);
+          } catch (err) {
+            console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+          }
+          
           const step = getPendingOnboardingStep(worker);
           if (navigationRef.isReady()) {
             navigationRef.reset({

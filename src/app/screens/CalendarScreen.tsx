@@ -29,7 +29,7 @@ import { computeShiftStats } from '@/utils/computeShiftStats';
 import Button from '@/components/ui/Button';
 import AppText from '@/components/ui/AppText';
 import { colors } from '@/styles/utilities/colors';
-import { CalendarPlus } from 'phosphor-react-native';
+import { CalendarPlus, PencilLine } from 'phosphor-react-native';
 import FadeInView from '@/components/animations/FadeInView';
 import { relative } from 'path';
 import { useNavigation } from '@react-navigation/native';
@@ -38,6 +38,7 @@ import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { getCommentsByMonth } from '@/services/calendarCommentService';
 import { useToast } from '../hooks/useToast';
+import CommentButton from '@/components/calendar/DayComment';
 
 export default function CalendarScreen() {
 
@@ -275,7 +276,7 @@ export default function CalendarScreen() {
                 DetailComponent = (
                     <DayDetailMyShift
                         dateStr={data.date}
-                        dayLabel={`${formatFriendlyDate(data.date)} - Turno propio`}
+                        dayLabel="Turno propio"
                         shift={data.shift}
                         isPublished={!!data.shift.isPublished}
                         onEditShift={(dateStr) => toggleShift(dateStr)}
@@ -288,7 +289,7 @@ export default function CalendarScreen() {
                 DetailComponent = (
                     <DayDetailReceived
                         dateStr={dateStr}
-                        dayLabel={`Turno recibido para ${formatFriendlyDate(data.date)}`}
+                        dayLabel="Turno recibido"
                         entry={data.shift}
                     />
                 );
@@ -297,7 +298,7 @@ export default function CalendarScreen() {
                 DetailComponent = (
                     <DayDetailSwapped
                         dateStr={dateStr}
-                        dayLabel={`Turno intercambiado para ${formatFriendlyDate(data.date)}`}
+                        dayLabel="Turno intercambiado"
                         entry={data.shift}
                         onAddShift={(dateStr) => toggleShift(dateStr)}
                         onAddPreference={(dateStr) => console.log('Añadir preferencia desde swapped', dateStr)}
@@ -309,7 +310,7 @@ export default function CalendarScreen() {
                 DetailComponent = (
                     <DayDetailPreference
                         dateStr={dateStr}
-                        dayLabel={`${formatFriendlyDate(data.date)} - Día libre`}
+                        dayLabel="Día libre"
                         entry={data.preference}
                         onEditPreference={(dateStr, type) => togglePreference(dateStr, type)}
                         onDeletePreference={handleDeletePreference}
@@ -320,7 +321,7 @@ export default function CalendarScreen() {
                 DetailComponent = (
                     <DayDetailEmpty
                         dateStr={dateStr}
-                        dayLabel={`${formatFriendlyDate(data.date)} - Día libre`}
+                        dayLabel="Día libre"
                         onAddShift={(dateStr) => toggleShift(dateStr)}
                         onAddPreference={(dateStr) => togglePreference(dateStr, 'morning')}
                     />
@@ -339,6 +340,7 @@ export default function CalendarScreen() {
 
     const rawName = isWorker?.name || 'Trabajador';
     const workerName = rawName.length > 14 ? `${rawName.slice(0, 14).trim()}...` : rawName;
+    const selectedDayTitle = `${formatFriendlyDate(selectedDate)}`;
     return (
         <FadeInView>
             <AppLayout title={`Hola, ${workerName}`}>
@@ -420,6 +422,10 @@ export default function CalendarScreen() {
                     </View>
                     {!isMassiveEditMode && !loadingCalendar && (
                         <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
+                                <AppText variant="h2" style={{ marginBottom: spacing.md }}>{selectedDayTitle}</AppText>
+                                <CommentButton dateStr={format(selectedDate, 'yyyy-MM-dd')} />
+                            </View>
                             <DayDetailRenderer data={selectedDayData} />
                         </View>
                     )}

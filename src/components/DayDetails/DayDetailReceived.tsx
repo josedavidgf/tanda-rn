@@ -7,7 +7,6 @@ import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { spacing, typography, colors } from '@/styles';
 import { useNavigation } from '@react-navigation/native';
 import { Lightning } from 'phosphor-react-native';
-import CommentButton from '@/components/calendar/DayComment';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 
@@ -86,7 +85,6 @@ export default function DayDetailReceived({
             }}
           />
         )}
-        <CommentButton dateStr={dateStr} />
       </View>
     </View>
   );

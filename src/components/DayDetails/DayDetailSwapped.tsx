@@ -7,7 +7,6 @@ import { spacing, typography, colors } from '@/styles';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { useNavigation } from '@react-navigation/native';
-import CommentButton from '@/components/calendar/DayComment';
 
 type Props = {
   dateStr: string;
@@ -88,7 +87,6 @@ export default function DayDetailSwapped({
             }}
           />
         )}
-        <CommentButton dateStr={dateStr} />
       </View>
     </View>
   );

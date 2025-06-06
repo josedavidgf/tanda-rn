@@ -8,7 +8,6 @@ import { spacing, typography, colors } from '@/styles';
 import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 import { ScrollView } from 'react-native-gesture-handler';
-import CommentButton from '@/components/calendar/DayComment';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 
@@ -100,7 +99,6 @@ export default function DayDetailPreference({
             loading={loadingDeletePreference}
             disabled={loadingDeletePreference}
           />
-          <CommentButton dateStr={dateStr} />
         </View>
       )}
     </View>
