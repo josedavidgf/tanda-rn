@@ -78,7 +78,7 @@ export default function ProfilePreferencesScreen() {
           disabled={loadingKeys.includes('receive_emails_reminders')}
         />
 
-        <AppText variant='h3' style={styles.sectionTitle}>Notificaciones Push</AppText>
+        <AppText variant='h3' style={styles.sectionTitle}>Notificaciones en tu móvil</AppText>
         <ToggleSwitch
           label="Nuevo turno publicado"
           value={prefs.receive_push_shift_published}
