@@ -423,7 +423,7 @@ export default function CalendarScreen() {
                     {!isMassiveEditMode && !loadingCalendar && (
                         <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md }}>
-                                <AppText variant="h2" style={{ marginBottom: spacing.md }}>{selectedDayTitle}</AppText>
+                                <AppText variant="h2" /* Eliminado marginBottom para alinear verticalmente con el botón */>{selectedDayTitle}</AppText>
                                 <CommentButton dateStr={format(selectedDate, 'yyyy-MM-dd')} />
                             </View>
                             <DayDetailRenderer data={selectedDayData} />
