@@ -83,7 +83,7 @@ export default function CommentEditorScreen() {
   return (
 
 
-    <SimpleLayout title="Comentario del día" showBackButton>
+    <SimpleLayout title="Notas del día" showBackButton>
       <View style={{ padding: 16, flex: 1 }}>
         <AppText style={{ marginBottom: 8 }}>{dateFormatted}</AppText>
         <TextInput
