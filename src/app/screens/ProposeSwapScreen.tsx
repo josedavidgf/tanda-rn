@@ -70,7 +70,8 @@ export default function ProposeSwap() {
                 .map((s) => ({
                     ...s,
                     preferred: preferences.some(p => p.date === s.date && p.preference_type === s.type)
-                }));
+                }))
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sorted availableShifts by date in ascending order.
 
             setTargetShift(target);
             setAvailableShifts(enriched);
@@ -79,8 +80,6 @@ export default function ProposeSwap() {
 
         fetchData();
     }, []);
-
-    console.log('availableShifts final', availableShifts);
 
     const handleSubmit = async () => {
         if (targetShift.requires_return && !selectedShift) {

@@ -11,6 +11,19 @@ export const calendarStyles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
   },
+    calendarShiftIcon: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+  },
+
+  calendarShiftIconRow: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    flexDirection: 'row',
+    gap: 2,
+  },
   calendarDayContainer: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -29,8 +42,6 @@ export const calendarStyles = StyleSheet.create({
     position: 'absolute',
     bottom: 4,
     right: 4,
-    width: 18,
-    height: 18,
   },
   calendarAvailabilityDot: {
     position: 'absolute',

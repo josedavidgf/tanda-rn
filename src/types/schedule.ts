@@ -3,10 +3,8 @@ export type Schedule = {
   shift_type: 'morning' | 'evening' | 'night' | 'reinforcement';
   source: 'manual' | 'received_swap' | 'swapped_out';
   related_worker_id?: string;
-  related_worker?: {
-    name?: string;
-    surname?: string;
-  };
+  related_worker_name?: string;
+  related_worker_surname?: string;
   swap_id?: string;
   worker_id: string;
   shift: {

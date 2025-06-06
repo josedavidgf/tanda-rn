@@ -1,20 +1,32 @@
-import {Schedule} from './schedule';
+export type ShiftType = 'morning' | 'evening' | 'night' | 'reinforcement';
+export type ShiftSource = 'manual' | 'received_swap' | 'swapped_out';
 
-export type CalendarEntry = {
-  shift_type?: Schedule['shift_type'];
-  source?: Schedule['source'];
-  related_worker_id?: string;
-  related_worker?: { name?: string; surname?: string };
+export interface ShiftEntry {
+  type: ShiftType;
+  source: ShiftSource;
+  shift_id?: string;
+  isPublished?: boolean;
+
+  /** Extra para turnos recibidos */
   related_worker_name?: string;
   related_worker_surname?: string;
   swap_id?: string;
-  isPublished?: boolean;
-  shift_id?: string;
-  worker_id?: string;
+}
+
+export interface CalendarEntry {
+  // NUEVO: lista de turnos del día
+  shifts?: ShiftEntry[];
+
+  // Intercambios recibidos
+  related_worker_name?: string;
+  related_worker_surname?: string;
+  swap_id?: string;
+
+  // Preferencias
   isPreference?: boolean;
-  preference_types?: string[];
-  preferenceIds?: Record<string, string>;
+  preference_types?: ShiftType[];
+  preferenceIds?: Record<ShiftType, string>;
+
+  // Comentarios
   hasComment?: boolean;
-  comment?: string;
-  comment_id?: string | null;
-};
+}

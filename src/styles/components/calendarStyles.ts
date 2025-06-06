@@ -22,6 +22,13 @@ export const calendarStyles = StyleSheet.create({
   gridContainer: {
     gap: spacing.sm,
   },
+  calendarShiftIconRow: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    flexDirection: 'row',
+    gap: 2,
+  },
   calendarDayWrapper: {
     width: `${100 / 7}%`,
     aspectRatio: 1,
@@ -66,6 +73,20 @@ export const calendarStyles = StyleSheet.create({
     backgroundColor: '#12dc92',
     borderRadius: 4,
   },
+  calendarShiftIconUpperHalf: {
+    position: 'absolute',
+    top: '50%',
+    transform: [{ translateY: -12 }], // Ajuste hacia arriba para colocar en esquina inferior del 1er cuadrante
+    right: 4,
+  },
+
+  calendarShiftIconLowerHalf: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+  },
+
+
   shiftMorning: {
     backgroundColor: '#FFD000',
   },

@@ -1,46 +1,56 @@
-import type { CalendarMap, MergeCalendarParams} from '@/types/calendar';
+import type {
+  MergeCalendarParams,
+  CalendarMap,
+  ShiftEntry,
+  CalendarEntry,
+} from '@/types/calendar';
 
 export function mergeCalendarData({
   monthlySchedules,
   preferences,
-  shifts, // SOLO publicados
-  swaps,
+  shifts, // solo publicados
   comments,
 }: MergeCalendarParams): CalendarMap {
   const map: CalendarMap = {};
 
-  // 1. Construimos el publishedMap
-  const publishedMap = new Map();
+  // 1. Mapeo de turnos publicados
+  const publishedMap = new Map<string, string>();
   for (const shift of shifts) {
     const key = `${shift.date}_${shift.shift_type}`;
     publishedMap.set(key, shift.shift_id);
   }
 
-  // 2. Metemos los schedules como base
-  for (const s of monthlySchedules) {
-    const key = `${s.date}_${s.shift_type}`;
-    const hasRelated = !!s.related_worker_id && s.related_worker;
+  // 2. Procesar monthlySchedules como base
+  for (const schedule of monthlySchedules) {
+    const date = schedule.date;
+    const key = `${date}_${schedule.shift_type}`;
+    const source = schedule.source;
 
-    map[s.date] = {
-      shift_type: s.shift_type,
-      source: s.source,
-      related_worker_id: s.related_worker_id,
-      related_worker: s.related_worker || null,
-      related_worker_name: hasRelated ? s.related_worker.name : null,
-      related_worker_surname: hasRelated ? s.related_worker.surname : null,
-      swap_id: s.swap_id,
-      isPublished: publishedMap.has(key),
+    const shiftEntry: ShiftEntry = {
+      type: schedule.shift_type,
+      source: source === 'received_swap' ? 'received_swap' : 'manual',
       shift_id: publishedMap.get(key) || null,
-      worker_id: s.worker_id,
+      isPublished: publishedMap.has(key),
     };
+    if (source === 'received_swap') {
+      shiftEntry.related_worker_name = schedule.related_worker_name ?? null;
+      shiftEntry.related_worker_surname = schedule.related_worker_surname ?? null
+      shiftEntry.swap_id = schedule.swap_id ?? null;
+    }
+
+
+    if (!map[date]) map[date] = {};
+    if (!map[date].shifts) map[date].shifts = [];
+
+    map[date].shifts!.push(shiftEntry);
   }
 
-  // 3. Acumulamos las preferencias
+  // 3. Procesar preferencias
   for (const p of preferences) {
     if (!p.date || !p.preference_type || !p.preference_id) continue;
 
-    const prevTypes = map[p.date]?.preference_types || [];
-    const prevIds = map[p.date]?.preferenceIds || {};
+    const prevTypes = map[p.date]?.preference_types ?? [];
+    const prevIds = map[p.date]?.preferenceIds ?? {};
 
     map[p.date] = {
       ...map[p.date],
@@ -53,14 +63,13 @@ export function mergeCalendarData({
     };
   }
 
-  // 4. (Opcional) procesar swaps si los quieres integrar aquí
-  // 5. Añadir los comentarios
+  // 4. Procesar comentarios
   if (comments && Array.isArray(comments)) {
     for (const c of comments) {
       if (!c.date) continue;
       map[c.date] = {
         ...map[c.date],
-        hasComment: !!c.comment && c.comment.trim() !== '',
+        hasComment: !!c.comment?.trim(),
         comment: c.comment || '',
         comment_id: c.comment_id || null,
       };

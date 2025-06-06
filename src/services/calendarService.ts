@@ -42,15 +42,36 @@ export async function setShiftForDay(token: string, workerId: string, dateStr: s
 
   if (error) throw new Error(error.message);
 }
+export async function updateShiftForDay(
+  token: string,
+  workerId: string,
+  dateStr: string,
+  originalType: string,
+  newType: string
+) {
+  const db = getDbWithAuth(token);
 
-export async function removeShiftForDay(token: string, workerId: string, dateStr: string) {
+  const { error } = await db
+    .from('monthly_schedules')
+    .update({ shift_type: newType })
+    .eq('worker_id', workerId)
+    .eq('date', dateStr)
+    .eq('shift_type', originalType)
+    .eq('source', 'manual');
+
+  if (error) throw new Error(error.message);
+}
+
+
+export async function removeShiftForDay(token: string, workerId: string, dateStr: string, shiftType: string) {
   const db = getDbWithAuth(token);
 
   const { error } = await db
     .from('monthly_schedules')
     .delete()
     .eq('worker_id', workerId)
-    .eq('date', dateStr);
+    .eq('date', dateStr)
+    .eq('shift_type', shiftType);
 
   if (error) throw new Error(error.message);
 }
@@ -62,12 +83,7 @@ export async function getShiftsForMonth(token: string, workerId: string) {
   try {
     const { data, error } = await db
       .from('monthly_schedules')
-      .select(`*,
-            related_worker:related_worker_id (
-          name,
-          surname
-          )
-        `)
+      .select('*')
       .eq('worker_id', workerId);
 
     if (error) {
