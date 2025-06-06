@@ -71,7 +71,7 @@ export default function MonthlyGridCalendar({
 
     const shiftIcons = orderedShifts.map(s => shiftTypeIcons[s.type]);
 
-
+    const isSwappedOut = orderedShifts.length === 1 && orderedShifts[0].source === 'swapped_out';
 
     return (
       <View style={styles.calendarDayWrapper} key={dateStr}>
@@ -100,13 +100,13 @@ export default function MonthlyGridCalendar({
           ) : orderedShifts.length === 1 ? (
             <View style={{
               ...StyleSheet.absoluteFillObject,
-              backgroundColor: colorsByShift[orderedShifts[0].type],
+              backgroundColor: !isSwappedOut ? colorsByShift[orderedShifts[0].type] : 'transparent',
             }} />
           ) : null}
 
           <Text style={styles.calendarDayNumber}>{format(day, 'd')}</Text>
           {/* 1 solo turno */}
-          {orderedShifts.length === 1 && (
+          {orderedShifts.length === 1 && !isSwappedOut && (
             <View style={styles.calendarShiftIcon}>
               {React.createElement(shiftTypeIcons[orderedShifts[0].type], {
                 size: 16,

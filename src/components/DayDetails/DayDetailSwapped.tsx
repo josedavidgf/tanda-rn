@@ -7,6 +7,7 @@ import { spacing, typography, colors } from '@/styles';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { useNavigation } from '@react-navigation/native';
+import { translateShiftType } from '@/utils/useTranslateServices';
 
 type Props = {
   dateStr: string;
@@ -32,21 +33,22 @@ export default function DayDetailSwapped({
   onAddPreference,
   navigate,
 }: Props) {
-  const fullName = [entry.related_worker_name, entry.related_worker_surname]
+  const fullName = [entry.shifts[0].related_worker_name, entry.shifts[0].related_worker_surname]
     .filter(Boolean)
     .join(' ');
 
   const isRequester = entry.requester_id === entry.worker_id;
   const navigation = useNavigation();
+  console.log('Swapped shift entry:', entry);
+  console.log('Shifts:', entry.shifts[0]);
 
   const hourRange = {
     morning: 'de 8:00 a 15:00',
     evening: 'de 15:00 a 22:00',
     night: 'de 22:00 a 08:00',
   };
-
   const description = isRequester
-    ? `Tenías turno de ${entry.shift_type} ${hourRange[entry.shift_type]}. Te lo ha cambiado ${fullName || 'otro trabajador'}.`
+    ? `Tenías turno de ${translateShiftType(entry.shifts[0].type)} ${hourRange[entry.shifts[0].type]}. Te lo ha cambiado ${fullName || 'otro trabajador'}.`
     : `Le cambiaste el turno a ${fullName || 'otro trabajador'}. Hoy no tienes turno ni disponibilidad marcada.`;
 
   return (
@@ -75,15 +77,15 @@ export default function DayDetailSwapped({
             onAddPreference(dateStr);
           }}
         />
-        {entry.swap_id && (
+        {entry.shifts[0].swap_id && (
           <Button
             label="Ver detalles"
             variant="ghost"
             size="lg"
             leftIcon={<Eye size={20} color={colors.black} />}
             onPress={() => {
-              trackEvent(EVENTS.SHOW_SWAPPED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.swap_id });
-              navigation.navigate('SwapDetails', { swapId: entry.swap_id });
+              trackEvent(EVENTS.SHOW_SWAPPED_SHIFT_DETAILS_BUTTON_CLICKED, { swapId: entry.shifts[0].swap_id });
+              navigation.navigate('SwapDetails', { swapId: entry.shifts[0].swap_id });
             }}
           />
         )}

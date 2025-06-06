@@ -28,15 +28,15 @@ export function mergeCalendarData({
 
     const shiftEntry: ShiftEntry = {
       type: schedule.shift_type,
-      source: source === 'received_swap' ? 'received_swap' : 'manual',
+      source: schedule.source,
       shift_id: publishedMap.get(key) || null,
       isPublished: publishedMap.has(key),
     };
-    if (source === 'received_swap') {
-      shiftEntry.related_worker_name = schedule.related_worker_name ?? null;
-      shiftEntry.related_worker_surname = schedule.related_worker_surname ?? null
-      shiftEntry.swap_id = schedule.swap_id ?? null;
-    }
+
+    shiftEntry.related_worker_name = schedule.related_worker_name ?? null;
+    shiftEntry.related_worker_surname = schedule.related_worker_surname ?? null
+    shiftEntry.swap_id = schedule.swap_id ?? null;
+
 
 
     if (!map[date]) map[date] = {};

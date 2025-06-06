@@ -17,7 +17,6 @@ import { useSwapApi } from '@/api/useSwapApi';
 import { useSwapPreferencesApi } from '@/api/useSwapPreferencesApi';
 import { useShiftApi } from '@/api/useShiftApi';
 import { useCalendarApi } from '@/api/useCalendarApi';
-import { resolveDayTypeFromCalendarMap } from '@/utils/resolveDayTypeFromCalendarMap';
 import { format } from 'date-fns'
 import AppLoader from '@/components/ui/AppLoader';
 import { getNextShiftType } from '@/utils/getNextShiftType';
@@ -66,13 +65,6 @@ export default function CalendarScreen() {
     const DETAIL_WIDTH = 343;
 
 
-    const selectedDayData = useMemo(() => {
-        const dateStr = format(selectedDate, 'yyyy-MM-dd');
-        const entry = calendarMap[dateStr];
-        return resolveDayTypeFromCalendarMap(entry, selectedDate);
-    }, [selectedDate, calendarMap]);
-
-
     useEffect(() => {
         if (!isWorker?.worker_id) return;
 
@@ -103,7 +95,6 @@ export default function CalendarScreen() {
                 setLoadingCalendar(false);
             }
         };
-
         loadSchedules();
     }, [isWorker, selectedMonth]);
 
@@ -464,7 +455,7 @@ export default function CalendarScreen() {
                 <DayDetailSwapped
                     dateStr={dateStr}
                     dayLabel="Turno intercambiado"
-                    entry={data.shift}
+                    entry={entry}
                     onAddShift={(dateStr) => toggleShift(dateStr)}
                     onAddPreference={(dateStr) => console.log('Añadir preferencia desde swapped', dateStr)}
                     navigate={(path) => console.log('Navegar a', path)}
