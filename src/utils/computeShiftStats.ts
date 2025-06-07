@@ -14,7 +14,7 @@ export function computeShiftStats(
   selectedMonth: Date
 ): ShiftStats {
   const targetMonth = format(selectedMonth, 'yyyy-MM');
-  const stats = {
+  const stats: ShiftStats = {
     morning: 0,
     evening: 0,
     night: 0,
@@ -25,9 +25,13 @@ export function computeShiftStats(
   Object.entries(calendarMap).forEach(([date, entry]) => {
     if (!date.startsWith(targetMonth)) return;
 
-    if (entry.shift_type && entry.source !== 'swapped_out') {
-      if (stats.hasOwnProperty(entry.shift_type)) {
-        stats[entry.shift_type]++;
+    const shifts = entry.shifts ?? [];
+
+    for (const shift of shifts) {
+      if (shift.source === 'swapped_out') continue;
+
+      if (stats.hasOwnProperty(shift.type)) {
+        stats[shift.type]++;
         stats.total++;
       }
     }

@@ -6,7 +6,7 @@ import { ArrowRight } from '@/theme/icons';
 import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { spacing, typography, colors } from '@/styles';
 import { useNavigation } from '@react-navigation/native';
-import { CalendarBlank, Lightning } from 'phosphor-react-native';
+import { CalendarBlank, Lightning, Trash } from 'phosphor-react-native';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { ShiftEntry } from '@/types/calendar';
@@ -17,6 +17,8 @@ type Props = {
   dayLabel: string;
   entry: ShiftEntry;
   canAddSecondShift?: boolean;
+  isPublished: boolean;
+  onDeletePublication: (shiftId: string, dateStr: string) => void;
   handleAddSecondShift?: (dateStr: string) => void;
 };
 
@@ -24,6 +26,8 @@ export default function DayDetailReceived({
   dateStr,
   dayLabel,
   entry,
+  isPublished,
+  onDeletePublication,
   canAddSecondShift,
   handleAddSecondShift,
 }: Props) {
@@ -38,7 +42,6 @@ export default function DayDetailReceived({
     night: 'de 22:00 a 08:00',
     reinforcement: '',
   };
-  console.log('Received shift entry:', entry);
 
   return (
     <View style={[styles.container, styles[`shift_${entry.type}`]]}>
@@ -56,19 +59,40 @@ export default function DayDetailReceived({
       {/* revisar si aquí se necesita un botón para editar el turno publicado y el botón de quitar publicación */}
       <View style={styles.buttonGroup}>
 
-        <Button
-          label="Publicar turno recibido"
-          variant="primary"
-          size="lg"
-          leftIcon={<Lightning size={20} color={colors.white} />}
-          onPress={() => {
-            trackEvent(EVENTS.PUBLISH_RECEIVED_SHIFT_BUTTON_CLICKED, { day: dateStr, shiftType: entry.type });
-            navigation.navigate('CreateShift', {
-              date: dateStr,
-              shift_type: entry.type,
-            });
-          }}
-        />
+        {isPublished ? (
+          <>
+            <Button
+              label="Editar publicación"
+              variant="outline"
+              size="lg"
+              leftIcon={<Lightning size={20} color={colors.black} />}
+              onPress={() => {
+                navigation.navigate('EditShift', { shiftId: entry.shift_id });
+              }}
+            />
+            <Button
+              label="Quitar publicación"
+              variant="outline"
+              size="lg"
+              leftIcon={<Trash size={20} color={colors.black} />}
+              onPress={() => onDeletePublication(entry.shift_id!, dateStr)}
+            />
+          </>
+        ) : (
+          <Button
+            label="Publicar turno recibido"
+            variant="primary"
+            size="lg"
+            leftIcon={<Lightning size={20} color={colors.white} />}
+            onPress={() => {
+              navigation.navigate('CreateShift', {
+                date: dateStr,
+                shift_type: entry.type,
+              });
+            }}
+          />
+        )}
+
 
         {entry.swap_id && (
 

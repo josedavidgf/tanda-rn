@@ -39,8 +39,6 @@ export default function DayDetailSwapped({
 
   const isRequester = entry.requester_id === entry.worker_id;
   const navigation = useNavigation();
-  console.log('Swapped shift entry:', entry);
-  console.log('Shifts:', entry.shifts[0]);
 
   const hourRange = {
     morning: 'de 8:00 a 15:00',

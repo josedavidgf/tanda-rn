@@ -46,7 +46,6 @@ export default function HospitalShiftsTable({ shifts, workerId, sentSwapShiftIds
                     navigation.navigate('EditShift', { shiftId: item.shift_id });
                   }
                   else {
-                    console.log('Selected shift:', item.shift_id);
                     onSelect(item.shift_id);
                   }
                 }}

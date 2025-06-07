@@ -76,6 +76,19 @@ export async function removeShiftForDay(token: string, workerId: string, dateStr
   if (error) throw new Error(error.message);
 }
 
+export async function clearSwappedOutShift(token: string, workerId: string, dateStr: string) {
+  const db = getDbWithAuth(token);
+  const { error } = await db
+    .from('monthly_schedules')
+    .delete()
+    .eq('worker_id', workerId)
+    .eq('date', dateStr)
+    .eq('source', 'swapped_out');
+
+  if (error) throw new Error(error.message);
+}
+
+
 // Obtener turnos del mes para un worker
 export async function getShiftsForMonth(token: string, workerId: string) {
   const db = getDbWithAuth(token);

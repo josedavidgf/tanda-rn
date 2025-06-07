@@ -63,20 +63,34 @@ export default function ProposeSwap() {
             const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
             const preferences = await getMySwapPreferences(receiverId, accessToken);
 
-            const receiverHasShift = new Set(receiverSchedules.map((r) => r.date));
+            // Agrupamos turnos del receptor por día
+            const receiverScheduleMap = new Map<string, string[]>(); // date => [shift_type]
+
+            for (const shift of receiverSchedules) {
+                if (!receiverScheduleMap.has(shift.date)) {
+                    receiverScheduleMap.set(shift.date, []);
+                }
+                receiverScheduleMap.get(shift.date)!.push(shift.shift_type);
+            }
 
             const enriched = available
-                .filter((s) => !receiverHasShift.has(s.date))
+                .filter((s) => {
+                    const types = receiverScheduleMap.get(s.date) || [];
+                    if (types.length >= 2) return false;
+                    if (types.includes(s.type)) return false;
+                    return true;
+                })
                 .map((s) => ({
                     ...s,
                     preferred: preferences.some(p => p.date === s.date && p.preference_type === s.type)
                 }))
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sorted availableShifts by date in ascending order.
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
             setTargetShift(target);
             setAvailableShifts(enriched);
             setLoading(false);
         };
+
 
         fetchData();
     }, []);

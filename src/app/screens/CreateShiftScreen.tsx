@@ -30,8 +30,6 @@ export default function CreateShiftScreen() {
     const [invalidParams, setInvalidParams] = useState(false);
     const [comments, setComments] = useState('');
 
-    console.log('Navegar a CreateShift con:', { date, shift_type });
-
     useEffect(() => {
         if (!isWorker) return;
         const speciality = isWorker?.workers_specialities?.[0];

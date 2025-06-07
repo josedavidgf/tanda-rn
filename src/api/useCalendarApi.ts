@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getShiftsForMonth, setShiftForDay, removeShiftForDay, updateShiftForDay } from '../services/calendarService';
+import { getShiftsForMonth, setShiftForDay, removeShiftForDay, updateShiftForDay, clearSwappedOutShift } from '../services/calendarService';
 
 export function useCalendarApi() {
   const [loading, setLoading] = useState(false);
@@ -24,6 +24,7 @@ export function useCalendarApi() {
     setShiftForDay: (token:string, workerId:string, dateStr:string, shiftType:string) => apiCall(setShiftForDay, token, workerId, dateStr, shiftType),
     updateShiftForDay: (token:string, workerId:string, dateStr:string, originalType:string, newType:string) => apiCall(updateShiftForDay, token, workerId, dateStr, originalType, newType),
     removeShiftForDay: (token:string, workerId:string, dateStr:string, shiftType:string) => apiCall(removeShiftForDay, token, workerId, dateStr, shiftType),
+    clearSwappedOutShift: (token:string, workerId:string, dateStr:string) => apiCall(clearSwappedOutShift, token, workerId, dateStr),
     loading,
     error,
   };

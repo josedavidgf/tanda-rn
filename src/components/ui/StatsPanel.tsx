@@ -4,7 +4,7 @@ import AppText from '@/components/ui/AppText';
 import { spacing, colors } from '@/styles';
 import { ShiftStats as ShiftStatsType } from '@/utils/computeShiftStats';
 import { shiftTypeIcons, shiftTypeLabels } from '@/utils/useLabelMap';
-import { Clock, Calendar, AlignLeft } from 'phosphor-react-native';
+import { Clock, Calendar, MagnifyingGlass } from 'phosphor-react-native';
 import Button from '@/components/ui/Button';
 import { useNavigation } from '@react-navigation/native';
 
@@ -77,7 +77,7 @@ export default function StatsPanel({ stats, hoursPerShiftByType }: StatsPanelPro
                 <Button
                     variant="outline"
                     size="lg"
-                    leftIcon="search"
+                    leftIcon={<MagnifyingGlass size={20} color={colors.black} />}
                     label="Ver turnos disponibles"
                     onPress={() => navigation.navigate('HospitalShifts')}
                 />

@@ -52,13 +52,13 @@ export default function CalendarScreen() {
     const { getMyShiftsPublished, removeShift } = useShiftApi();
     const { accessToken } = useAuth();
     const [calendarMap, setCalendarMap] = useState<Record<string, OriginalCalendarEntry>>({});
-    const { setShiftForDay, removeShiftForDay, updateShiftForDay } = useCalendarApi();
+    const { setShiftForDay, removeShiftForDay, updateShiftForDay, clearSwappedOutShift } = useCalendarApi();
     const { isWorker, ready } = useIsWorkerReady();
     const [isMassiveEditMode, setIsMassiveEditMode] = useState(false);
     const [draftShiftMap, setDraftShiftMap] = useState<Record<string, OriginalCalendarEntry>>({});
     const [loadingCalendar, setLoadingCalendar] = useState(false);
     const navigation = useNavigation();
-    const { showError } = useToast();
+    const { showSuccess, showError } = useToast();
     const screenWidth = Dimensions.get('window').width;
     const [activeSlide, setActiveSlide] = useState(0);
     const scrollRef = useRef<ScrollView>(null);
@@ -128,6 +128,29 @@ export default function CalendarScreen() {
     async function toggleShift(dateStr: string) {
         const entry = calendarMap[dateStr] || {};
         const manualShifts = entry.shifts?.filter(s => s.source === 'manual') ?? [];
+
+        if (entry.shifts?.some(s => s.source === 'swapped_out')) {
+            await clearSwappedOutShift(accessToken, isWorker.worker_id, dateStr);
+
+            const updatedShifts = [{ type: 'morning', source: 'manual' }];
+            const updatedEntry = {
+                ...entry,
+                shifts: updatedShifts,
+            };
+
+            setCalendarMap(prev => ({
+                ...prev,
+                [dateStr]: updatedEntry,
+            }));
+
+            try {
+                await setShiftForDay(accessToken, isWorker.worker_id, dateStr, 'morning');
+            } catch (err) {
+                console.error('❌ Error al crear turno manual tras swap:', err.message);
+            }
+
+            return;
+        }
 
         if (isMassiveEditMode) {
             if (!entry.shifts || entry.shifts.length === 0) {
@@ -227,6 +250,13 @@ export default function CalendarScreen() {
         let updatedTypes = [...currentTypes];
         let updatedIds = { ...currentIds };
 
+        // Si hay shift swapped_out, lo borramos en Supabase y local
+        let cleanEntry = { ...entry };
+        if (entry.shifts?.some(s => s.source === 'swapped_out')) {
+            await clearSwappedOutShift(accessToken, isWorker.worker_id, dateStr);
+            cleanEntry.shifts = [];
+        }
+
         try {
             if (alreadyExists) {
                 const preferenceId = currentIds[shiftType];
@@ -248,7 +278,7 @@ export default function CalendarScreen() {
             }
 
             const updatedEntry = {
-                ...entry,
+                ...cleanEntry,
                 isPreference: updatedTypes.length > 0,
                 preference_types: updatedTypes,
                 preferenceIds: updatedIds,
@@ -262,6 +292,7 @@ export default function CalendarScreen() {
             console.error('❌ Error al hacer toggle de preferencia:', error.message);
         }
     }
+
     async function handleDeletePreference(dateStr: string) {
         const entry = calendarMap[dateStr];
         const preferenceIds = entry?.preferenceIds;
@@ -304,6 +335,7 @@ export default function CalendarScreen() {
     }
 
     async function handleDeletePublication(shiftId: string, dateStr: string) {
+        console.log('🗑️ Eliminar publicación de turno:', shiftId, dateStr);
         if (!shiftId) {
             console.warn('❌ No se encontró el shift_id para eliminar la publicación.');
             return;
@@ -314,25 +346,47 @@ export default function CalendarScreen() {
 
             if (success) {
                 const original = calendarMap[dateStr];
-                if (!original) {
-                    console.warn(`❌ No existe calendarMap para ${dateStr}`);
+                if (!original || !original.shifts) {
+                    console.warn(`❌ No existe calendarMap válido para ${dateStr}`);
                     return;
                 }
 
-                const { isPublished, shift_id, ...cleanedEntry } = original;
+                const updatedShifts = original.shifts.map(s => {
+                    if (s.shift_id === shiftId) {
+                        return {
+                            ...s,
+                            shift_id: null,
+                            isPublished: false,
+                        };
+                    }
+                    return s;
+                });
 
+                const updatedEntry = {
+                    ...original,
+                    shifts: updatedShifts,
+                    isPublished: false,
+                    shift_id: null,
+                };
+
+                // No borres el entry aunque se quede sin shifts, puede tener otras props relevantes
                 setCalendarMap(prev => ({
                     ...prev,
-                    [dateStr]: cleanedEntry,
+                    [dateStr]: updatedEntry,
                 }));
+                console.log('✅ Turno publicado eliminado correctamente:', shiftId, dateStr);
+                console.log('🗓️ CalendarMap actualizado:', dateStr, updatedEntry);
 
-                setSelectedDate(new Date(dateStr)); // fuerza el re-render
+                setSelectedDate(new Date(dateStr)); // Fuerza rerender
 
-            } else {
+                showSuccess('Turno despublicado correctamente');
+            }
+            else {
                 console.warn('❌ El servidor no confirmó la eliminación del turno publicado.');
             }
         } catch (error) {
             console.error('❌ Error al eliminar turno publicado:', error.message);
+            showError('Error al despublicar el turno');
         }
     }
 
@@ -392,7 +446,6 @@ export default function CalendarScreen() {
     function DayDetailRenderer({ date }: { date: Date }) {
         const dateStr = format(date, 'yyyy-MM-dd');
         const entry = calendarMap[dateStr];
-        console.log('entry', entry);
 
         if (!entry) return <DayDetailEmpty dateStr={dateStr} dayLabel="Día libre" onAddShift={() => toggleShift(dateStr)} onAddPreference={() => togglePreference(dateStr, 'morning')} />;
 
@@ -428,6 +481,8 @@ export default function CalendarScreen() {
                     dateStr={dateStr}
                     dayLabel="Turno recibido"
                     entry={shifts[0]}
+                    isPublished={!!shifts[0].isPublished}
+                    onDeletePublication={handleDeletePublication}
                     canAddSecondShift={canAddSecondShift(entry)}
                     handleAddSecondShift={handleAddSecondShift}
                     entryFull={entry}
@@ -457,7 +512,7 @@ export default function CalendarScreen() {
                     dayLabel="Turno intercambiado"
                     entry={entry}
                     onAddShift={(dateStr) => toggleShift(dateStr)}
-                    onAddPreference={(dateStr) => console.log('Añadir preferencia desde swapped', dateStr)}
+                    onAddPreference={() => togglePreference(dateStr, 'morning')}
                     navigate={(path) => console.log('Navegar a', path)}
                 />
             );
@@ -507,6 +562,8 @@ export default function CalendarScreen() {
                                     dateStr={dateStr}
                                     dayLabel="Turno recibido"
                                     entry={shift}
+                                    isPublished={!!shift.isPublished}
+                                    onDeletePublication={handleDeletePublication}
                                     canAddSecondShift={canAddSecondShift(entry)}
                                     handleAddSecondShift={handleAddSecondShift}
                                     entryFull={entry}

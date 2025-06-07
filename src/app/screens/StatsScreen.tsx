@@ -47,10 +47,12 @@ export default function StatsScreen() {
 
                 schedules.forEach((item) => {
                     if (item.source !== 'swapped_out') {
-                        map[item.date] = {
-                            shift_type: item.shift_type,
+                        if (!map[item.date]) map[item.date] = { shifts: [] };
+                        map[item.date].shifts!.push({
+                            type: item.shift_type,
                             source: item.source,
-                        };
+                        });
+
                     }
                 });
 
