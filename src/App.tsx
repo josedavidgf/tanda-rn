@@ -16,7 +16,6 @@ import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
-import { configureGoogleSignin } from '@/services/authService';
 import NavigationTracker from '@/components/analytics/NavigationTracker';
 import { handleDeeplink } from '@/utils/deeplinkHandler';
 
@@ -32,12 +31,6 @@ export default function App() {
       if (url) handleDeeplink({ url });
     });
     return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    if (process.env.EAS_BUILD === 'true') {
-      configureGoogleSignin();
-    }
   }, []);
 
   useEffect(() => {

@@ -13,7 +13,6 @@ import { z } from 'zod';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { loginWithGoogle } from '@/services/authService';
 import { GoogleLogo } from 'phosphor-react-native';
 import {EVENTS} from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
@@ -109,7 +108,6 @@ export default function LoginScreen() {
           size="lg"
           onPress={() => {
             trackEvent(EVENTS.LOGIN_ATTEMPTED_WITH_GOOGLE);
-            /* loginWithGoogle(); */
             showInfo("Próximamente");
           }}
           variant="outline"

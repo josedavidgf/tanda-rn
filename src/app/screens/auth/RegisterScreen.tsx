@@ -10,7 +10,6 @@ import { colors, spacing } from '@/styles';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import * as SecureStore from 'expo-secure-store';
 import { supabase } from '@/lib/supabase';
-import { loginWithGoogle } from '@/services/authService';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { makeRedirectUri } from 'expo-auth-session'
@@ -119,7 +118,6 @@ export default function RegisterScreen() {
           size="lg"
           onPress={() => {
             trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_GOOGLE);
-            /* loginWithGoogle(); */
             showInfo('Próximamente');
           }}
           variant="outline"

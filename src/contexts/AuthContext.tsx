@@ -84,10 +84,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             setIsWorker(worker);
             AmplitudeService.identify(worker);
 
+            // En el listener de SIGNED_IN
             try {
-              await registerForPushNotificationsAsync(data.session.user.id, token);
+              const pushToken = await registerForPushNotificationsAsync(session.user.id, token);
+              if (pushToken) {
+                console.log('[AUTH] Push token registrado exitosamente tras login');
+              } else {
+                console.warn('[AUTH] No se pudo registrar push token tras login');
+              }
             } catch (err) {
-              console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+              console.error('[AUTH] Error registrando push token tras login:', err.message);
+              // No bloqueamos la app
             }
 
             const step = getPendingOnboardingStep(worker);
@@ -127,11 +134,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
           // 🔔 Registrar token push
           try {
-            await registerForPushNotificationsAsync(session.user.id, token);
+            const pushToken = await registerForPushNotificationsAsync(session.user.id, token);
+            if (pushToken) {
+              console.log('[AUTH] Push token registrado exitosamente');
+            } else {
+              console.warn('[AUTH] No se pudo registrar push token, pero continuando...');
+            }
           } catch (err) {
-            console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+            console.error('[AUTH] Error registrando push token:', err.message);
+            // No bloqueamos la app por esto - las push notifications son opcional
           }
-          
+
           const step = getPendingOnboardingStep(worker);
           if (navigationRef.isReady()) {
             navigationRef.reset({

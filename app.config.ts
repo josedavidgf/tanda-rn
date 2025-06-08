@@ -1,20 +1,18 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-const isEASBuild = process.env.EAS_BUILD === 'true';
-
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const plugins: NonNullable<ExpoConfig['plugins']> = [];
-
-  if (isEASBuild) {
-    plugins.push([
-      '@react-native-google-signin/google-signin',
+  const plugins: NonNullable<ExpoConfig['plugins']> = [
+    // ✅ CRÍTICO: Plugin de expo-notifications
+    [
+      'expo-notifications',
       {
-        iosUrlScheme:
-          'com.googleusercontent.apps.161823689095-51njcp75miao8hkatl83r2g6v5r624bo',
+        icon: './assets/notification-icon.png', // Crea este icon (96x96, blanco con fondo transparente)
+        color: '#ffffff',
+        defaultChannel: 'default',
       },
-    ]);
-  }
+    ],
+  ];
 
   return {
     ...config,
@@ -27,6 +25,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     version: '1.0.0',
     icon: './assets/icon.png',
     jsEngine: 'hermes',
+
+    // ✅ CRÍTICO: Configuración de notificaciones
+    notification: {
+      icon: './assets/notification-icon.png',
+      color: '#000000',
+      iosDisplayInForeground: true,
+      androidMode: 'default',
+      androidCollapsedTitle: 'Tanda',
+    },
+
     ios: {
       bundleIdentifier: 'com.apptanda.app',
       supportsTablet: false,
@@ -40,15 +48,23 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: 'com.apptanda.app',
+      googleServicesFile: './google-services.json',
+      // ✅ Configuración de notificaciones para Android
+      permissions: [
+        'RECEIVE_BOOT_COMPLETED',
+        'WAKE_LOCK',
+        'VIBRATE',
+        'USE_FINGERPRINT',
+        'USE_BIOMETRIC',
+      ],
     },
     plugins,
     extra: {
       EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-      EXPO_PUBLIC_SUPABASE_ANON_KEY:
-        process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
       EXPO_PUBLIC_BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
-      EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID:
-        process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      // ✅ CRÍTICO: Exponer el projectId para uso en runtime
+      EXPO_PUBLIC_PROJECT_ID: process.env.EXPO_PUBLIC_PROJECT_ID,
       eas: {
         projectId: 'c3526404-d409-4a31-8471-085a324c0adc',
       },
