@@ -27,7 +27,6 @@ export default function ProfileReferral() {
             if (!isWorker) return;
             const code = await getAccessCode(isWorker.workers_hospitals?.[0]?.hospital_id, isWorker.worker_type_id);
             setReferralCode(code);
-            console.log('worker', isWorker);
             const name = translateWorkerType(isWorker?.worker_types?.worker_type_name || '');
             setWorkerTypeName(name || 'tu especialidad');
         };

@@ -17,7 +17,6 @@ import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
 import NavigationTracker from '@/components/analytics/NavigationTracker';
-import NotificationListener from '@/components/notifications/NotificationListener';
 
 import { handleDeeplink } from '@/utils/deeplinkHandler';
 
@@ -76,7 +75,6 @@ export default function App() {
           <OnboardingProvider>
             <NavigationTracker />
             <AuthGate />
-            <NotificationListener />
           </OnboardingProvider>
         </AuthProvider>
         <ToastProvider />

@@ -2,6 +2,19 @@ import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.94:4000';
 
+export async function savePlayerId(playerId: string, userId: string, accessToken: string) {
+  return axios.post(`${API_URL}/api/push/register-onesignal`, {
+    playerId,
+    userId,
+  }, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+
 export async function savePushToken(token: string, userId: string, accessToken: string) {
   console.log('[PUSH SERVICE] Guardando token:', { token: token.substring(0, 20) + '...', userId });
   

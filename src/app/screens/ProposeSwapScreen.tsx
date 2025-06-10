@@ -113,10 +113,9 @@ export default function ProposeSwap() {
             }
 
             track(EVENTS.SWAP_PROPOSAL_SUBMITTED, {
-                offeredShiftId: selectedShift.id,
-                offeredShiftDate: !!selectedShift.date,
-                offeredShiftType: !!selectedShift.type,
-                hasComments: !!comments,
+                offeredShiftDate: selectedShift?.date || '',
+                offeredShiftType: selectedShift?.type || '',
+                hasComments: comments || '',
                 commentsLength: comments.length || 0,
                 targetShiftId: shiftId,
             });
@@ -136,7 +135,7 @@ export default function ProposeSwap() {
     };
 
     if (loading || !targetShift) return <AppLoader message='Cargando propuesta...' onFinish={() => setLoading(false)} />;
-    const shiftDate = `${formatFriendlyDate(targetShift.date)} — ${shiftTypeLabels[targetShift.shift_type]}`;
+    const shiftDate = `${formatFriendlyDate(targetShift?.date)} — ${shiftTypeLabels[targetShift?.shift_type]}`;
 
     return (
         <>

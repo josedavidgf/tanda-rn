@@ -7,7 +7,10 @@ import { getPendingOnboardingStep } from '@/utils/onboarding';
 import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 import AmplitudeService from '@/lib/amplitude';
-import { registerForPushNotificationsAsync } from '@/lib/registerForPushNotifications';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { OneSignal } from 'react-native-onesignal';
+import { handleDeeplinkNavigation } from '@/utils/handleDeeplinkNavigation';
+import { translateWorkerType } from '@/utils/useTranslateServices';
 
 
 interface AuthContextType {
@@ -64,6 +67,36 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }
 
   useEffect(() => {
+    const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
+    if (!appId) return;
+
+    OneSignal.initialize(appId);
+    OneSignal.Notifications.requestPermission(true);
+
+    OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
+      const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;
+      if (data && typeof data === 'object' && 'route' in data) {
+        trackEvent('push_received_foreground', {
+          route: (data as any).route,
+          ...(data as any).params,
+        });
+      }
+    });
+
+    OneSignal.Notifications.addEventListener('click', (event) => {
+      const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;;
+      if (data?.route) {
+        trackEvent('push_clicked', {
+          route: data.route,
+          ...data.params,
+        });
+
+        handleDeeplinkNavigation(data);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     supabase.getSession().then(({ data }) => {
       if (data.session) {
         setSession(data.session);
@@ -83,18 +116,25 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             const worker = await getOrCreateWorker(token);
             setIsWorker(worker);
             AmplitudeService.identify(worker);
+            const fullName =
+              worker.name && worker.surname
+                ? `${worker.name} ${worker.surname}`
+                : worker.name || worker.surname || undefined;
+            const workerTypeName = translateWorkerType(worker.worker_types?.worker_type_name) || '';
+            if (session) {
+              try {
 
-            // En el listener de SIGNED_IN
-            try {
-              const pushToken = await registerForPushNotificationsAsync(session.user.id, token);
-              if (pushToken) {
-                console.log('[AUTH] Push token registrado exitosamente tras login');
-              } else {
-                console.warn('[AUTH] No se pudo registrar push token tras login');
+                await OneSignal.login(session?.user.id);
+                await OneSignal.User.addEmail(worker.email || '');
+
+                await OneSignal.User.addTags({
+                  ...(fullName && { fullName: fullName }),
+                  ...(workerTypeName && { role: workerTypeName }),
+                  ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
+                });
+              } catch (err) {
+                console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
               }
-            } catch (err) {
-              console.error('[AUTH] Error registrando push token tras login:', err.message);
-              // No bloqueamos la app
             }
 
             const step = getPendingOnboardingStep(worker);
@@ -132,17 +172,24 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           setIsWorker(worker);
           AmplitudeService.identify(worker); // ✅ añade esto
 
-          // 🔔 Registrar token push
+          const fullName =
+            worker.name && worker.surname
+              ? `${worker.name} ${worker.surname}`
+              : worker.name || worker.surname || undefined;
+          const workerTypeName = translateWorkerType(worker.worker_types?.worker_type_name) || '';
+
+
           try {
-            const pushToken = await registerForPushNotificationsAsync(session.user.id, token);
-            if (pushToken) {
-              console.log('[AUTH] Push token registrado exitosamente');
-            } else {
-              console.warn('[AUTH] No se pudo registrar push token, pero continuando...');
-            }
+            await OneSignal.login(session?.user.id);
+            await OneSignal.User.addEmail(worker.email || '');
+
+            await OneSignal.User.addTags({
+              ...(fullName && { fullName: fullName }),
+              ...(workerTypeName && { role: workerTypeName }),
+              ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
+            });
           } catch (err) {
-            console.error('[AUTH] Error registrando push token:', err.message);
-            // No bloqueamos la app por esto - las push notifications son opcional
+            console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
           }
 
           const step = getPendingOnboardingStep(worker);

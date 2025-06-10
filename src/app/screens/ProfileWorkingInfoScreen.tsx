@@ -67,7 +67,6 @@ export default function ProfileWorkingInfoScreen() {
 
             const hospital = hospitals.find(h => h.hospital_id === response.hospital_id);
             const workerType = workerTypes.find(w => w.worker_type_id === response.worker_type_id);
-            console.log('workerType', workerType);
 
             if (code.length !== 4) {
                 showError('El código debe tener exactamente 4 caracteres.');

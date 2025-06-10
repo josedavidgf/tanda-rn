@@ -42,10 +42,6 @@ export default function CommentEditorScreen() {
   const handleSave = async () => {
     if (!isWorker?.worker_id || !accessToken) return;
 
-    console.log('workerId:', isWorker.worker_id);
-    console.log('dateStr:', dateStr);
-    console.log('comment:', comment);
-
     const result = await upsertComment({ workerId: isWorker.worker_id, date: dateStr, comment }, accessToken);
     console.log('upsertComment result:', result);
     if (result && result.comment_id) {
