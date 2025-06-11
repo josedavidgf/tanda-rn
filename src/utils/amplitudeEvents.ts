@@ -5,6 +5,7 @@ export const EVENTS = {
     BULK_SHIFT_SAVE_BUTTON_CLICKED: 'Bulk shift save button clicked',
     BULK_SHIFT_CANCEL_BUTTON_CLICKED: 'Bulk shift cancel button clicked',
     ADD_SINGLE_SHIFT_BUTTON_CLICKED: 'Add single shift button clicked',
+    ADD_SECOND_SHIFT_BUTTON_CLICKED: 'Add second shift button clicked',
     ADD_SINGLE_AVAILABILITY_BUTTON_CLICKED: 'Add single availability button clicked',
     SWITCH_AVAILABILITY_CLICKED: 'Switch availability chip clicked',
     PUBLISH_OWN_SHIFT_BUTTON_CLICKED: 'Publish own shift button clicked',

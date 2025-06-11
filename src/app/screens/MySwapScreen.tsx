@@ -88,12 +88,23 @@ export default function MySwapScreen() {
 
   const filteredSwaps = swaps.filter((s) => {
     const inStatus = statusFilters.length > 0 ? statusFilters.includes(s.status) : true;
-    const date = new Date(s.shift?.date || s.offered_date);
-    const inDateRange =
-      (!dateRange.startDate || date >= dateRange.startDate) &&
-      (!dateRange.endDate || date <= dateRange.endDate);
-    return inStatus && inDateRange;
+
+    const shiftDate = s.shift?.date ? new Date(s.shift.date) : null;
+    const offeredDate = s.offered_date ? new Date(s.offered_date) : null;
+
+    const isShiftDateValid =
+      shiftDate &&
+      (!dateRange.startDate || shiftDate >= dateRange.startDate) &&
+      (!dateRange.endDate || shiftDate <= dateRange.endDate);
+
+    const isOfferedDateValid =
+      offeredDate &&
+      (!dateRange.startDate || offeredDate >= dateRange.startDate) &&
+      (!dateRange.endDate || offeredDate <= dateRange.endDate);
+
+    return inStatus && (isShiftDateValid || isOfferedDateValid);
   });
+
 
   if (filteredSwaps.length === 0) {
     return (

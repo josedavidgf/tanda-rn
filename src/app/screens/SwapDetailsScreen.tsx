@@ -134,17 +134,19 @@ export default function SwapDetails() {
                   trackEvent(EVENTS.ACCEPT_SWAP_BUTTON_CLICKED, { swapId: swapId });
                 }}
                 style={{ marginTop: spacing.sm }}
-                disabled={isAccepting} />
+                loading={isAccepting}
+                disabled={isAccepting || isRejecting} />
               <Button
                 label="Rechazar"
                 size='lg'
                 variant='outline'
                 style={{ marginTop: spacing.sm }}
+                loading={isRejecting}
                 onPress={() => {
                   handleRespond('rejected');
                   trackEvent(EVENTS.REJECT_SWAP_BUTTON_CLICKED, { swapId: swapId });
                 }}
-                disabled={isRejecting} />
+                disabled={isRejecting || isAccepting} />
             </View>
           )}
 

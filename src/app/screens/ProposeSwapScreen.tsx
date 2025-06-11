@@ -197,6 +197,7 @@ export default function ProposeSwap() {
                         size='lg'
                         label="Enviar propuesta"
                         onPress={handleSubmit}
+                        loading={loading}
                         disabled={targetShift.requires_return && !selectedShift}
                     />
                 </ScrollView>

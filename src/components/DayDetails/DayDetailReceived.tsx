@@ -115,8 +115,12 @@ export default function DayDetailReceived({
               variant="outline"
               size="lg"
               leftIcon={<CalendarBlank size={20} color={colors.black} />}
-              onPress={() => handleAddSecondShift(dateStr)}
-            />
+              onPress={() => {
+                trackEvent(EVENTS.ADD_SECOND_SHIFT_BUTTON_CLICKED, {
+                  day: dateStr,
+                });
+                handleAddSecondShift(dateStr);
+              }} />
           </>
         )}
       </View>
