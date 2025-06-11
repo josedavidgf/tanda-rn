@@ -8,7 +8,7 @@ import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 import AmplitudeService from '@/lib/amplitude';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
-import { OneSignal } from 'react-native-onesignal';
+//import { OneSignal } from 'react-native-onesignal';
 import { handleDeeplinkNavigation } from '@/utils/handleDeeplinkNavigation';
 import { translateWorkerType } from '@/utils/useTranslateServices';
 import * as Sentry from '@sentry/react-native';
@@ -39,6 +39,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [session, setSession] = useState<any>(null);
   const [isWorker, setIsWorker] = useState(null);
   const [appState, setAppState] = useState<appState>('loading');
+  const isProduction = Boolean(process.env.EXPO_PUBLIC_ENV === 'production');
+
 
   console.log('[AUTH RN] Iniciando AuthProvider...');
 
@@ -69,42 +71,45 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
   }
 
-  useEffect(() => {
-    const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
-    if (!appId) return;
+  if (isProduction) {
+    useEffect(() => {
+      const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
 
-    OneSignal.initialize(appId);
-    OneSignal.Notifications.requestPermission(true);
+      if (!appId) return;
 
-    OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
-      const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;
-      if (data && typeof data === 'object' && 'route' in data) {
-        trackEvent('push_received_foreground', {
-          route: (data as any).route,
-          ...(data as any).params,
-        });
-      }
-    });
 
-    OneSignal.Notifications.addEventListener('click', (event) => {
-      const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;;
-      if (data?.route) {
-        trackEvent('push_clicked', {
-          route: data.route,
-          ...data.params,
-        });
+      OneSignal.initialize(appId);
+      OneSignal.Notifications.requestPermission(true);
 
-        handleDeeplinkNavigation(data);
-      }
-    });
-  }, []);
+      OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
+        const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;
+        if (data && typeof data === 'object' && 'route' in data) {
+          trackEvent('push_received_foreground', {
+            route: (data as any).route,
+            ...(data as any).params,
+          });
+        }
+      });
+
+      OneSignal.Notifications.addEventListener('click', (event) => {
+        const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;;
+        if (data?.route) {
+          trackEvent('push_clicked', {
+            route: data.route,
+            ...data.params,
+          });
+
+          handleDeeplinkNavigation(data);
+        }
+      });
+    }, []);
+  }
 
   useEffect(() => {
     supabase.getSession().then(({ data }) => {
       if (data.session) {
         setSession(data.session);
         const token = data.session.access_token;
-
         if (!isAmplitudeInitialized) {
           try {
             AmplitudeService.init();
@@ -153,19 +158,21 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             } catch (err) {
               console.warn('[AUTH RN] Error configurando Sentry:', err.message);
             }
-            if (session) {
-              try {
+            if (isProduction) {
+              if (session) {
+                try {
 
-                await OneSignal.login(session?.user.id);
-                await OneSignal.User.addEmail(worker.email || '');
+                  await OneSignal.login(session?.user.id);
+                  await OneSignal.User.addEmail(worker.email || '');
 
-                await OneSignal.User.addTags({
-                  ...(fullName && { fullName: fullName }),
-                  ...(workerTypeName && { role: workerTypeName }),
-                  ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
-                });
-              } catch (err) {
-                console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
+                  await OneSignal.User.addTags({
+                    ...(fullName && { fullName: fullName }),
+                    ...(workerTypeName && { role: workerTypeName }),
+                    ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
+                  });
+                } catch (err) {
+                  console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
+                }
               }
             }
 
@@ -238,18 +245,19 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           } catch (err) {
             console.warn('[AUTH RN] Error configurando Sentry:', err.message);
           }
+          if (isProduction) {
+            try {
+              await OneSignal.login(session?.user.id);
+              await OneSignal.User.addEmail(worker.email || '');
 
-          try {
-            await OneSignal.login(session?.user.id);
-            await OneSignal.User.addEmail(worker.email || '');
-
-            await OneSignal.User.addTags({
-              ...(fullName && { fullName: fullName }),
-              ...(workerTypeName && { role: workerTypeName }),
-              ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
-            });
-          } catch (err) {
-            console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
+              await OneSignal.User.addTags({
+                ...(fullName && { fullName: fullName }),
+                ...(workerTypeName && { role: workerTypeName }),
+                ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
+              });
+            } catch (err) {
+              console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
+            }
           }
 
           const step = getPendingOnboardingStep(worker);

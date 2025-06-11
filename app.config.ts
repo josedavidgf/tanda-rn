@@ -18,12 +18,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         organization: "tanda-zh"
       }
     ],
-    [
-      "expo-tracking-transparency",
-      {
-        userTrackingPermission: "This identifier will be used to deliver personalized ads to you."
-      }
-    ]
   ];
   return {
     ...config,
@@ -42,7 +36,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: false,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        NSUserTrackingUsageDescription: 'Tanda uses notifications to keep you informed of shift changes.',
         UIBackgroundModes: ['remote-notification'],
         LSApplicationQueriesSchemes: ['whatsapp'],
       },
