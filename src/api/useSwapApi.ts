@@ -9,6 +9,7 @@ import {
   getSwapById,
   getSwapsByShiftId,
   getSwapNotifications,
+  getAcceptedSwapsForDate,
 } from '@/services/swapService';
 
 export function useSwapApi() {
@@ -36,6 +37,7 @@ export function useSwapApi() {
     proposeSwap: (shiftId, data, token) => apiCall(proposeSwap, shiftId, data, token),
     getSentSwaps: (token) => apiCall(getSentSwaps, token),
     getAcceptedSwaps: (token) => apiCall(getAcceptedSwaps, token),
+    getAcceptedSwapsForDate: (token, dateStr) => apiCall(getAcceptedSwapsForDate, token, dateStr),
     getSwapById: (swapId, token) => apiCall(getSwapById, swapId, token),
     getSwapsByShiftId: (shiftId, token) => apiCall(getSwapsByShiftId, shiftId, token),
     getSwapNotifications: (token, workerId, myShiftIds) => apiCall(getSwapNotifications, token, workerId, myShiftIds), loading,

@@ -19,6 +19,18 @@ export const getAcceptedSwaps = async (token: string) => {
   }
 };
 
+export const getAcceptedSwapsForDate = async (token: string, dateStr: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/swaps/accepted/${dateStr}`, {
+      ...authHeaders(token),
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error('[swapService] Error getAcceptedSwaps:', error);
+    throw new Error(handleError(error, 'Error al cargar swaps aceptados'));
+  }
+};
+
 
 // Utilidad interna para capturar errores de Axios
 const handleError = (error, defaultMessage = 'Error en la operación') => {

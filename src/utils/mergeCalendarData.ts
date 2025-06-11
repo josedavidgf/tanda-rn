@@ -27,6 +27,7 @@ export function mergeCalendarData({
     const source = schedule.source;
 
     const shiftEntry: ShiftEntry = {
+      id: schedule.id,
       type: schedule.shift_type,
       source: schedule.source,
       shift_id: publishedMap.get(key) || null,

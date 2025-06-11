@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+
 import { View, StyleSheet } from 'react-native';
 import AppLayout from '@/components/layout/AppLayout';
 import AppLoader from '@/components/ui/AppLoader';
@@ -16,20 +17,31 @@ import { spacing } from '@/styles';
 import FadeInView from '@/components/animations/FadeInView';
 import EmptyState from '@/components/ui/EmptyState';
 
+type MySwapScreenRouteParams = {
+  filterDate?: string;
+  status?: string;
+};
+
 export default function MySwapScreen() {
   const { accessToken, isWorker } = useAuth();
+  const route = useRoute<RouteProp<Record<string, MySwapScreenRouteParams>, string>>();
+  const { filterDate, status } = route.params ?? {};
   const { getSentSwaps, getReceivedSwaps } = useSwapApi();
   const navigation = useNavigation();
-  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>(['proposed']);
 
   const statusOptions = ['proposed', 'accepted', 'rejected', 'cancelled'] as const;
   const [swaps, setSwaps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const today = new Date();
+  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
 
   const [dateRange, setDateRange] = useState({
     startDate: startOfMonth(new Date()),
-    endDate: endOfMonth(new Date()),
+    endDate: endOfMonth(nextMonth),
   });
+
 
   const fetchSwaps = async () => {
     setLoading(true);
@@ -51,6 +63,21 @@ export default function MySwapScreen() {
     setSwaps(all);
     setLoading(false);
   };
+  useEffect(() => {
+    if (filterDate) {
+      const parsedDate = new Date(filterDate);
+      setDateRange({
+        startDate: parsedDate,
+        endDate: parsedDate,
+      });
+    }
+
+    if (status) {
+      setStatusFilters([status]);
+    }
+  }, [filterDate, status]);
+
+
   useFocusEffect(
     React.useCallback(() => {
       fetchSwaps();

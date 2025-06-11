@@ -5,7 +5,6 @@ import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
 import DividerText from '@/components/ui/DividerText';
 import { useNavigation } from '@react-navigation/native';
-import { GoogleLogo } from 'phosphor-react-native';
 import { colors, spacing } from '@/styles';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import * as SecureStore from 'expo-secure-store';
@@ -111,18 +110,6 @@ export default function RegisterScreen() {
           style={styles.primaryButton}
         />
 
-        <DividerText text="o" />
-
-        <Button
-          label="Registrarme con Google"
-          size="lg"
-          onPress={() => {
-            trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_GOOGLE);
-            showInfo('Próximamente');
-          }}
-          variant="outline"
-          leftIcon={<GoogleLogo size={20} />}
-        />
       </View>
     </SimpleLayout>
   );

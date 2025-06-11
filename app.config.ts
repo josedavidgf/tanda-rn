@@ -6,11 +6,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     [
       'onesignal-expo-plugin',
       {
-        mode: 'development',
+        mode: 'production',
       },
-    ],
-  ];
 
+    ],
+    [
+      "expo-tracking-transparency",
+      {
+        userTrackingPermission: "This identifier will be used to deliver personalized ads to you."
+      }
+    ]
+  ];
   return {
     ...config,
     name: 'Tanda',
@@ -35,7 +41,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: 'com.apptanda.app',
-      googleServicesFile: './google-services.json',
     },
 
     plugins,

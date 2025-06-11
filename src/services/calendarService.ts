@@ -42,11 +42,32 @@ export async function setShiftForDay(token: string, workerId: string, dateStr: s
 
   if (error) throw new Error(error.message);
 }
-export async function updateShiftForDay(
+
+export async function getShiftForDay(
   token: string,
   workerId: string,
   dateStr: string,
-  originalType: string,
+  shiftType: string
+) {
+  const db = getDbWithAuth(token);
+
+  const { data, error } = await db
+    .from('monthly_schedules')
+    .select('*')
+    .eq('worker_id', workerId)
+    .eq('date', dateStr)
+    .eq('shift_type', shiftType)
+    .eq('source', 'manual') // ✅ importante si filtras solo los añadidos por el user
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+
+export async function updateShiftForDay(
+  token: string,
+  scheduleId: string,
   newType: string
 ) {
   const db = getDbWithAuth(token);
@@ -54,10 +75,23 @@ export async function updateShiftForDay(
   const { error } = await db
     .from('monthly_schedules')
     .update({ shift_type: newType })
-    .eq('worker_id', workerId)
-    .eq('date', dateStr)
-    .eq('shift_type', originalType)
+    .eq('id', scheduleId)
     .eq('source', 'manual');
+
+  if (error) throw new Error(error.message);
+}
+
+export async function updateShiftSource(
+  token: string,
+  scheduleId: string,
+  newSource: 'manual' | 'swapped_out' | 'received_swap'
+) {
+  const db = getDbWithAuth(token);
+
+  const { error } = await db
+    .from('monthly_schedules')
+    .update({ source: newSource })
+    .eq('id', scheduleId);
 
   if (error) throw new Error(error.message);
 }

@@ -30,10 +30,14 @@ export default function HospitalShiftsScreen() {
     const { getSentSwaps } = useSwapApi();
     const navigation = useNavigation();
     const shiftTypes = ['morning', 'evening', 'night', 'reinforcement'] as const;
+
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
     const [selectedTypes, setSelectedTypes] = useState<ShiftType[]>([]);
     const [dateRange, setDateRange] = useState({
         startDate: startOfMonth(new Date()),
-        endDate: endOfMonth(new Date()),
+        endDate: endOfMonth(nextMonth),
     });
     const [shifts, setShifts] = useState<any[]>([]);
     const [sentSwapShiftIds, setSentSwapShiftIds] = useState<string[]>([]);

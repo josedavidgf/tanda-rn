@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import { Lightning, PencilSimple, Trash, CalendarBlank } from '@/theme/icons';
-import { shiftTypeLabels } from '@/utils/useLabelMap';
+import { shiftTypeLabels, shiftTypeIcons } from '@/utils/useLabelMap';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { colors } from '@/styles/utilities/colors';
@@ -11,26 +11,33 @@ import { spacing, typography } from '@/styles';
 import { Schedule } from '@/types/calendar';
 import { useNavigation } from '@react-navigation/native';
 import { ShiftEntry } from '@/types/calendar';
+import Chip from '../ui/Chip';
+
+
+const ALL_TYPES = ['morning', 'evening', 'night', 'reinforcement'];
 
 type Props = {
   dateStr: string;
   dayLabel: string;
   shift: ShiftEntry;
   isPublished: boolean;
+  entry: any;
   onDeletePublication: (shiftId: string, dateStr: string) => void;
-  onEditShift: (dateStr: string) => void;
+  onEditShift: (scheduleId: string, dateStr: string, type: string) => void;
   onRemoveShift: (dateStr: string) => void;
   onPublishShift: (shift: ShiftEntry) => void;
   loadingDeletePublication?: boolean;
   loadingRemoveShift: boolean;
   canAddSecondShift?: boolean;
   handleAddSecondShift?: (dateStr: string) => void;
+  onOpenEditModal: (scheduleId: string, dateStr: string, currentType: ShiftType, availableTypes: ShiftType[]) => void;
 };
 
 export default function DayDetailMyShift({
   dateStr,
   dayLabel,
   shift,
+  entry,
   isPublished,
   onDeletePublication,
   onEditShift,
@@ -40,6 +47,7 @@ export default function DayDetailMyShift({
   loadingRemoveShift,
   canAddSecondShift,
   handleAddSecondShift,
+  onOpenEditModal,
 }: Props) {
   const hourRange = {
     morning: 'de 8:00 a 15:00',
@@ -48,6 +56,9 @@ export default function DayDetailMyShift({
     reinforcement: '',
   };
   const navigation = useNavigation();
+
+  const otherShift = entry.shifts?.find(s => s.source === 'manual' && s.type !== shift.type);
+  const availableTypes = ALL_TYPES.filter(t => !otherShift || t !== otherShift.type);
 
   const textLine = `Tienes turno propio de ${shiftTypeLabels[shift.type]} ${hourRange[shift.type] || ''}`;
 
@@ -132,14 +143,12 @@ export default function DayDetailMyShift({
           <View style={styles.buttonGroupRow}>
             <Button
               label="Editar"
+              size='md'
               variant="outline"
-              size="md"
-              leftIcon={<PencilSimple size={20} color={colors.black} />}
-              onPress={() => {
-                trackEvent(EVENTS.EDIT_OWN_SHIFT_BUTTON_CLICKED, { day: dateStr });
-                onEditShift(dateStr);
-              }}
+              leftIcon={<PencilSimple size={20} />}
+              onPress={() => onOpenEditModal(shift.id, dateStr, shift.type, availableTypes)}
             />
+
             <Button
               label="Eliminar"
               variant="outline"

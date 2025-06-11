@@ -29,6 +29,7 @@ import ProfilePreferences from '../screens/ProfilePreferencesScreen';
 import ProfileContactSupport from '../screens/ProfileContactScreen';
 import ProfileResetPassword from '../screens/ProfileResetPasswordScreen';
 import ProfileReferral from '../screens/ProfileReferralScreen'; // si la tienes, sino elimina esta línea
+import ProfileDeleteAccount from '../screens/ProfileDeleteAccountScreen'; // si la tienes, sino elimina esta línea
 
 // Rest
 import CommentEditorScreen from '../screens/CommentEditorScreen';
@@ -65,6 +66,7 @@ export default function AppNavigator() {
       <Stack.Screen name='ProfileContactSupport' component={ProfileContactSupport} />
       <Stack.Screen name='ProfileResetPassword' component={ProfileResetPassword} />
       <Stack.Screen name='ProfileReferral' component={ProfileReferral} />
+      <Stack.Screen name='ProfileDeleteAccount' component={ProfileDeleteAccount} />
       <Stack.Screen name='CommentEditor' component={CommentEditorScreen} />
     </Stack.Navigator>
   );
