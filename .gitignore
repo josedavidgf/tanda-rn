@@ -89,3 +89,5 @@ jest-*
 /Library/
 /.Trash/
 firebase-service-account.json
+
+.env.local

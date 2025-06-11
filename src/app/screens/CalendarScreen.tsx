@@ -651,7 +651,15 @@ export default function CalendarScreen() {
         const dateStr = format(date, 'yyyy-MM-dd');
         const entry = calendarMap[dateStr];
 
-        if (!entry) return <DayDetailEmpty dateStr={dateStr} dayLabel="Día libre" onOpenAddShiftModal={onOpenAddShiftModal} />;
+        if (!entry) 
+            return (
+                <DayDetailEmpty
+                    dateStr={dateStr}
+                    dayLabel="Día libre"
+                    onOpenAddShiftModal={onOpenAddShiftModal}
+                    onAddPreference={() => togglePreference(dateStr, 'morning')}
+                />
+            );
 
         const shifts = entry.shifts ?? [];
 

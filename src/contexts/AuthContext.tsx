@@ -11,6 +11,9 @@ import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { OneSignal } from 'react-native-onesignal';
 import { handleDeeplinkNavigation } from '@/utils/handleDeeplinkNavigation';
 import { translateWorkerType } from '@/utils/useTranslateServices';
+import * as Sentry from '@sentry/react-native';
+import * as Device from 'expo-device';
+import * as Application from 'expo-application';
 
 
 interface AuthContextType {
@@ -121,6 +124,35 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
                 ? `${worker.name} ${worker.surname}`
                 : worker.name || worker.surname || undefined;
             const workerTypeName = translateWorkerType(worker.worker_types?.worker_type_name) || '';
+            try {
+              Sentry.setUser({
+                id: worker.worker_id,
+                email: session.user.email,
+                username: fullName,
+              });
+
+              Sentry.setContext('worker', {
+                hospital: worker.workers_hospitals?.[0]?.hospitals?.name || '',
+                speciality: worker.workers_specialities?.[0]?.specialities?.speciality_category || '',
+                workerType: workerTypeName,
+              });
+              Sentry.setContext('device', {
+                manufacturer: Device.manufacturer,
+                model: Device.modelName,
+                os: `${Device.osName} ${Device.osVersion}`,
+                totalMemory: Device.totalMemory,
+                isDevice: Device.isDevice,
+                deviceName: Device.deviceName,
+              });
+
+              Sentry.setContext('app', {
+                appName: Application.applicationName,
+                version: Application.nativeApplicationVersion,
+                build: Application.nativeBuildVersion,
+              });
+            } catch (err) {
+              console.warn('[AUTH RN] Error configurando Sentry:', err.message);
+            }
             if (session) {
               try {
 
@@ -177,7 +209,35 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
               ? `${worker.name} ${worker.surname}`
               : worker.name || worker.surname || undefined;
           const workerTypeName = translateWorkerType(worker.worker_types?.worker_type_name) || '';
+          try {
+            Sentry.setUser({
+              id: worker.worker_id,
+              email: session.user.email,
+              username: fullName,
+            });
 
+            Sentry.setContext('worker', {
+              hospital: worker.workers_hospitals?.[0]?.hospitals?.name || '',
+              speciality: worker.workers_specialities?.[0]?.specialities?.speciality_category || '',
+              workerType: workerTypeName,
+            });
+            Sentry.setContext('device', {
+              manufacturer: Device.manufacturer,
+              model: Device.modelName,
+              os: `${Device.osName} ${Device.osVersion}`,
+              totalMemory: Device.totalMemory,
+              isDevice: Device.isDevice,
+              deviceName: Device.deviceName,
+            });
+
+            Sentry.setContext('app', {
+              appName: Application.applicationName,
+              version: Application.nativeApplicationVersion,
+              build: Application.nativeBuildVersion,
+            });
+          } catch (err) {
+            console.warn('[AUTH RN] Error configurando Sentry:', err.message);
+          }
 
           try {
             await OneSignal.login(session?.user.id);
