@@ -12,14 +12,14 @@ import { formatFriendlyDate } from '@/utils/useFormatFriendlyDate';
 type Props = {
   dateStr: string; // 'YYYY-MM-DD'
   dayLabel: string; // Ej: 'Hoy, 14/05'
-  onAddShift: (dateStr: string) => void;
+  onOpenAddShiftModal: (dateStr: string) => void;
   onAddPreference: (dateStr: string) => void;
 };
 
 export default function DayDetailEmpty({
   dateStr,
   dayLabel,
-  onAddShift,
+  onOpenAddShiftModal,
   onAddPreference,
 }: Props) {
   return (
@@ -37,7 +37,7 @@ export default function DayDetailEmpty({
           leftIcon={<CalendarPlus size={20} color={colors.white} />}
           onPress={() => {
             trackEvent(EVENTS.ADD_SINGLE_SHIFT_BUTTON_CLICKED, { day: dateStr });
-            onAddShift(dateStr);
+            onOpenAddShiftModal(dateStr);
           }}
         />
         <Button

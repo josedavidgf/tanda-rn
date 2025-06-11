@@ -108,12 +108,19 @@ export default function ProfileMenuScreen() {
                     </Pressable>
                 ))}
 
-                <View style={styles.logoutWrapper}>
-                    <Button
-                        label="Cerrar sesión"
-                        size="lg"
-                        variant="danger"
-                        onPress={handleLogout} />
+                <View style={styles.dangerZone}>
+                    <View style={styles.buttonGroup}>
+                        <Button
+                            label="Cerrar sesión"
+                            size="lg"
+                            variant="outline"
+                            onPress={handleLogout} />
+                        <Button
+                            label="Borrar cuenta"
+                            size="lg"
+                            variant="danger"
+                            onPress={() => navigation.navigate('ProfileDeleteAccount')} />
+                    </View>
                 </View>
             </ScrollView>
         </SimpleLayout>
@@ -138,7 +145,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: spacing.sm,
     },
-    logoutWrapper: {
+    dangerZone: {
         marginTop: spacing.xl,
+    },
+    buttonGroup: {
+        gap: spacing.lg,
     },
 });

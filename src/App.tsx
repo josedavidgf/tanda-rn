@@ -16,14 +16,31 @@ import 'react-native-url-polyfill/auto';
 import { OnboardingProvider } from '@/contexts/OnboardingContext';
 import { Buffer } from 'buffer';
 import * as Linking from 'expo-linking';
-import { configureGoogleSignin } from '@/services/authService';
 import NavigationTracker from '@/components/analytics/NavigationTracker';
+
 import { handleDeeplink } from '@/utils/deeplinkHandler';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://e5f77a0c54a16a395061ad0b04efd958@o4509300831223808.ingest.de.sentry.io/4509479717503056',
+
+  // Adds more context data to events (IP address, cookies, user, etc.)
+  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+  sendDefaultPii: true,
+
+  // Configure Session Replay
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
 
 global.Buffer = Buffer;
 global.process = require('process');
 
-export default function App() {
+export default Sentry.wrap(function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
@@ -32,12 +49,6 @@ export default function App() {
       if (url) handleDeeplink({ url });
     });
     return () => sub.remove();
-  }, []);
-
-  useEffect(() => {
-    if (process.env.EAS_BUILD === 'true') {
-      configureGoogleSignin();
-    }
   }, []);
 
   useEffect(() => {
@@ -87,7 +98,7 @@ export default function App() {
       </NavigationContainer>
     </GestureHandlerRootView>
   );
-}
+});
 
 function AuthGate() {
   const { session } = useAuth();

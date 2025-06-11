@@ -1,21 +1,30 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-const isEASBuild = process.env.EAS_BUILD === 'true';
-
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const plugins: NonNullable<ExpoConfig['plugins']> = [];
-
-  if (isEASBuild) {
-    plugins.push([
-      '@react-native-google-signin/google-signin',
+  const plugins: NonNullable<ExpoConfig['plugins']> = [
+    [
+      'onesignal-expo-plugin',
       {
-        iosUrlScheme:
-          'com.googleusercontent.apps.161823689095-51njcp75miao8hkatl83r2g6v5r624bo',
+        mode: 'production',
       },
-    ]);
-  }
 
+    ],
+    [
+      "@sentry/react-native/expo",
+      {
+        url: "https://sentry.io/",
+        project: "react-native",
+        organization: "tanda-zh"
+      }
+    ],
+    [
+      "expo-tracking-transparency",
+      {
+        userTrackingPermission: "This identifier will be used to deliver personalized ads to you."
+      }
+    ]
+  ];
   return {
     ...config,
     name: 'Tanda',
@@ -29,11 +38,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     jsEngine: 'hermes',
     ios: {
       bundleIdentifier: 'com.apptanda.app',
+      usesBroadcastPushNotifications: true,
       supportsTablet: false,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        NSUserTrackingUsageDescription:
-          'Tanda uses notifications to keep you informed of shift changes.',
+        NSUserTrackingUsageDescription: 'Tanda uses notifications to keep you informed of shift changes.',
         UIBackgroundModes: ['remote-notification'],
         LSApplicationQueriesSchemes: ['whatsapp'],
       },
@@ -41,14 +50,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       package: 'com.apptanda.app',
     },
+
     plugins,
     extra: {
       EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-      EXPO_PUBLIC_SUPABASE_ANON_KEY:
-        process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
       EXPO_PUBLIC_BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
-      EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID:
-        process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      EXPO_PUBLIC_PROJECT_ID: process.env.EXPO_PUBLIC_PROJECT_ID,
+      EXPO_PUBLIC_ONESIGNAL_APP_ID: process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID,
       eas: {
         projectId: 'c3526404-d409-4a31-8471-085a324c0adc',
       },

@@ -9,7 +9,7 @@ import AppLayout from '../../components/layout/AppLayout';
 import DayDetailMyShift from '../../components/DayDetails/DayDetailMyShift';
 import DayDetailEmpty from '@/components/DayDetails/DayDetailEmpty';
 import DayDetailReceived from '@/components/DayDetails/DayDetailReceived';
-import DayDetailSwapped from '@/components/DayDetails/DayDetailSwapped';
+import DayDetailSwappedSimplified from '@/components/DayDetails/DayDetailSwapped';
 import DayDetailPreference from '@/components/DayDetails/DayDetailPreference';
 import type { DayType } from '@/types/dayType';
 import { mergeCalendarData } from '@/utils/mergeCalendarData';
@@ -39,7 +39,8 @@ import { getCommentsByMonth } from '@/services/calendarCommentService';
 import { useToast } from '../hooks/useToast';
 import CommentButton from '@/components/calendar/DayComment';
 import { ScrollView as HorizontalScrollView } from 'react-native-gesture-handler'; // al principio del fichero
-import { CalendarEntry, ShiftType } from '@/types/calendar';
+import { CalendarEntry, ShiftType, Swap } from '@/types/calendar';
+import EditShiftTypeModal from '@/components/modals/EditShiftTypeModal';
 
 export default function CalendarScreen() {
 
@@ -47,12 +48,13 @@ export default function CalendarScreen() {
     const [selectedMonth, setSelectedMonth] = useState(new Date());
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const { getAcceptedSwaps } = useSwapApi();
+    const { getAcceptedSwaps, getAcceptedSwapsForDate } = useSwapApi();
+    const [acceptedSwaps, setAcceptedSwaps] = useState<Swap[]>([]);
     const { getMySwapPreferences, deleteSwapPreference, updateSwapPreference, createSwapPreference } = useSwapPreferencesApi();
     const { getMyShiftsPublished, removeShift } = useShiftApi();
     const { accessToken } = useAuth();
     const [calendarMap, setCalendarMap] = useState<Record<string, OriginalCalendarEntry>>({});
-    const { setShiftForDay, removeShiftForDay, updateShiftForDay, clearSwappedOutShift } = useCalendarApi();
+    const { setShiftForDay, removeShiftForDay, updateShiftForDay, getShiftForDay } = useCalendarApi();
     const { isWorker, ready } = useIsWorkerReady();
     const [isMassiveEditMode, setIsMassiveEditMode] = useState(false);
     const [draftShiftMap, setDraftShiftMap] = useState<Record<string, OriginalCalendarEntry>>({});
@@ -63,6 +65,31 @@ export default function CalendarScreen() {
     const [activeSlide, setActiveSlide] = useState(0);
     const scrollRef = useRef<ScrollView>(null);
     const DETAIL_WIDTH = 343;
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalState, setModalState] = useState<{
+        scheduleId: string;
+        dateStr: string;
+        currentType: ShiftType;
+        selectedType: ShiftType;
+        availableTypes: ShiftType[];
+    } | null>(null);
+
+    const [addModalState, setAddModalState] = useState<{
+        dateStr: string;
+        selectedType: ShiftType;
+    } | null>(null);
+
+    const [isAddModalVisible, setAddModalVisible] = useState(false);
+
+    const [isSecondShiftModalVisible, setSecondShiftModalVisible] = useState(false);
+    const [secondShiftModalState, setSecondShiftModalState] = useState<{
+        dateStr: string;
+        selectedType: ShiftType;
+        availableTypes: ShiftType[];
+    } | null>(null);
+
+
+
 
 
     useEffect(() => {
@@ -98,6 +125,22 @@ export default function CalendarScreen() {
         loadSchedules();
     }, [isWorker, selectedMonth]);
 
+    useEffect(() => {
+        const fetchSwapsForDate = async () => {
+            if (!accessToken || !selectedDate) return;
+            const dateStr = format(selectedDate, 'yyyy-MM-dd');
+            try {
+                const swaps = await getAcceptedSwapsForDate(accessToken, dateStr);
+                setAcceptedSwaps(swaps);
+            } catch (e) {
+                console.error('❌ Error al obtener swaps del día:', e);
+            }
+        };
+
+        fetchSwapsForDate();
+    }, [selectedDate, accessToken]);
+
+
     if (!ready) return <AppLoader message="Cargando Calendario..." />;
 
     function getNextValidManualShiftType(entry: CalendarEntry): ShiftType | null {
@@ -123,34 +166,125 @@ export default function CalendarScreen() {
         return null;
     }
 
+    function openAddShiftModal(dateStr: string) {
+        setAddModalState({
+            dateStr,
+            selectedType: 'morning',
+        });
+        setAddModalVisible(true);
+    }
+    function onOpenAddShiftModal(dateStr: string) {
+        openAddShiftModal(dateStr);
+    }
+
+    async function handleConfirmAddShift() {
+        if (!addModalState) return;
+        const { dateStr, selectedType } = addModalState;
+
+        try {
+            const shifts = calendarMap[dateStr]?.shifts ?? [];
+            await setShiftForDay(accessToken, isWorker.worker_id, dateStr, selectedType);
+
+            // 🔁 Refrescar turno actualizado o creado
+            const newShift = await getShiftForDay(accessToken, isWorker.worker_id, dateStr, selectedType);
+
+            setCalendarMap(prev => {
+                const prevEntry = prev[dateStr] || {};
+                const prevShifts = prevEntry.shifts ?? [];
+
+                const filtered = prevShifts.filter(s => s.type !== selectedType);
+
+                return {
+                    ...prev,
+                    [dateStr]: {
+                        ...prevEntry,
+                        shifts: [
+                            ...filtered,
+                            {
+                                id: newShift.id,
+                                source: newShift.source,
+                                type: newShift.shift_type,
+                            },
+                        ],
+                    },
+                };
+            });
+
+        } catch (err) {
+            console.error('❌ Error creando o actualizando turno:', err.message);
+            showError('No se pudo añadir el turno');
+        } finally {
+            setAddModalVisible(false);
+            setAddModalState(null);
+        }
+    }
+
+    function handleOpenSecondShiftModal(dateStr: string) {
+        const shifts = calendarMap[dateStr]?.shifts ?? [];
+        const existingManuals = shifts.filter(s => s.source === 'manual');
+        const usedTypes = existingManuals.map(s => s.type);
+        const availableTypes = ['morning', 'evening', 'night', 'reinforcement'].filter(
+            t => !usedTypes.includes(t)
+        );
+
+        if (availableTypes.length === 0) return;
+
+        setSecondShiftModalState({
+            dateStr,
+            selectedType: availableTypes[0],
+            availableTypes,
+        });
+        setSecondShiftModalVisible(true);
+    }
+
+    async function handleConfirmSecondShift() {
+        if (!secondShiftModalState) return;
+        const { dateStr, selectedType } = secondShiftModalState;
+
+        try {
+            await setShiftForDay(accessToken, isWorker.worker_id, dateStr, selectedType);
+            const newShift = await getShiftForDay(accessToken, isWorker.worker_id, dateStr, selectedType);
+
+            setCalendarMap(prev => {
+                const prevEntry = prev[dateStr] ?? {};
+                const updatedShifts = [...(prevEntry.shifts ?? []), {
+                    id: newShift.id,
+                    source: newShift.source,
+                    type: newShift.shift_type,
+                }];
+
+                // ⬇️ Inmediatamente después
+                if (updatedShifts.length === 2) {
+                    setTimeout(() => {
+                        scrollRef.current?.scrollTo({
+                            x: DETAIL_WIDTH + 12,
+                            animated: true,
+                        });
+                    }, 100);
+                }
+
+                return {
+                    ...prev,
+                    [dateStr]: {
+                        ...prevEntry,
+                        shifts: updatedShifts,
+                    },
+                };
+            });
+        } catch (err) {
+            console.error('❌ Error añadiendo segundo turno:', err.message);
+            showError('No se pudo añadir el segundo turno');
+        } finally {
+            setSecondShiftModalVisible(false);
+            setSecondShiftModalState(null);
+        }
+    }
 
 
     async function toggleShift(dateStr: string) {
         const entry = calendarMap[dateStr] || {};
         const manualShifts = entry.shifts?.filter(s => s.source === 'manual') ?? [];
 
-        if (entry.shifts?.some(s => s.source === 'swapped_out')) {
-            await clearSwappedOutShift(accessToken, isWorker.worker_id, dateStr);
-
-            const updatedShifts = [{ type: 'morning', source: 'manual' }];
-            const updatedEntry = {
-                ...entry,
-                shifts: updatedShifts,
-            };
-
-            setCalendarMap(prev => ({
-                ...prev,
-                [dateStr]: updatedEntry,
-            }));
-
-            try {
-                await setShiftForDay(accessToken, isWorker.worker_id, dateStr, 'morning');
-            } catch (err) {
-                console.error('❌ Error al crear turno manual tras swap:', err.message);
-            }
-
-            return;
-        }
 
         if (isMassiveEditMode) {
             if (!entry.shifts || entry.shifts.length === 0) {
@@ -184,9 +318,7 @@ export default function CalendarScreen() {
 
                     await updateShiftForDay(
                         accessToken,
-                        isWorker.worker_id,
-                        dateStr,
-                        manualShifts[0].type,
+                        manualShifts[0].id,
                         nextType
                     );
                 }
@@ -229,9 +361,7 @@ export default function CalendarScreen() {
             } else {
                 await updateShiftForDay(
                     accessToken,
-                    isWorker.worker_id,
-                    dateStr,
-                    manualShifts[0].type,
+                    manualShifts[0].id,
                     nextType
                 );
             }
@@ -249,13 +379,6 @@ export default function CalendarScreen() {
 
         let updatedTypes = [...currentTypes];
         let updatedIds = { ...currentIds };
-
-        // Si hay shift swapped_out, lo borramos en Supabase y local
-        let cleanEntry = { ...entry };
-        if (entry.shifts?.some(s => s.source === 'swapped_out')) {
-            await clearSwappedOutShift(accessToken, isWorker.worker_id, dateStr);
-            cleanEntry.shifts = [];
-        }
 
         try {
             if (alreadyExists) {
@@ -278,7 +401,7 @@ export default function CalendarScreen() {
             }
 
             const updatedEntry = {
-                ...cleanEntry,
+                ...entry,
                 isPreference: updatedTypes.length > 0,
                 preference_types: updatedTypes,
                 preferenceIds: updatedIds,
@@ -292,6 +415,38 @@ export default function CalendarScreen() {
             console.error('❌ Error al hacer toggle de preferencia:', error.message);
         }
     }
+
+    async function handleConfirmModalChange(newType: ShiftType) {
+        if (!modalState) return;
+        const { scheduleId, dateStr, currentType } = modalState;
+        if (newType === currentType) return;
+
+        try {
+            await updateShiftForDay(accessToken, scheduleId, newType);
+
+            const entry = calendarMap[dateStr];
+            if (!entry) return;
+
+            const updatedShifts = entry.shifts!.map(s =>
+                s.id === scheduleId ? { ...s, type: newType } : s
+            );
+
+            setCalendarMap(prev => ({
+                ...prev,
+                [dateStr]: {
+                    ...entry,
+                    shifts: updatedShifts,
+                },
+            }));
+        } catch (err) {
+            showError('Error al guardar el cambio');
+            console.error(err);
+        } finally {
+            setModalVisible(false);
+            setModalState(null);
+        }
+    }
+
 
     async function handleDeletePreference(dateStr: string) {
         const entry = calendarMap[dateStr];
@@ -319,6 +474,37 @@ export default function CalendarScreen() {
             console.error('❌ Error al eliminar todas las preferencias:', error.message);
         }
     }
+    async function handleEditShiftType(scheduleId: string, dateStr: string, selectedType: ShiftType) {
+        try {
+            await updateShiftForDay(accessToken, scheduleId, selectedType);
+
+            const entry = calendarMap[dateStr];
+            if (!entry || !entry.shifts) return;
+
+            const updatedShifts = entry.shifts.map(s =>
+                s.id === scheduleId ? { ...s, type: selectedType } : s
+            );
+
+            setCalendarMap(prev => ({
+                ...prev,
+                [dateStr]: {
+                    ...entry,
+                    shifts: updatedShifts,
+                },
+            }));
+        } catch (err) {
+            console.error('❌ Error al actualizar tipo de turno:', err.message);
+            showError('No se pudo actualizar el tipo de turno');
+        }
+    }
+
+    function getAvailableTypesForDate(dateStr: string): ShiftType[] {
+        const entry = calendarMap[dateStr];
+        const used = new Set(entry?.shifts?.map(s => s.type) ?? []);
+        return ['morning', 'evening', 'night', 'reinforcement'].filter(t => !used.has(t));
+    }
+
+
     async function handleRemoveShiftType(dateStr: string, shiftType: ShiftType) {
         const entry = calendarMap[dateStr];
         if (!entry?.shifts) return;
@@ -442,12 +628,38 @@ export default function CalendarScreen() {
         }
     }
 
+    function openEditModal(scheduleId: string, dateStr: string, currentType: ShiftType, availableTypes: ShiftType[]) {
+        setModalState({
+            scheduleId,
+            dateStr,
+            currentType,
+            selectedType: currentType, // <-- añadimos selectedType al estado
+            availableTypes,
+        });
+        setModalVisible(true);
+    }
+
+    function hasSwappedOut(): boolean {
+        return acceptedSwaps.length > 0;
+    }
+
+
+
+
 
     function DayDetailRenderer({ date }: { date: Date }) {
         const dateStr = format(date, 'yyyy-MM-dd');
         const entry = calendarMap[dateStr];
 
-        if (!entry) return <DayDetailEmpty dateStr={dateStr} dayLabel="Día libre" onAddShift={() => toggleShift(dateStr)} onAddPreference={() => togglePreference(dateStr, 'morning')} />;
+        if (!entry) 
+            return (
+                <DayDetailEmpty
+                    dateStr={dateStr}
+                    dayLabel="Día libre"
+                    onOpenAddShiftModal={onOpenAddShiftModal}
+                    onAddPreference={() => togglePreference(dateStr, 'morning')}
+                />
+            );
 
         const shifts = entry.shifts ?? [];
 
@@ -469,7 +681,7 @@ export default function CalendarScreen() {
                 <DayDetailEmpty
                     dateStr={dateStr}
                     dayLabel="Día libre"
-                    onAddShift={() => toggleShift(dateStr)}
+                    onOpenAddShiftModal={onOpenAddShiftModal}
                     onAddPreference={() => togglePreference(dateStr, 'morning')}
                 />
             );
@@ -484,7 +696,7 @@ export default function CalendarScreen() {
                     isPublished={!!shifts[0].isPublished}
                     onDeletePublication={handleDeletePublication}
                     canAddSecondShift={canAddSecondShift(entry)}
-                    handleAddSecondShift={handleAddSecondShift}
+                    handleAddSecondShift={handleOpenSecondShiftModal}
                     entryFull={entry}
                 />
             );
@@ -496,24 +708,12 @@ export default function CalendarScreen() {
                     dayLabel="Turno propio"
                     shift={shifts[0]}
                     isPublished={!!shifts[0].isPublished}
-                    onEditShift={() => toggleShift(dateStr)}
+                    entry={entry}
+                    onOpenEditModal={openEditModal}
                     onDeletePublication={handleDeletePublication}
                     onRemoveShift={() => handleRemoveShiftType(dateStr, shifts[0].type)}
                     canAddSecondShift={canAddSecondShift(entry)}
-                    handleAddSecondShift={handleAddSecondShift}
-                    entry={entry}
-                />
-            );
-        }
-        if (shifts.length === 1 && shifts[0].source === 'swapped_out') {
-            return (
-                <DayDetailSwapped
-                    dateStr={dateStr}
-                    dayLabel="Turno intercambiado"
-                    entry={entry}
-                    onAddShift={(dateStr) => toggleShift(dateStr)}
-                    onAddPreference={() => togglePreference(dateStr, 'morning')}
-                    navigate={(path) => console.log('Navegar a', path)}
+                    handleAddSecondShift={handleOpenSecondShiftModal}
                 />
             );
         }
@@ -524,71 +724,144 @@ export default function CalendarScreen() {
 
 
         if (shifts.length === 2) {
-            return (
-                <HorizontalScrollView
-                    ref={scrollRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={true}
-                    snapToAlignment="start"
-                    snapToInterval={DETAIL_WIDTH + 12}
-                    decelerationRate="fast"
-                    contentContainerStyle={{
-                        paddingLeft: 0,
-                        marginLeft: 0,
-                        paddingRight: screenWidth - DETAIL_WIDTH,
-                        justifyContent: 'flex-start',
-                        gap: spacing.sm,
-                    }}
-                    pagingEnabled={true}
-                >
-                    {
-                        shifts.map((shift, index) => {
-                            const key = `${shift.type}-${shift.source}-${index}`;
-                            const child = shift.source === 'manual' ? (
-                                <DayDetailMyShift
-                                    dateStr={dateStr}
-                                    dayLabel="Turno propio"
-                                    shift={shift}
-                                    isPublished={!!shift.isPublished}
-                                    onEditShift={() => toggleShift(dateStr)}
-                                    onDeletePublication={handleDeletePublication}
-                                    onRemoveShift={() => handleRemoveShiftType(dateStr, shift.type)}
-                                    canAddSecondShift={canAddSecondShift(entry)}
-                                    handleAddSecondShift={handleAddSecondShift}
-                                    entry={entry}
-                                />
-                            ) : (
-                                <DayDetailReceived
-                                    dateStr={dateStr}
-                                    dayLabel="Turno recibido"
-                                    entry={shift}
-                                    isPublished={!!shift.isPublished}
-                                    onDeletePublication={handleDeletePublication}
-                                    canAddSecondShift={canAddSecondShift(entry)}
-                                    handleAddSecondShift={handleAddSecondShift}
-                                    entryFull={entry}
-                                />
-                            );
+            const manualShifts = shifts.filter(s => s.source === 'manual');
+            const receivedShifts = shifts.filter(s => s.source === 'received_swap');
 
-                            return (
-                                <View
-                                    key={key}
-                                    style={{
-                                        width: DETAIL_WIDTH,
-                                        marginRight: 0,
-                                        marginLeft: 0,
-                                    }}
-                                >
-                                    {child}
-                                </View>
+            if (manualShifts.length === 2) {
+                return (
+                    <HorizontalScrollView
+                        ref={scrollRef}
+                        horizontal
+                        snapToInterval={DETAIL_WIDTH + 12}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingLeft: 0,
+                            marginLeft: 0,
+                            paddingRight: screenWidth - DETAIL_WIDTH,
+                            justifyContent: 'flex-start',
+                            gap: spacing.sm,
+                        }}
+                        pagingEnabled
+                    >
+                        <View style={{ width: DETAIL_WIDTH }}>
+                            <DayDetailMyShift
+                                dateStr={dateStr}
+                                dayLabel="Turno propio 1"
+                                shift={manualShifts[0]}
+                                entry={entry}
+                                isPublished={!!manualShifts[0].isPublished}
+                                onOpenEditModal={openEditModal}
+                                onDeletePublication={handleDeletePublication}
+                                onRemoveShift={() => handleRemoveShiftType(dateStr, manualShifts[0].type)}
+                                canAddSecondShift={false}
+                            />
+                        </View>
+                        <View style={{ width: DETAIL_WIDTH }}>
+                            <DayDetailMyShift
+                                dateStr={dateStr}
+                                dayLabel="Turno propio 2"
+                                shift={manualShifts[1]}
+                                entry={entry}
+                                isPublished={!!manualShifts[1].isPublished}
+                                onOpenEditModal={openEditModal}
+                                onDeletePublication={handleDeletePublication}
+                                onRemoveShift={() => handleRemoveShiftType(dateStr, manualShifts[1].type)}
+                                canAddSecondShift={false}
+                            />
+                        </View>
+                    </HorizontalScrollView>
+                );
+            }
 
-                            );
-                        })
-                    }
-                </HorizontalScrollView >
+            if (manualShifts.length === 1 && receivedShifts.length === 1) {
+                return (
+                    <HorizontalScrollView
+                        ref={scrollRef}
+                        horizontal
+                        snapToInterval={DETAIL_WIDTH + 12}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingLeft: 0,
+                            marginLeft: 0,
+                            paddingRight: screenWidth - DETAIL_WIDTH,
+                            justifyContent: 'flex-start',
+                            gap: spacing.sm,
+                        }}
+                        pagingEnabled
+                    >
+                        <View style={{ width: DETAIL_WIDTH }}>
+                            <DayDetailMyShift
+                                dateStr={dateStr}
+                                dayLabel="Turno propio"
+                                shift={manualShifts[0]}
+                                entry={entry}
+                                isPublished={!!manualShifts[0].isPublished}
+                                onOpenEditModal={openEditModal}
+                                onDeletePublication={handleDeletePublication}
+                                onRemoveShift={() => handleRemoveShiftType(dateStr, manualShifts[0].type)}
+                                canAddSecondShift={false}
+                            />
+                        </View>
+                        <View style={{ width: DETAIL_WIDTH }}>
+                            <DayDetailReceived
+                                dateStr={dateStr}
+                                dayLabel="Turno recibido"
+                                entry={receivedShifts[0]}
+                                isPublished={!!receivedShifts[0].isPublished}
+                                onDeletePublication={handleDeletePublication}
+                                canAddSecondShift={false}
+                                entryFull={entry}
+                            />
+                        </View>
+                    </HorizontalScrollView>
+                );
+            }
+            if (receivedShifts.length === 2) {
+                return (
+                    <HorizontalScrollView
+                        ref={scrollRef}
+                        horizontal
+                        snapToInterval={DETAIL_WIDTH + 12}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingLeft: 0,
+                            marginLeft: 0,
+                            paddingRight: screenWidth - DETAIL_WIDTH,
+                            justifyContent: 'flex-start',
+                            gap: spacing.sm,
+                        }}
+                        pagingEnabled
+                    >
+                        <View style={{ width: DETAIL_WIDTH }}>
+                            <DayDetailReceived
+                                dateStr={dateStr}
+                                dayLabel="Turno recibido"
+                                entry={receivedShifts[0]}
+                                isPublished={!!receivedShifts[0].isPublished}
+                                onDeletePublication={handleDeletePublication}
+                                canAddSecondShift={false}
+                                entryFull={entry}
+                            />
+                        </View>
+                        <View style={{ width: DETAIL_WIDTH }}>
+                            <DayDetailReceived
+                                dateStr={dateStr}
+                                dayLabel="Turno recibido"
+                                entry={receivedShifts[1]}
+                                isPublished={!!receivedShifts[1].isPublished}
+                                onDeletePublication={handleDeletePublication}
+                                canAddSecondShift={false}
+                                entryFull={entry}
+                            />
+                        </View>
+                    </HorizontalScrollView>
+                );
+            }
 
-            );
+            console.warn(`❌ Combinación no soportada en ${dateStr}:`, shifts);
+            return <AppText>Combinación de turnos no soportada.</AppText>;
         }
+
     }
 
     const rawName = isWorker?.name || 'Trabajador';
@@ -652,7 +925,7 @@ export default function CalendarScreen() {
                                 } else {
                                     trackEvent(EVENTS.BULK_SHIFT_DAY_TAP_CLICKED);
                                     const entry = draftShiftMap[dateStr] || {};
-                                    if ((entry.shifts ?? []).some(s => s.source === 'received_swap') || entry.isPreference) return;
+                                    if ((entry.shifts ?? []).some(s => s.source === 'received_swap') || entry.isPreference || entry.shifts?.length == 2) return;
 
                                     const currentType = entry.shifts?.[0]?.type;
                                     const nextType = getNextShiftType(currentType);
@@ -681,7 +954,17 @@ export default function CalendarScreen() {
                                 <AppText variant="h2" /* Eliminado marginBottom para alinear verticalmente con el botón */>{selectedDayTitle}</AppText>
                                 <CommentButton dateStr={format(selectedDate, 'yyyy-MM-dd')} />
                             </View>
-                            <DayDetailRenderer date={selectedDate} />
+                            <View style={{ gap: spacing.sm }}>
+                                <DayDetailRenderer date={selectedDate} />
+                                {hasSwappedOut() && (
+                                    <DayDetailSwappedSimplified
+                                        dateStr={format(selectedDate, 'yyyy-MM-dd')}
+                                        swaps={acceptedSwaps}
+                                        navigate={navigation.navigate}
+                                    />
+                                )}
+                            </View>
+
                         </View>
                     )}
                     {isMassiveEditMode && !loadingCalendar && (
@@ -704,24 +987,106 @@ export default function CalendarScreen() {
                                     variant="primary"
                                     onPress={async () => {
                                         trackEvent(EVENTS.BULK_SHIFT_SAVE_BUTTON_CLICKED);
-                                        const updates = Object.entries(draftShiftMap).map(([dateStr, entry]) =>
-                                            entry.shift_type
-                                                ? setShiftForDay(accessToken, isWorker.worker_id, dateStr, entry.shift_type)
-                                                : removeShiftForDay(accessToken, isWorker.worker_id, dateStr)
-                                        );
-                                        await Promise.all(updates);
-                                        setCalendarMap(draftShiftMap);
-                                        setDraftShiftMap({});
-                                        setIsMassiveEditMode(false);
+
+                                        const updates = Object.entries(draftShiftMap).flatMap(([dateStr, newEntry]) => {
+                                            const newManual = newEntry.shifts?.find(s => s.source === 'manual');
+                                            const prevEntry = calendarMap[dateStr];
+                                            const prevManual = prevEntry?.shifts?.find(s => s.source === 'manual');
+
+                                            if (newManual && prevManual) {
+                                                if (newManual.type !== prevManual.type) {
+                                                    return [updateShiftForDay(accessToken, prevManual.id, newManual.type)];
+                                                } else {
+                                                    return []; // No cambios
+                                                }
+                                            }
+
+                                            if (newManual && !prevManual) {
+                                                return [setShiftForDay(accessToken, isWorker.worker_id, dateStr, newManual.type)];
+                                            }
+
+                                            if (!newManual && prevManual) {
+                                                return [removeShiftForDay(accessToken, isWorker.worker_id, dateStr, prevManual.type)];
+                                            }
+
+                                            return [];
+                                        });
+
+                                        try {
+                                            await Promise.all(updates);
+                                            setCalendarMap(draftShiftMap);
+                                            setDraftShiftMap({});
+                                            setIsMassiveEditMode(false);
+                                            showSuccess('Cambios guardados');
+                                        } catch (err) {
+                                            console.error('❌ Error al guardar edición masiva:', err);
+                                            showError('Error al guardar cambios');
+                                        }
                                     }}
                                     style={{ flex: 1 }}
                                 />
+
                             </View>
                         </View>
                     )}
 
                 </ScrollView>
             </AppLayout>
+            <EditShiftTypeModal
+                visible={modalVisible}
+                currentType={modalState?.currentType!}
+                availableTypes={modalState?.availableTypes ?? []}
+                selectedType={modalState?.selectedType!}
+                disableIfUnchanged={true}
+                onSelect={(type) =>
+                    setModalState((prev) => prev && { ...prev, selectedType: type })
+                }
+
+                onCancel={() => {
+                    setModalVisible(false);
+                    setModalState(null);
+                }}
+                onConfirm={() => {
+                    if (modalState) {
+                        handleConfirmModalChange(modalState.selectedType);
+                    }
+                }} />
+            {isAddModalVisible && addModalState && (
+                <EditShiftTypeModal
+                    visible={isAddModalVisible}
+                    currentType={addModalState.selectedType}
+                    disableIfUnchanged={false}
+                    selectedType={addModalState.selectedType}
+                    availableTypes={['morning', 'evening', 'night', 'reinforcement']}
+                    onSelect={(type) =>
+                        setAddModalState(prev => prev && { ...prev, selectedType: type })
+                    }
+                    onCancel={() => {
+                        setAddModalVisible(false);
+                        setAddModalState(null);
+                    }}
+                    onConfirm={handleConfirmAddShift}
+                    title="Selecciona tipo de turno" // NUEVO
+                />
+
+            )}
+            {isSecondShiftModalVisible && secondShiftModalState && (
+                <EditShiftTypeModal
+                    visible={true}
+                    currentType={secondShiftModalState.selectedType}
+                    selectedType={secondShiftModalState.selectedType}
+                    availableTypes={secondShiftModalState.availableTypes}
+                    onSelect={type => setSecondShiftModalState(prev => prev && { ...prev, selectedType: type })}
+                    onCancel={() => {
+                        setSecondShiftModalVisible(false);
+                        setSecondShiftModalState(null);
+                    }}
+                    onConfirm={handleConfirmSecondShift}
+                    title="Selecciona tipo para el segundo turno"
+                    disableIfUnchanged={false}
+                />
+            )}
+
         </FadeInView>
     );
 }

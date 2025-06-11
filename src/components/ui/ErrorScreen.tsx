@@ -1,20 +1,20 @@
 import { View, StyleSheet } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
-import { useAuth } from '@/contexts/AuthContext';
-import { spacing } from '@/styles';
-import { useNavigation } from '@react-navigation/native';
-
+import { spacing, colors } from '@/styles';
+import { navigationRef } from '@/app/navigation/navigationRef';
 
 export default function ErrorScreen({ retry }: { retry: () => void }) {
-  const navigation = useNavigation();
-
   const handleGoToLogin = () => {
     console.log('[ERROR SCREEN] Redirigiendo a Login');
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'AuthNavigator' as never }] // o 'Login' si tienes esa screen directamente
-    });
+    if (navigationRef.isReady()) {
+      navigationRef.reset({
+        index: 0,
+        routes: [{ name: 'AuthNavigator' }],
+      });
+    } else {
+      console.warn('[ERROR SCREEN] navigationRef no está listo');
+    }
   };
 
   return (
@@ -26,7 +26,8 @@ export default function ErrorScreen({ retry }: { retry: () => void }) {
           label="Reintentar"
           size='lg'
           variant="primary"
-          onPress={retry} />
+          onPress={retry}
+        />
         <Button
           label="Volver al login"
           size='lg'
@@ -37,18 +38,14 @@ export default function ErrorScreen({ retry }: { retry: () => void }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: spacing.lg,
+    backgroundColor: colors.white,
+    justifyContent: 'flex-start',
   },
   buttonGroup: {
     gap: spacing.sm,
-    width: '100%',
-    marginTop: spacing.sm,
   },
 });

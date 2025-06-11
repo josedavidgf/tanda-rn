@@ -7,7 +7,13 @@ import { getPendingOnboardingStep } from '@/utils/onboarding';
 import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 import AmplitudeService from '@/lib/amplitude';
-import { registerForPushNotificationsAsync } from '@/lib/registerForPushNotifications';
+import { trackEvent } from '@/app/hooks/useTrackPageView';
+import { OneSignal } from 'react-native-onesignal';
+import { handleDeeplinkNavigation } from '@/utils/handleDeeplinkNavigation';
+import { translateWorkerType } from '@/utils/useTranslateServices';
+import * as Sentry from '@sentry/react-native';
+import * as Device from 'expo-device';
+import * as Application from 'expo-application';
 
 
 interface AuthContextType {
@@ -64,6 +70,36 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }
 
   useEffect(() => {
+    const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
+    if (!appId) return;
+
+    OneSignal.initialize(appId);
+    OneSignal.Notifications.requestPermission(true);
+
+    OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
+      const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;
+      if (data && typeof data === 'object' && 'route' in data) {
+        trackEvent('push_received_foreground', {
+          route: (data as any).route,
+          ...(data as any).params,
+        });
+      }
+    });
+
+    OneSignal.Notifications.addEventListener('click', (event) => {
+      const data = event.notification?.additionalData as { route?: string; params?: Record<string, any> } | undefined;;
+      if (data?.route) {
+        trackEvent('push_clicked', {
+          route: data.route,
+          ...data.params,
+        });
+
+        handleDeeplinkNavigation(data);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     supabase.getSession().then(({ data }) => {
       if (data.session) {
         setSession(data.session);
@@ -83,11 +119,54 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             const worker = await getOrCreateWorker(token);
             setIsWorker(worker);
             AmplitudeService.identify(worker);
-
+            const fullName =
+              worker.name && worker.surname
+                ? `${worker.name} ${worker.surname}`
+                : worker.name || worker.surname || undefined;
+            const workerTypeName = translateWorkerType(worker.worker_types?.worker_type_name) || '';
             try {
-              await registerForPushNotificationsAsync(data.session.user.id, token);
+              Sentry.setUser({
+                id: worker.worker_id,
+                email: session.user.email,
+                username: fullName,
+              });
+
+              Sentry.setContext('worker', {
+                hospital: worker.workers_hospitals?.[0]?.hospitals?.name || '',
+                speciality: worker.workers_specialities?.[0]?.specialities?.speciality_category || '',
+                workerType: workerTypeName,
+              });
+              Sentry.setContext('device', {
+                manufacturer: Device.manufacturer,
+                model: Device.modelName,
+                os: `${Device.osName} ${Device.osVersion}`,
+                totalMemory: Device.totalMemory,
+                isDevice: Device.isDevice,
+                deviceName: Device.deviceName,
+              });
+
+              Sentry.setContext('app', {
+                appName: Application.applicationName,
+                version: Application.nativeApplicationVersion,
+                build: Application.nativeBuildVersion,
+              });
             } catch (err) {
-              console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+              console.warn('[AUTH RN] Error configurando Sentry:', err.message);
+            }
+            if (session) {
+              try {
+
+                await OneSignal.login(session?.user.id);
+                await OneSignal.User.addEmail(worker.email || '');
+
+                await OneSignal.User.addTags({
+                  ...(fullName && { fullName: fullName }),
+                  ...(workerTypeName && { role: workerTypeName }),
+                  ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
+                });
+              } catch (err) {
+                console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
+              }
             }
 
             const step = getPendingOnboardingStep(worker);
@@ -125,13 +204,54 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
           setIsWorker(worker);
           AmplitudeService.identify(worker); // ✅ añade esto
 
-          // 🔔 Registrar token push
+          const fullName =
+            worker.name && worker.surname
+              ? `${worker.name} ${worker.surname}`
+              : worker.name || worker.surname || undefined;
+          const workerTypeName = translateWorkerType(worker.worker_types?.worker_type_name) || '';
           try {
-            await registerForPushNotificationsAsync(session.user.id, token);
+            Sentry.setUser({
+              id: worker.worker_id,
+              email: session.user.email,
+              username: fullName,
+            });
+
+            Sentry.setContext('worker', {
+              hospital: worker.workers_hospitals?.[0]?.hospitals?.name || '',
+              speciality: worker.workers_specialities?.[0]?.specialities?.speciality_category || '',
+              workerType: workerTypeName,
+            });
+            Sentry.setContext('device', {
+              manufacturer: Device.manufacturer,
+              model: Device.modelName,
+              os: `${Device.osName} ${Device.osVersion}`,
+              totalMemory: Device.totalMemory,
+              isDevice: Device.isDevice,
+              deviceName: Device.deviceName,
+            });
+
+            Sentry.setContext('app', {
+              appName: Application.applicationName,
+              version: Application.nativeApplicationVersion,
+              build: Application.nativeBuildVersion,
+            });
           } catch (err) {
-            console.warn('[PUSH RN] No se pudo registrar token:', err.message);
+            console.warn('[AUTH RN] Error configurando Sentry:', err.message);
           }
-          
+
+          try {
+            await OneSignal.login(session?.user.id);
+            await OneSignal.User.addEmail(worker.email || '');
+
+            await OneSignal.User.addTags({
+              ...(fullName && { fullName: fullName }),
+              ...(workerTypeName && { role: workerTypeName }),
+              ...(worker.workers_hospitals?.[0]?.hospitals?.name && { hospital_name: worker.workers_hospitals?.[0]?.hospitals?.name }),
+            });
+          } catch (err) {
+            console.warn('[AUTH RN] Error iniciando sesión en OneSignal:', err.message);
+          }
+
           const step = getPendingOnboardingStep(worker);
           if (navigationRef.isReady()) {
             navigationRef.reset({

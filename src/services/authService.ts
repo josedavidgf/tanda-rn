@@ -1,62 +1,10 @@
 // src/services/authService.js
 import axios from 'axios';
 import { supabase } from '@/lib/supabase';
-import { GoogleSignin } from '@/lib/googleSignInClient'; // ✅ cambio aquí
 
 const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://192.168.1.94:4000';
-const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
-export function configureGoogleSignin() {
-  console.log('[Google Signin] Configurando...');
-  if (!GoogleSignin) return console.warn('[Google Signin] No disponible en este entorno');
 
-  if (!webClientId || !iosClientId) {
-    console.warn('[Google Signin] Faltan variables de entorno');
-    return;
-  }
-
-  GoogleSignin.configure({
-    webClientId,
-    iosClientId,
-    offlineAccess: true,
-    forceCodeForRefreshToken: true,
-  });
-}
-
-export async function loginWithGoogle() {
-  if (!GoogleSignin) throw new Error('[Google Login] GoogleSignin no disponible');
-
-  try {
-    console.log('[Google Login] Iniciando...');
-    await GoogleSignin.hasPlayServices?.();
-    const userInfo = await GoogleSignin.signIn();
-    const idToken = userInfo?.idToken;
-    if (!idToken) throw new Error('No se obtuvo ID Token de Google');
-
-    const { data, error } = await supabase.signInWithIdToken({
-      provider: 'google',
-      token: idToken,
-    });
-
-    if (error) throw error;
-
-    console.log('[Google Login] Supabase login OK');
-    return data;
-  } catch (err: any) {
-    console.error('[Google Login] Error:', err.message);
-    throw err;
-  }
-}
-
-export async function signOutGoogle() {
-  try {
-    if (GoogleSignin?.signOut) await GoogleSignin.signOut();
-    await supabase.signOut();
-  } catch (error) {
-    console.error('[Google SignOut] Error:', error);
-  }
-}
 
 // Utilidad interna para capturar errores
 const handleError = (error, defaultMessage) => {

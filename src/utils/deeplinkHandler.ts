@@ -1,32 +1,40 @@
 // utils/deeplinkHandler.ts
+import * as Linking from 'expo-linking';
 import { handleDeeplinkNavigation } from './handleDeeplinkNavigation';
-import { supabase } from '@/lib/supabase';
-import { navigationRef } from '@/app/navigation/navigationRef';
 
-export async function handleDeeplink(event: { url: string }) {
-  const url = new URL(event.url);
-  const { hash, pathname } = url;
+export function handleDeeplink({ url }: { url: string }) {
+  console.log('[🔗 handleDeeplink] URL recibida:', url);
 
-  // 1. Gestión especial de recovery/signup
-  if (hash.includes('access_token')) {
-    const fragmentParams = new URLSearchParams(hash.slice(1));
-    const access_token = fragmentParams.get('access_token');
-    const refresh_token = fragmentParams.get('refresh_token');
-    const type = fragmentParams.get('type');
+  const parsed = Linking.parse(url);
+  const { path, queryParams } = parsed;
 
-    if (access_token && refresh_token) {
-      console.log('[DEEPLINK] Restaurando sesión desde hash');
-      await supabase.setSession({ access_token, refresh_token });
+  if (!path) return;
 
-      if (type === 'recovery') {
-        navigationRef.navigate('ProfileResetPassword');
-      } else if (type === 'signup') {
-        navigationRef.navigate('OnboardingCode');
-      }
-      return;
-    }
+  // Casos especiales con query
+  if (path === 'profile-reset-password' && queryParams.token) {
+    return handleDeeplinkNavigation({
+      route: 'ProfileResetPassword',
+      params: { token: queryParams.token },
+    });
   }
 
-  // 2. Rutas normales: SwapDetails, ProposeSwap, etc
-  await handleDeeplinkNavigation(url);
+  if (path === 'onboarding-code' && queryParams.code) {
+    return handleDeeplinkNavigation({
+      route: 'OnboardingCode',
+      params: { code: queryParams.code },
+    });
+  }
+
+  // Casos estándar con parámetro en path
+  const segments = path.split('/');
+  const route = segments[0];
+  const param = segments[1];
+
+  if (route === 'SwapDetails') {
+    return handleDeeplinkNavigation({ route, params: { swapId: param } });
+  }
+
+  if (route === 'ProposeSwap') {
+    return handleDeeplinkNavigation({ route, params: { shiftId: param } });
+  }
 }
