@@ -34,7 +34,7 @@ export default function ProfileReferral() {
     }, [isWorker]);
 
 
-    const shareMessage = `Hola 👋 Quiero invitarte a usar Tanda para gestionar tus turnos. Puedes descargarla desde https://apptanda.com/download y usar este código de acceso para tu hospital: *${referralCode}*, como *${workerTypeName}*.
+    const shareMessage = `Hola 👋 Quiero invitarte a usar Tanda para gestionar tus turnos. Puedes descargarla desde https://onelink.to/rgy56c y usar este código de acceso para tu hospital: *${referralCode}*, como *${workerTypeName}*.
 
 ¡Te va a encantar!`;
 
