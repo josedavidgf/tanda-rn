@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, Linking } from 'react-native';
+import { View, StyleSheet, Linking } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOnboardingContext } from '@/contexts/OnboardingContext';
@@ -55,7 +55,7 @@ export default function OnboardingConfirmScreen() {
 
   const handleConfirm = async () => {
     if (!hospitalId || !workerTypeId) {
-      Alert.alert('Faltan datos para crear el perfil.');
+      showError('Faltan datos para crear el perfil.');
       return;
     }
 

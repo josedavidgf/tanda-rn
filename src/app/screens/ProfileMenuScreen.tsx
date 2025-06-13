@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, StyleSheet, Pressable, Linking, Alert } from 'react-native';
+import { ScrollView, View, StyleSheet, Pressable, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppText from '@/components/ui/AppText';
@@ -19,10 +19,12 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { trackEvent } from '../hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { useToast } from '../hooks/useToast';
 
 export default function ProfileMenuScreen() {
     const navigation = useNavigation();
     const { logout } = useAuth();
+    const { showError } = useToast();
 
     const handleLogout = async () => {
         try {
@@ -30,7 +32,7 @@ export default function ProfileMenuScreen() {
             await logout();
         }
         catch (error) {
-            console.error('Error tracking logout event:', error);
+            showError('Error tracking logout event: ' + error);
         }
     };
 
@@ -88,7 +90,7 @@ export default function ProfileMenuScreen() {
                 trackEvent(EVENTS.LEGAL_PRIVACY_CLICKED);
             }
             Linking.openURL(item.url).catch(() =>
-                Alert.alert('Error', 'No se pudo abrir el enlace.')
+                showError('Error. No se pudo abrir el enlace.')
             );
         } else {
             navigation.navigate(item.route);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserApi } from '@/api/useUserApi';
@@ -37,7 +37,7 @@ export default function OnboardingNameScreen() {
 
   const handleSubmit = async () => {
     if (!name.trim() || !surname.trim()) {
-      Alert.alert('Rellena todos los campos');
+      showError('Rellena todos los campos');
       return;
     }
 

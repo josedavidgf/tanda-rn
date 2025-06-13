@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { ScrollView, View, StyleSheet, Alert, Dimensions } from 'react-native';
+import { ScrollView, View, StyleSheet, Dimensions } from 'react-native';
 import { getMonthlySchedules } from '../../services/calendarService';
 import { useAuth } from '../../contexts/AuthContext';
 import MonthlyGridCalendar from '../../components/calendar/MonthlyGridCalendar';

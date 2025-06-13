@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Alert, Pressable, View, StyleSheet } from 'react-native';
+import { ScrollView, Pressable, View, StyleSheet } from 'react-native';
 import AppLayout from '@/components/layout/AppLayout';
 import AppLoader from '@/components/ui/AppLoader';
 import ChatCardContent from '@/components/ui/cards/ChatCardContent';
@@ -15,6 +15,7 @@ import { useUnreadMessages } from '@/app/hooks/useUnreadMessages';
 import EmptyState from '@/components/ui/EmptyState';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { useToast } from '@/app/hooks/useToast';
 
 
 export default function ChatListScreen() {
@@ -28,6 +29,7 @@ export default function ChatListScreen() {
     const { getMyWorkerProfile } = useWorkerApi();
     const { unreadSwapIds } = useUnreadMessages();
     const { accessToken } = useAuth();
+    const { showError } = useToast();
 
 
     useEffect(() => {
@@ -74,7 +76,7 @@ export default function ChatListScreen() {
                 setSwaps(active);
                 setFilteredSwaps(active);
             } catch (e) {
-                Alert.alert('Error', 'No se pudieron cargar tus chats activos.');
+                showError('No se pudieron cargar tus chats activos.');
             } finally {
                 setLoading(false);
             }

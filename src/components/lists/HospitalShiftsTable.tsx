@@ -5,6 +5,7 @@ import ShiftCardContent from '@/components/ui/cards/ShiftCardContent';
 import AppText from '@/components/ui/AppText';
 import { spacing } from '@/styles';
 import { useNavigation } from '@react-navigation/native';
+import { useToast } from '@/app/hooks/useToast';
 
 interface Props {
   shifts: any[];
@@ -15,6 +16,7 @@ interface Props {
 
 export default function HospitalShiftsTable({ shifts, workerId, sentSwapShiftIds, onSelect }: Props) {
   const navigation = useNavigation();
+  const { showSuccess, showError, showInfo } = useToast();
   if (!shifts.length) return null;
 
   return (
@@ -34,14 +36,11 @@ export default function HospitalShiftsTable({ shifts, workerId, sentSwapShiftIds
                 onPress={() => {
 
                   if (isDisabled) {
-
-                    Alert.alert(
-                      'No disponible',
+                    showInfo(
                       alreadyProposed
-                        ? 'Ya has propuesto un intercambio para este turno.'
-                        : 'Este turno no está disponible.'
+                        ? 'Turno no disponible: Ya has propuesto un intercambio para este turno.'
+                        : 'Turno no disponible: Este turno no está disponible.'
                     );
-
                   } if (isMine) {
                     navigation.navigate('EditShift', { shiftId: item.shift_id });
                   }

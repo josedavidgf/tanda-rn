@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
@@ -36,7 +36,7 @@ export default function LoginScreen() {
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   });
-  const { showInfo } = useToast();
+  const { showInfo, showError, showSuccess } = useToast();
 
   const email = watch('email');
   const password = watch('password');
@@ -51,7 +51,7 @@ export default function LoginScreen() {
     if (error || !data?.session) {
       trackEvent(EVENTS.LOGIN_FAILED);
       setError('email', { message: 'Credenciales incorrectas' });
-      Alert.alert('Error', 'El correo o la contraseña no son correctos');
+      showError('El correo o la contraseña no son correctos');
       return;
     }
 

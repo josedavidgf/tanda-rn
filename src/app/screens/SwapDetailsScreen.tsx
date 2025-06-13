@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, StyleSheet, Alert } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AppLoader from '@/components/ui/AppLoader';
 import AppText from '@/components/ui/AppText';
@@ -15,12 +15,14 @@ import InputFieldArea from '@/components/forms/InputFieldArea';
 import FadeInView from '@/components/animations/FadeInView';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
+import { useToast } from '@/app/hooks/useToast';
 
 export default function SwapDetails() {
   const route = useRoute();
   const navigation = useNavigation();
   const { accessToken, isWorker } = useAuth();
   const { getSwapById, respondToSwap, cancelSwap } = useSwapApi();
+  const { showSuccess, showError } = useToast();
 
   const [swap, setSwap] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -46,10 +48,10 @@ export default function SwapDetails() {
     decision === 'accepted' ? setIsAccepting(true) : setIsRejecting(true);
     try {
       await respondToSwap(swap.swap_id, decision, accessToken);
-      Alert.alert('Éxito', `Intercambio ${decision === 'accepted' ? 'aceptado' : 'rechazado'} correctamente`);
+      showSuccess(`Intercambio ${decision === 'accepted' ? 'aceptado' : 'rechazado'} correctamente`);
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      showError(err.message);
     } finally {
       setIsAccepting(false);
       setIsRejecting(false);
@@ -60,10 +62,10 @@ export default function SwapDetails() {
     setIsCancelling(true);
     try {
       await cancelSwap(swap.swap_id, accessToken);
-      Alert.alert('Intercambio anulado');
+      showSuccess('Intercambio anulado');
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      showError(err.message);
     } finally {
       setIsCancelling(false);
     }

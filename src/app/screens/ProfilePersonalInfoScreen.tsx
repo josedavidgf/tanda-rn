@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import InputField from '@/components/forms/InputField';
 import PhoneInputGroup from '@/components/forms/PhoneInputGroup';
@@ -51,11 +51,11 @@ export default function ProfilePersonalInfo() {
         const phoneValid = /^[0-9]{9}$/.test(cleanPhone);
         setErrors({ mobile_phone: !phoneValid });
         if (!phoneValid) {
-            Alert.alert('Teléfono inválido', 'El número de teléfono debe tener 9 dígitos');
+            showError('Teléfono inválido. El número de teléfono debe tener 9 dígitos');
             return false;
         }
         if (form.name.length < 2) {
-            Alert.alert('Nombre inválido', 'El nombre debe tener al menos 2 caracteres');
+            showError('Nombre inválido. El nombre debe tener al menos 2 caracteres');
             return false;
         }
         return phoneValid;

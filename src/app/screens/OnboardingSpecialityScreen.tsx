@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSpecialityApi } from '@/api/useSpecialityApi';
@@ -60,7 +60,7 @@ export default function OnboardingSpecialityScreen() {
   const handleConfirm = async () => {
     try {
       if (!selectedSpeciality) {
-        Alert.alert('Selecciona una especialidad antes de continuar');
+        showError('Selecciona una especialidad antes de continuar');
         return;
       }
       setSaving(true);

@@ -10,6 +10,7 @@ type SimpleLayoutProps = {
     icon?: React.ReactNode;
     onPress: () => void;
   };
+  onBack?: () => void;
   children: React.ReactNode;
 };
 
@@ -32,7 +33,6 @@ export default function SimpleLayout({
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' }, // fondo para evitar flicker

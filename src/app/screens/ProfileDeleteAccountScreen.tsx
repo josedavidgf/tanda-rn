@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';

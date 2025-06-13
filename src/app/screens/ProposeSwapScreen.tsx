@@ -3,7 +3,6 @@ import {
     ScrollView,
     View,
     StyleSheet,
-    Alert,
     TextInput,
     Pressable,
 } from 'react-native';
@@ -27,10 +26,10 @@ import { useSwapPreferencesApi } from '@/api/useSwapPreferencesApi';
 import ShiftSelector from '@/components/ui/ShiftSelector';
 import InputField from '@/components/forms/InputField';
 import InputFieldArea from '@/components/forms/InputFieldArea';
-import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { track } from '@amplitude/analytics-react-native';
-import { format } from 'date-fns';
+import { useToast } from '@/app/hooks/useToast';
+
 
 
 export default function ProposeSwap() {
@@ -50,54 +49,72 @@ export default function ProposeSwap() {
     const [loading, setLoading] = useState(true);
     const [feedbackVisible, setFeedbackVisible] = useState(false);
     const [submittedSwap, setSubmittedSwap] = useState<any>(null);
+    const { showError, showSuccess, showInfo } = useToast();
 
     const { shiftId } = route.params as { shiftId: string };
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const target = await getShiftById(shiftId, accessToken);
-            const available = await getMyAvailableShifts(isWorker.worker_id || isWorker.worker.worker_id, accessToken);
-            const receiverId = target.worker_id || target.worker?.worker_id;
 
-            const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
-            const preferences = await getMySwapPreferences(receiverId, accessToken);
-
-            // Agrupamos turnos del receptor por día
-            const receiverScheduleMap = new Map<string, string[]>(); // date => [shift_type]
-
-            for (const shift of receiverSchedules) {
-                if (!receiverScheduleMap.has(shift.date)) {
-                    receiverScheduleMap.set(shift.date, []);
-                }
-                receiverScheduleMap.get(shift.date)!.push(shift.shift_type);
+            if (!accessToken || !isWorker?.worker_id) {
+                showError('Error al cargar los datos: falta información de autenticación.');
+                setLoading(false);
+                return;
             }
 
-            const enriched = available
-                .filter((s) => {
-                    const types = receiverScheduleMap.get(s.date) || [];
-                    if (types.length >= 2) return false;
-                    if (types.includes(s.type)) return false;
-                    return true;
-                })
-                .map((s) => ({
-                    ...s,
-                    preferred: preferences.some(p => p.date === s.date && p.preference_type === s.type)
-                }))
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            try {
+                const target = await getShiftById(shiftId, accessToken);
+                const available = await getMyAvailableShifts(isWorker.worker_id, accessToken);
+                const receiverId = target.worker_id || target.worker?.worker_id;
 
-            setTargetShift(target);
-            setAvailableShifts(enriched);
-            setLoading(false);
+                if (!receiverId) {
+                    showError('Error al cargar los datos: falta información del receptor.');
+                    setLoading(false);
+                    return;
+                }
+
+                const receiverSchedules = await getShiftsForMonth(accessToken, receiverId);
+                const preferences = await getMySwapPreferences(receiverId, accessToken);
+
+                const receiverScheduleMap = new Map<string, string[]>();
+
+                for (const shift of receiverSchedules || []) {
+                    if (!receiverScheduleMap.has(shift.date)) {
+                        receiverScheduleMap.set(shift.date, []);
+                    }
+                    receiverScheduleMap.get(shift.date)!.push(shift.shift_type);
+                }
+
+                const enriched = (available || [])
+                    .filter((s) => {
+                        const types = receiverScheduleMap.get(s.date) || [];
+                        if (types.length >= 2) return false;
+                        if (types.includes(s.type)) return false;
+                        return true;
+                    })
+                    .map((s) => ({
+                        ...s,
+                        preferred: (preferences || []).some(p => p.date === s.date && p.preference_type === s.type)
+                    }))
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+                setTargetShift(target);
+                setAvailableShifts(enriched);
+            } catch (err: any) {
+                console.error('Error al cargar los datos:', err);
+                showError('Error al cargar los datos.');
+            } finally {
+                setLoading(false);
+            }
         };
 
-
         fetchData();
-    }, []);
+    }, [accessToken, isWorker, shiftId]);
 
     const handleSubmit = async () => {
         if (targetShift.requires_return && !selectedShift) {
-            Alert.alert('Selecciona un turno para ofrecer');
+            showError('Selecciona un turno para ofrecer');
             return;
         }
 
@@ -128,9 +145,10 @@ export default function ProposeSwap() {
             };
             setSubmittedSwap(enrichedSwap);
             setFeedbackVisible(true);
+            showSuccess('Propuesta enviada correctamente');
         } catch (err: any) {
             console.error('Error al enviar propuesta:', err);
-            Alert.alert('Error', err.message);
+            showError(err.message);
         }
     };
 

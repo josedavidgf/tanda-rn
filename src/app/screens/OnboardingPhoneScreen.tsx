@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserApi } from '@/api/useUserApi';
@@ -35,7 +35,7 @@ export default function OnboardingPhoneScreen() {
   const isValidPrefix = phonePrefixes.some(p => p.code === prefix);
 
   if (!phoneValid) {
-    Alert.alert('Número inválido', 'Introduce un teléfono con 9 dígitos y un prefijo válido.');
+    showError('Número inválido. Introduce un teléfono con 9 dígitos y un prefijo válido.');
     return;
   }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
@@ -26,11 +26,11 @@ export default function ProfileResetPasswordScreen() {
 
     const validate = () => {
         if (form.password.length < 6) {
-            Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres.');
+            showError('La contraseña debe tener al menos 6 caracteres.');
             return false;
         }
         if (form.password !== form.confirm) {
-            Alert.alert('Error', 'Las contraseñas no coinciden.');
+            showError('Las contraseñas no coinciden.');
             return false;
         }
         return true;

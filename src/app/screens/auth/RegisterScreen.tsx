@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import AppText from '@/components/ui/AppText';
 import InputField from '@/components/forms/InputField';
 import Button from '@/components/ui/Button';
@@ -19,7 +19,7 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { showInfo } = useToast();
+  const { showError,showSuccess, showInfo } = useToast();
 
   const isEmailValid = /\S+@\S+\.\S+/.test(email);
 
@@ -48,7 +48,7 @@ export default function RegisterScreen() {
 
       if (error) {
         trackEvent(EVENTS.REGISTER_FAILED);
-        Alert.alert('Error', error.message);
+        showError(error.message);
         return;
       }
 
@@ -65,14 +65,12 @@ export default function RegisterScreen() {
         navigation.navigate('OnboardingCode');
       } else {
         setTimeout(() => navigation.navigate('Login'), 1000);
-        Alert.alert(
-          'Revisa tu correo',
-          'Hemos enviado un enlace de confirmación para activar tu cuenta.'
+        showInfo('Revisa tu correo. Hemos enviado un enlace de confirmación para activar tu cuenta.'
         );
       }
     } catch (err) {
       trackEvent(EVENTS.REGISTER_FAILED);
-      Alert.alert('Error inesperado', err.message);
+      showError(err.message);
     } finally {
       setLoading(false);
     }
