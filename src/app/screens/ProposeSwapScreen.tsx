@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
     ScrollView,
-    View,
     StyleSheet,
-    TextInput,
-    Pressable,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import AppLoader from '@/components/ui/AppLoader';
 import SimpleLayout from '@/components/layout/SimpleLayout';
 import SwapFeedbackModal from '@/components/modals/SwapFeedbackModal';
-import ShiftCardContent from '@/components/ui/cards/ShiftCardContent';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useShiftApi } from '@/api/useShiftApi';

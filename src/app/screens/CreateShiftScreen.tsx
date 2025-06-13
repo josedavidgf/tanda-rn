@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, StyleSheet,Switch} from 'react-native';
+import { View, StyleSheet, Switch, TouchableWithoutFeedback, Keyboard, Platform, KeyboardAvoidingView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import InputField from '@/components/forms/InputField';
 import InputFieldArea from '@/components/forms/InputFieldArea';
@@ -16,6 +16,7 @@ import SimpleLayout from '@/components/layout/SimpleLayout';
 import AppLoader from '@/components/ui/AppLoader';
 import FadeInView from '@/components/animations/FadeInView';
 import AppText from '@/components/ui/AppText';
+import ToggleSwitch from '@/components/ui/ToogleSwitch';
 
 export default function CreateShiftScreen() {
     const navigation = useNavigation();
@@ -58,11 +59,11 @@ export default function CreateShiftScreen() {
             const success = await createShift(formToSend, accessToken);
 
             trackEvent(EVENTS.PUBLISH_SHIFT_BUTTON_CLICKED, {
-              date: formToSend.date,
-              shiftType: formToSend.shift_type,
-              specialityId: formToSend.speciality_id,
-              hasComments: !!formToSend.shift_comments,
-              commentsLength: formToSend.shift_comments.length,
+                date: formToSend.date,
+                shiftType: formToSend.shift_type,
+                specialityId: formToSend.speciality_id,
+                hasComments: !!formToSend.shift_comments,
+                commentsLength: formToSend.shift_comments.length,
             });
 
             if (success) {
@@ -96,45 +97,46 @@ export default function CreateShiftScreen() {
     return (
         <FadeInView>
             <SimpleLayout title="Publicar turno" showBackButton onBack={() => navigation.goBack()}>
-                <View style={styles.page}>
-                    <View style={styles.container}>
-                        <InputField
-                            label="Turno"
-                            value={shiftLabel}
-                            editable={false}
-                            disabled
-                        />
-                        <InputField
-                            label="Servicio"
-                            value={specialityLabel}
-                            editable={false}
-                            disabled
-                        />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <AppText style={{ fontSize: 16 }}>¿Requiere devolución?</AppText>
-                            <Switch
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
+                    <View style={styles.page}>
+                        <View style={styles.container}>
+                            <InputField
+                                label="Turno"
+                                value={shiftLabel}
+                                editable={false}
+                                disabled
+                            />
+                            <InputField
+                                label="Servicio"
+                                value={specialityLabel}
+                                editable={false}
+                                disabled
+                            />
+                            <ToggleSwitch
+                                label="¿Requiere devolución?"
                                 value={requiresReturn}
-                                onValueChange={(val) => setRequiresReturn(val)}
+                                onChange={val => setRequiresReturn(val)}
+                                disabled={creatingShift}
+                            />
+                            <InputFieldArea
+                                label="Comentarios"
+                                placeholder="Añade comentarios si lo deseas"
+                                value={comments}
+                                onChangeText={(text) => setComments(text)}
+                                multiline
+                            />
+                            <Button
+                                label="Publicar"
+                                size="lg"
+                                variant="primary"
+                                onPress={handleSubmit}
+                                loading={creatingShift}
+                                disabled={creatingShift}
                             />
                         </View>
-                        <InputFieldArea
-                            label="Comentarios"
-                            placeholder="Añade comentarios si lo deseas"
-                            value={comments}
-                            onChangeText={(text) => setComments(text)}
-                            multiline
-                        />
-
-                        <Button
-                            label="Publicar"
-                            size="lg"
-                            variant="primary"
-                            onPress={handleSubmit}
-                            loading={creatingShift}
-                            disabled={creatingShift}
-                        />
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </SimpleLayout>
         </FadeInView>
     );

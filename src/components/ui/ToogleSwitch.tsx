@@ -28,11 +28,8 @@ export default function ToggleSwitch({ label, value, onChange, disabled }: Props
 const styles = StyleSheet.create({
   container: {
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomColor: colors.gray[200],
-    borderBottomWidth: 1,
   },
 });
