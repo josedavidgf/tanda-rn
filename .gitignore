@@ -94,3 +94,4 @@ jest-*
 firebase-service-account.json
 
 .env.local
+credentials.json
