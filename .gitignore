@@ -21,6 +21,9 @@ web-build/
 build/
 *.buildlog
 
+
+credentials.json
+
 # -----------------------
 # Environment
 # -----------------------
