@@ -8,13 +8,13 @@ import AppLoader from '@/components/ui/AppLoader';
 import ErrorScreen from '@/components/ui/ErrorScreen';
 import AmplitudeService from '@/lib/amplitude';
 import { trackEvent } from '@/app/hooks/useTrackPageView';
-import { OneSignal } from 'react-native-onesignal';
+//import { OneSignal } from 'react-native-onesignal';
 import { handleDeeplinkNavigation } from '@/utils/handleDeeplinkNavigation';
 import { translateWorkerType } from '@/utils/useTranslateServices';
 import * as Sentry from '@sentry/react-native';
 import * as Device from 'expo-device';
 import * as Application from 'expo-application';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+//import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 
 interface AuthContextType {
@@ -294,7 +294,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     try {
       console.log('[AUTH RN] Llamando a supabase.signOut()');
       await supabase.signOut();
-      await GoogleSignin.signOut(); // Asegúrate de cerrar sesión en Google si se usó
+      //await GoogleSignin.signOut(); // Asegúrate de cerrar sesión en Google si se usó
     } catch (err) {
       console.warn('Error during logout:', err.message);
     } finally {

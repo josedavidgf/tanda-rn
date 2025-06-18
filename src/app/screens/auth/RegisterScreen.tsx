@@ -16,7 +16,7 @@ import { useToast } from '@/app/hooks/useToast';
 import { useAuth } from '@/contexts/AuthContext';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native'
-import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
+//import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 
 
 export default function RegisterScreen() {
@@ -34,12 +34,12 @@ export default function RegisterScreen() {
 
   const isDisabled = loading || !email || !password || !isEmailValid;
 
-  useEffect(() => {
+/*   useEffect(() => {
     GoogleSignin.configure({
       iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     });
-  }, []);
+  }, []); */
 
   const handleAppleLogin = async () => {
     try {
@@ -79,7 +79,7 @@ export default function RegisterScreen() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+/*   const handleGoogleLogin = async () => {
 
     try {
       setIsSubmittingGoogle(true);
@@ -130,7 +130,7 @@ export default function RegisterScreen() {
       showError('Error al iniciar sesión con Google');
       setIsSubmittingGoogle(false);
     }
-  };
+  }; */
 
   const handleRegister = async () => {
     trackEvent(EVENTS.REGISTER_ATTEMPTED_WITH_EMAIL);
@@ -215,7 +215,7 @@ export default function RegisterScreen() {
         />
         <DividerText text="O" />
         <View style={styles.buttonGroup}>
-          <Button
+          {/* <Button
             label="Registrarme con Google"
             variant="outline"
             size="lg"
@@ -226,7 +226,7 @@ export default function RegisterScreen() {
                 style={{ width: 20, height: 20 }}
               />
             }
-          />
+          /> */}
           {Platform.OS === 'ios' && (
             <Button
               label="Registrarme con Apple"

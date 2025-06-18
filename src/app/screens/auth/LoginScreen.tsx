@@ -18,7 +18,7 @@ import { trackEvent } from '@/app/hooks/useTrackPageView';
 import { useToast } from '@/app/hooks/useToast';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native'
-import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
+//import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes, GoogleSigninButton, GoogleSigninButtonProps } from '@react-native-google-signin/google-signin';
 
 const schema = z.object({
   email: z.string().email({ message: 'Introduce un correo válido' }),
@@ -90,7 +90,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+/*   const handleGoogleLogin = async () => {
 
     try {
       setIsSubmittingGoogle(true);
@@ -141,7 +141,7 @@ export default function LoginScreen() {
       showError('Error al iniciar sesión con Google');
       setIsSubmittingGoogle(false);
     }
-  };
+  }; */
 
   const onSubmit = async ({ email, password }: { email: string; password: string }) => {
     trackEvent(EVENTS.LOGIN_ATTEMPTED_WITH_EMAIL);
@@ -202,7 +202,7 @@ export default function LoginScreen() {
 
         <DividerText text="O" />
         <View style={styles.buttonGroup}>
-          <Button
+         {/*  <Button
             label="Iniciar sesión con Google"
             variant="outline"
             size="lg"
@@ -213,7 +213,7 @@ export default function LoginScreen() {
                 style={{ width: 20, height: 20 }}
               />
             }
-          />
+          /> */}
           {Platform.OS === 'ios' && (
             <Button
               label="Iniciar sesión con Apple"
