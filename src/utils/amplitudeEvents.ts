@@ -118,4 +118,7 @@ export const EVENTS = {
     HOSPITAL_SHIFTS_FILTER_TYPE_TOGGLED: 'Hospital shifts filter type toggled',
     COMMENT_BUTTON_CLICKED: 'Comment button clicked',
     SHARED_REFERRAL_CODE: 'Shared referral code',
+    ONBOARDING_MANUAL_SELECTION: 'Onboarding manual selection',
+    ONBOARDING_MANUAL_SELECTION_SUCCESS: 'Onboarding manual selection success',
+    ONBOARDING_MANUAL_SELECTION_FAILED: 'Onboarding manual selection failed',
 }
