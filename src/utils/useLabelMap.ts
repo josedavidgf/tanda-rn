@@ -26,6 +26,6 @@ export const swapStatusLabels: Record<string, string> = {
 export const workerTypeLabels: Record<string, string> = {
   nurse: 'Enfermería',
   doctor: 'Medicina',
-  auxiliary: 'Auxiliar',
-  orderly: 'Celador',
+  assistant: 'Auxiliar',
+  porter: 'Celador',
 };
