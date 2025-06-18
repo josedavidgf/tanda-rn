@@ -23,7 +23,7 @@ export default function OnboardingConfirmScreen() {
   const route = useRoute();
   const navigation = useNavigation();
 
-  const { accessCode, setOnboardingData } = useOnboardingContext();
+  const { accessCode, verificated, setOnboardingData } = useOnboardingContext();
   const { isWorker, accessToken, setIsWorker } = useAuth();
   const { createWorker, createWorkerHospital, getMyWorkerProfile } = useWorkerApi();
   const { showError, showSuccess } = useToast();
@@ -37,6 +37,7 @@ export default function OnboardingConfirmScreen() {
     workerTypeId: string;
     hospitalName: string;
     workerTypeName: string;
+    verificated?: boolean;
   };
 
   useOnboardingGuard('confirm');
@@ -48,6 +49,7 @@ export default function OnboardingConfirmScreen() {
       workerTypeId,
       hospitalName,
       workerTypeName,
+      verificated,
     });
   }, [hospitalId, workerTypeId, hospitalName, workerTypeName]);
 
@@ -68,7 +70,7 @@ export default function OnboardingConfirmScreen() {
 
     try {
       setLoading(true);
-      const response = await createWorker({ workerTypeId }, accessToken);
+      const response = await createWorker({ workerTypeId, verificated }, accessToken);
       if (!response?.success) throw new Error(response?.message);
 
       await createWorkerHospital(response.worker.worker_id, hospitalId, accessToken);

@@ -11,6 +11,7 @@ type OnboardingContextType = {
   surname?: string;
   mobilePhone?: string;
   prefix?: string;
+  verificated?: boolean;
   setOnboardingData: (data: Partial<OnboardingContextType>) => void;
   resetOnboarding: () => void;
 };
