@@ -41,6 +41,8 @@ import CommentButton from '@/components/calendar/DayComment';
 import { ScrollView as HorizontalScrollView } from 'react-native-gesture-handler'; // al principio del fichero
 import { CalendarEntry, ShiftType, Swap } from '@/types/calendar';
 import EditShiftTypeModal from '@/components/modals/EditShiftTypeModal';
+import { ContentCardBanner } from '@/components/ui/ContentCardBanner';
+import { useContentCards } from '../hooks/useContentCards';
 
 export default function CalendarScreen() {
 
@@ -87,6 +89,9 @@ export default function CalendarScreen() {
         selectedType: ShiftType;
         availableTypes: ShiftType[];
     } | null>(null);
+
+    const { cards, dismissCard } = useContentCards();
+
 
 
 
@@ -651,7 +656,7 @@ export default function CalendarScreen() {
         const dateStr = format(date, 'yyyy-MM-dd');
         const entry = calendarMap[dateStr];
 
-        if (!entry) 
+        if (!entry)
             return (
                 <DayDetailEmpty
                     dateStr={dateStr}
@@ -870,7 +875,13 @@ export default function CalendarScreen() {
     return (
         <FadeInView>
             <AppLayout title={`Hola, ${workerName}`}>
+
                 <ScrollView>
+                    {cards.length > 0 && (
+                        <View style={{ marginHorizontal: spacing.md }}>
+                            <ContentCardBanner card={cards[0]} onDismiss={dismissCard} />
+                        </View>
+                    )}
                     <View style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
