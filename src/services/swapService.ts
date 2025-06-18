@@ -26,7 +26,7 @@ export const getAcceptedSwapsForDate = async (token: string, dateStr: string) =>
     });
     return response.data.data;
   } catch (error) {
-    console.error('[swapService] Error getAcceptedSwaps:', error);
+    console.error('[swapServiceForDate] Error getAcceptedSwaps:', error);
     throw new Error(handleError(error, 'Error al cargar swaps aceptados'));
   }
 };

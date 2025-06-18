@@ -13,14 +13,12 @@ import { trackEvent } from '../hooks/useTrackPageView';
 import { EVENTS } from '@/utils/amplitudeEvents';
 import { translateWorkerType } from '@/utils/useTranslateServices';
 
-
 export default function ProfileReferral() {
     const { isWorker } = useAuth();
     const { getAccessCode } = useAccessCodeApi();
     const [referralCode, setReferralCode] = useState<string | null>(null);
     const { showError } = useToast();
     const [workerTypeName, setWorkerTypeName] = useState('');
-
 
     useEffect(() => {
         const fetchCode = async () => {
@@ -38,7 +36,6 @@ export default function ProfileReferral() {
 
 ¡Te va a encantar!`;
 
-    console.log('shareMessage', shareMessage);
     const handleShare = async () => {
         const message = encodeURIComponent(shareMessage);
         const url = `whatsapp://send?text=${message}`;
