@@ -4,6 +4,7 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import { useNavigation } from '@react-navigation/native';
 import { colors, spacing } from '@/styles';
+import DividerText from '@/components/ui/DividerText';
 
 export default function AuthLandingScreen() {
   const navigation = useNavigation();
@@ -19,20 +20,18 @@ export default function AuthLandingScreen() {
         Intercambia turnos, consulta tu calendario y mantente siempre informado.
       </AppText>
 
-      <View style={styles.buttonGroup}>
-        <Button 
-            label="Iniciar sesión" 
-            size='lg'
-            variant='primary'
-            style={{ marginBottom: spacing.md }}
-            onPress={() => navigation.navigate('Login')} />
-        <Button 
-            label="Registrarme" 
-            size='lg'
-            style={{ marginBottom: spacing.md }}
-            onPress={() => navigation.navigate('Register')} 
-            variant="outline" />
-      </View>
+      <Button
+        label="Iniciar sesión"
+        size='lg'
+        variant='primary'
+        onPress={() => navigation.navigate('Login')} />
+      <DividerText text="O" />
+
+      <Button
+        label="Registrarme"
+        size='lg'
+        onPress={() => navigation.navigate('Register')}
+        variant="outline" />
     </View>
   );
 }
